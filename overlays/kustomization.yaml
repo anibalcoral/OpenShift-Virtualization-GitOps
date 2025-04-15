@@ -5,4 +5,3 @@ resources:
 - base-vm-import-source.yaml
 - dev/
 - prod/ 
-- hml
