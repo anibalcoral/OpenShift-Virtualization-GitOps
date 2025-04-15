@@ -10,7 +10,8 @@ spec:
     template:
       metadata:
         labels:
-          kubevirt.io/domain: base-vm    
+          kubevirt.io/domain: base-vm
+          app: nginx-server    
       spec:
         domain:
           cpu:
