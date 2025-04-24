@@ -1,3 +1,3 @@
 # OpenShift-Virtualization-GitOps
 
-Starting the project
+Starting the project.
