@@ -10,6 +10,6 @@ configurations:
   - config.yaml
 
 patches:
-  - path: dev-vm-patch.yaml 
+  - path: hml-vm-patch.yaml 
     target:
       kind: VirtualMachine
