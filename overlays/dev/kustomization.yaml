@@ -21,7 +21,7 @@ patches:
         value: dev-vm-web-service
       - op: add
         path: /spec/host
-        value: dev-workshop-vms.apps.example.com
+        value: dev-workshop-vms.apps.joe-quimby.chiarettolabs.com.br
     target:
       kind: Route
       name: vm-web-route

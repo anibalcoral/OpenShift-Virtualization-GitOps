@@ -21,7 +21,7 @@ patches:
         value: hml-vm-web-service
       - op: add
         path: /spec/host
-        value: hml-workshop-vms.apps.example.com
+        value: hml-workshop-vms.apps.joe-quimby.chiarettolabs.com.br
     target:
       kind: Route
       name: vm-web-route
