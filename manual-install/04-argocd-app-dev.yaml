@@ -10,7 +10,7 @@ spec:
   project: default
   source:
     path: overlays/dev
-    repoURL: git@github.com:lgchiaretto/workshop-gitops-ocpvirt.git
+    repoURL: git@github.com:anibalcoral/OpenShift-Virtualization-GitOps.git
     targetRevision: vms-dev
   syncPolicy:
     automated:

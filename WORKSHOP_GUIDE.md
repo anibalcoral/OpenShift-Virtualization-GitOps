@@ -78,7 +78,7 @@ For detailed workshop demonstrations, use the pre-created YAML files in the `man
    ```bash
    oc create secret generic workshop-gitops-repo \
      --from-file=sshPrivateKey=$HOME/.ssh/id_rsa \
-     --from-literal=url=git@github.com:lgchiaretto/workshop-gitops-ocpvirt.git \
+     --from-literal=url=git@github.com:anibalcoral/OpenShift-Virtualization-GitOps.git \
      --from-literal=type=git \
      -n openshift-gitops --dry-run=client -o yaml | oc apply -f -
    
@@ -476,7 +476,7 @@ oc get secret workshop-gitops-repo -n openshift-gitops
 oc get secret workshop-gitops-repo -n openshift-gitops -o yaml | grep labels -A5
 
 # Test Git connectivity from ArgoCD
-oc exec deployment/openshift-gitops-repo-server -n openshift-gitops -- git ls-remote git@github.com:lgchiaretto/workshop-gitops-ocpvirt.git
+oc exec deployment/openshift-gitops-repo-server -n openshift-gitops -- git ls-remote git@github.com:anibalcoral/OpenShift-Virtualization-GitOps.git
 ```
 
 #### Application Sync Issues
