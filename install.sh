@@ -28,7 +28,7 @@ echo "Creating repository secret for private Git access..."
 oc create secret generic workshop-gitops-repo \
   --from-file=sshPrivateKey=/home/$USER/.ssh/id_rsa \
   --from-literal=type=git \
-  --from-literal=url=git@github.com:lgchiaretto/workshop-gitops-ocpvirt.git \
+  --from-literal=url=git@github.com:anibalcoral/OpenShift-Virtualization-GitOps.git \
   -n openshift-gitops --dry-run=client -o yaml | oc apply -f -
 
 echo "Labeling repository secret for ArgoCD..."
