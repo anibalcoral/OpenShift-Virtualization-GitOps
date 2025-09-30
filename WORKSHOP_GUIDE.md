@@ -43,11 +43,14 @@ You have two options to install this workshop:
 
 **What the automated installation does:**
 1. Validates prerequisites (OpenShift login, ansible-playbook, oc CLI)
-2. Sets up SSH key for VM access
-3. Installs OpenShift GitOps Operator via Ansible
-4. Creates repository secret for private Git access
-5. Configures ArgoCD applications for all environments
-6. Creates necessary RBAC permissions
+2. Detects cluster domain automatically using OpenShift API
+3. Updates configuration files with detected domain
+4. Sets up SSH key for VM access
+5. Installs OpenShift GitOps Operator via Ansible
+6. Creates repository secret for private Git access
+7. Configures ArgoCD applications for all environments
+8. Creates necessary RBAC permissions
+9. Displays final configuration with correct URLs
 
 ### Option 2: Manual Installation (Recommended for Workshop Demonstrations)
 
@@ -64,7 +67,13 @@ For detailed workshop demonstrations, use the pre-created YAML files in the `man
    ./setup-ssh-key.sh
    ```
 
-2. **Install GitOps Operator:**
+2. **Validate and update cluster domain (optional):**
+   ```bash
+   ./validate-cluster-domain.sh
+   ```
+   This step is optional as the manual installation steps will use whatever domain is currently configured in the kustomization files.
+
+3. **Install GitOps Operator:**
    ```bash
    oc apply -f manual-install/01-gitops-operator-subscription.yaml
    ```
@@ -74,7 +83,7 @@ For detailed workshop demonstrations, use the pre-created YAML files in the `man
    oc wait --for=condition=Ready pod -l name=argocd-application-controller -n openshift-gitops --timeout=300s
    ```
 
-3. **Create Repository Secret:**
+4. **Create Repository Secret:**
    ```bash
    oc create secret generic workshop-gitops-repo \
      --from-file=sshPrivateKey=$HOME/.ssh/id_rsa \
@@ -85,17 +94,17 @@ For detailed workshop demonstrations, use the pre-created YAML files in the `man
    oc label secret workshop-gitops-repo -n openshift-gitops argocd.argoproj.io/secret-type=repository
    ```
 
-4. **Create RBAC Permissions:**
+5. **Create RBAC Permissions:**
    ```bash
    oc apply -f manual-install/02-cluster-role-binding.yaml
    ```
 
-5. **Create Namespaces:**
+6. **Create Namespaces:**
    ```bash
    oc apply -f manual-install/03-namespaces.yaml
    ```
 
-6. **Create ArgoCD Applications:**
+7. **Create ArgoCD Applications:**
    ```bash
    oc apply -f manual-install/04-argocd-app-dev.yaml
    oc apply -f manual-install/05-argocd-app-hml.yaml
@@ -103,6 +112,43 @@ For detailed workshop demonstrations, use the pre-created YAML files in the `man
    ```
 
 **Both installation methods produce the same final result.**
+
+## Automatic Cluster Domain Detection
+
+The installation scripts now automatically detect your OpenShift cluster's application domain and configure the routes accordingly. You no longer need to manually update domain references.
+
+### How It Works
+
+The scripts use the OpenShift API to query the cluster's ingress configuration:
+```bash
+oc get ingress.config.openshift.io/cluster -o jsonpath='{.spec.domain}'
+```
+
+This automatically detects domains like:
+- `apps.cluster-name.domain.com`
+- `apps.openshift.example.com` 
+- `apps.joe-quimby.chiarettolabs.com.br`
+
+### Domain Management Scripts
+
+1. **Automatic detection during installation** (recommended):
+   ```bash
+   ./install.sh
+   ```
+   The install script automatically detects your cluster domain and updates all configuration files.
+
+2. **Manual domain validation and update**:
+   ```bash
+   ./validate-cluster-domain.sh
+   ```
+   Interactive script to validate current domain settings and fix inconsistencies.
+
+### Final Route Configuration
+
+After installation, the following routes will be configured:
+- **Development**: `dev-workshop-vms.<detected-domain>`
+- **Homologation**: `hml-workshop-vms.<detected-domain>`
+- **Production**: `workshop-vms.<detected-domain>`
 
 ## Post-Installation: VM Access and Service Verification
 

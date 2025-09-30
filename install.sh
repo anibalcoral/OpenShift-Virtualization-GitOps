@@ -20,6 +20,22 @@ if ! oc whoami &> /dev/null; then
     exit 1
 fi
 
+echo "Detecting cluster domain..."
+CLUSTER_DOMAIN=$(oc get ingress.config.openshift.io/cluster -o jsonpath='{.spec.domain}' 2>/dev/null)
+
+if [ -z "$CLUSTER_DOMAIN" ]; then
+    echo "Error: Could not detect cluster domain."
+    exit 1
+fi
+
+echo "Detected cluster domain: $CLUSTER_DOMAIN"
+
+echo "Updating configuration files with cluster domain..."
+sed -i.bak "s/value: dev-workshop-vms\.apps\..*/value: dev-workshop-vms.$CLUSTER_DOMAIN/" overlays/dev/kustomization.yaml
+sed -i.bak "s/value: hml-workshop-vms\.apps\..*/value: hml-workshop-vms.$CLUSTER_DOMAIN/" overlays/hml/kustomization.yaml
+sed -i.bak "s/value: workshop-vms\.apps\..*/value: workshop-vms.$CLUSTER_DOMAIN/" overlays/prd/kustomization.yaml
+echo "Configuration files updated successfully!"
+
 echo "Installing OpenShift GitOps Operator and configuring workshop..."
 ./setup-ssh-key.sh
 ansible-playbook -i inventory/localhost playbooks/install-gitops.yaml
@@ -56,7 +72,15 @@ echo "- workshop-vms-dev (Development VMs)"
 echo "- workshop-vms-hml (Homologation VMs)"  
 echo "- workshop-vms-prd (Production VMs)"
 echo ""
+echo "Application URLs (after deployment):"
+echo "- Development: https://dev-workshop-vms.$CLUSTER_DOMAIN"
+echo "- Homologation: https://hml-workshop-vms.$CLUSTER_DOMAIN"
+echo "- Production: https://workshop-vms.$CLUSTER_DOMAIN"
+echo ""
 echo "Next steps:"
 echo "1. Access ArgoCD UI using the credentials above"
 echo "2. Check workshop status: ./demo-scripts/check-status.sh"
 echo "3. Run demo scripts in demo-scripts/ directory"
+
+echo "Cleaning up backup files..."
+rm -f overlays/*/kustomization.yaml.bak

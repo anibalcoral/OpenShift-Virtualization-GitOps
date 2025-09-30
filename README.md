@@ -32,13 +32,19 @@ This workshop uses a multi-branch strategy where each branch represents a differ
    ```bash
    ./install.sh
    ```
+   The installation script automatically detects your cluster's application domain and configures routes accordingly.
 
-3. **Check workshop status:**
+3. **Validate cluster domain configuration (optional):**
+   ```bash
+   ./validate-cluster-domain.sh
+   ```
+
+4. **Check workshop status:**
    ```bash
    ./demo-scripts/check-status.sh
    ```
 
-4. **Clean up the workshop environment:**
+5. **Clean up the workshop environment:**
    ```bash
    ./remove.sh
    ```
@@ -271,7 +277,40 @@ The patch performs two operations:
 1. **Replace service name**: Updates the service reference to match the environment prefix
 2. **Add custom host**: Sets the custom route URL for external access
 
-**Important**: Replace `apps.example.com` with your actual OpenShift cluster's application domain before deploying to avoid routing conflicts.
+## Automatic Cluster Domain Detection
+
+The installation process now automatically detects your OpenShift cluster's application domain, eliminating the need to manually configure domain references.
+
+### How It Works
+
+The `install.sh` script queries the cluster's ingress configuration:
+```bash
+oc get ingress.config.openshift.io/cluster -o jsonpath='{.spec.domain}'
+```
+
+This automatically detects and configures domains such as:
+- `apps.cluster-name.domain.com`
+- `apps.joe-quimby.chiarettolabs.com.br`
+- Any valid OpenShift cluster application domain
+
+### Domain Management Tools
+
+1. **Automatic configuration during installation:**
+   ```bash
+   ./install.sh  # Detects and configures domain automatically
+   ```
+
+2. **Manual domain validation:**
+   ```bash
+   ./validate-cluster-domain.sh  # Validate and update domain interactively
+   ```
+
+### Final Configuration
+
+After installation, routes are configured as:
+- **Development**: `dev-workshop-vms.<your-cluster-domain>`
+- **Homologation**: `hml-workshop-vms.<your-cluster-domain>`
+- **Production**: `workshop-vms.<your-cluster-domain>`
 
 ## Troubleshooting
 
