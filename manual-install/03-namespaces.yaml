@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: workshop-gitops-vms-dev
+  labels:
+    name: workshop-gitops-vms-dev
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: workshop-gitops-vms-hml
+  labels:
+    name: workshop-gitops-vms-hml
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: workshop-gitops-vms-prd
+  labels:
+    name: workshop-gitops-vms-prd
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: workshop-gitops-vms
+  labels:
+    name: workshop-gitops-vms

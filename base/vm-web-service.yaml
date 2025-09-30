@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: vm-web-service
+  labels:
+    app: web-server
+spec:
+  selector:
+    app: web-server
+  ports:
+  - port: 80
+    targetPort: 80
+    protocol: TCP
+  type: ClusterIP
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: vm-web-route
+  labels:
+    app: web-server
+  annotations:
+    haproxy.router.openshift.io/balance: "roundrobin"
+    haproxy.router.openshift.io/disable_cookies: "true"
+spec:
+  to:
+    kind: Service
+    name: vm-web-service
+  port:
+    targetPort: 80
+  tls:
+    termination: edge

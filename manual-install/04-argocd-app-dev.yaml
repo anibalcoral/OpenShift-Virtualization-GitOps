@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: workshop-vms-dev
+  namespace: openshift-gitops
+spec:
+  destination:
+    namespace: workshop-gitops-vms-dev
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    path: overlays/dev
+    repoURL: git@github.com:lgchiaretto/workshop-gitops-ocpvirt.git
+    targetRevision: vms-dev
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
