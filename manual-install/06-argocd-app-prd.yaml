@@ -11,7 +11,7 @@ spec:
   source:
     path: overlays/prd
     repoURL: git@github.com:anibalcoral/OpenShift-Virtualization-GitOps.git
-    targetRevision: master
+    targetRevision: main
   syncPolicy:
     automated:
       prune: true
