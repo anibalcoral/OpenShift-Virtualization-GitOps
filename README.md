@@ -9,7 +9,7 @@ This workshop demonstrates how to use OpenShift GitOps (ArgoCD) to manage Virtua
 - oc CLI tool configured and logged in to your cluster
 - ansible-playbook installed
 - Git repository access
-- SSH key pair generated (`ssh-keygen -t rsa -b 4096`)
+- SSH key pair generated (`ssh-keygen -t rsa -b 4096 -f ~/.ssh/ocpvirt-gitops-labs`)
 
 **Important**: Before running the workshop, you must configure your SSH key by running `./setup-ssh-key.sh`. This replaces the SSH key template with your public key for VM access.
 
@@ -27,7 +27,7 @@ Virtual Machine definitions and Kustomize configurations are stored in a separat
 
 1. **Generate SSH key pair (if not already done):**
    ```bash
-   ssh-keygen -t rsa -b 4096
+   ssh-keygen -t rsa -b 4096 -f ~/.ssh/ocpvirt-gitops-labs
    ```
 
 2. **Install OpenShift GitOps and configure the workshop:**
@@ -148,7 +148,7 @@ All VMs are configured with SSH access using your public key:
 
 - **Username**: `cloud-user`
 - **Password**: `redhat123` (for console access)
-- **SSH Access**: Uses your `~/.ssh/id_rsa.pub` key automatically
+- **SSH Access**: Uses your `~/.ssh/ocpvirt-gitops-labs.pub` key automatically
 
 To access a VM via SSH:
 ```bash
@@ -165,7 +165,7 @@ All VMs are configured with SSH access using your public key:
 
 - **Username**: `cloud-user`
 - **Password**: `redhat123` (for console access)
-- **SSH Access**: Uses your `~/.ssh/id_rsa.pub` key automatically
+- **SSH Access**: Uses your `~/.ssh/ocpvirt-gitops-labs.pub` key automatically
 
 To access a VM via SSH:
 ```bash
