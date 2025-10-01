@@ -31,10 +31,10 @@ echo "==============================="
 ERRORS=0
 
 log "1. Checking SSH key configuration alignment..."
-INSTALL_SSH_KEY=$(grep -o "ocpvirt-gitops-labs" install.sh | head -1)
-GUIDE_SSH_KEY=$(grep -o "ocpvirt-gitops-labs" WORKSHOP_GUIDE.md | head -1)
+INSTALL_SSH_KEY=$(grep -o "ocpvirt-gitops" install.sh setup-ssh-key.sh | head -1 | cut -d: -f2)
+GUIDE_SSH_KEY=$(grep -o "ocpvirt-gitops" WORKSHOP_GUIDE.md | head -1)
 
-if [ "$INSTALL_SSH_KEY" = "ocpvirt-gitops-labs" ] && [ "$GUIDE_SSH_KEY" = "ocpvirt-gitops-labs" ]; then
+if [ "$INSTALL_SSH_KEY" = "ocpvirt-gitops" ] && [ "$GUIDE_SSH_KEY" = "ocpvirt-gitops" ]; then
     log_success "SSH key configuration is aligned"
 else
     log_error "SSH key configuration mismatch"
@@ -42,7 +42,7 @@ else
 fi
 
 log "2. Checking repository URL alignment..."
-INSTALL_REPO=$(grep -o "git@github.com:anibalcoral/OpenShift-Virtualization-GitOps-Apps.git" install.sh | head -1)
+INSTALL_REPO=$(grep -o "git@github.com:anibalcoral/OpenShift-Virtualization-GitOps-Apps.git" playbooks/install-gitops.yaml | head -1)
 GUIDE_REPO=$(grep -o "git@github.com:anibalcoral/OpenShift-Virtualization-GitOps-Apps.git" WORKSHOP_GUIDE.md | head -1)
 
 if [ ! -z "$INSTALL_REPO" ] && [ ! -z "$GUIDE_REPO" ]; then
@@ -69,7 +69,7 @@ else
 fi
 
 log "5. Checking repository secret creation..."
-if grep -q "workshop-gitops-repo" install.sh && grep -q "workshop-gitops-repo" WORKSHOP_GUIDE.md; then
+if grep -q "workshop-gitops-repo" playbooks/install-gitops.yaml && grep -q "workshop-gitops-repo" WORKSHOP_GUIDE.md; then
     log_success "Repository secret creation is aligned"
 else
     log_error "Repository secret creation not aligned"

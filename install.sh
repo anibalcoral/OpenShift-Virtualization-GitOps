@@ -58,15 +58,8 @@ log "Validating and updating cluster domain in Apps repository..."
 log "Executing Ansible playbook to install GitOps Operator..."
 ansible-playbook -i inventory/localhost playbooks/install-gitops.yaml
 
-log "Creating repository secret for private Git access..."
-oc create secret generic workshop-gitops-repo \
-  --from-file=sshPrivateKey=/home/$USER/.ssh/ocpvirt-gitops \
-  --from-literal=type=git \
-  --from-literal=url=git@github.com:anibalcoral/OpenShift-Virtualization-GitOps-Apps.git \
-  -n openshift-gitops --dry-run=client -o yaml | oc apply -f - &>/dev/null
-
-log "Labeling repository secret for ArgoCD..."
-oc label secret workshop-gitops-repo -n openshift-gitops argocd.argoproj.io/secret-type=repository &>/dev/null
+log "Setting up SSH key for VM access..."
+./setup-ssh-key.sh
 
 log "Cleaning up temporary files..."
 
