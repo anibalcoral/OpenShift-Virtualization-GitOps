@@ -63,16 +63,47 @@ For detailed workshop demonstrations, use the pre-created YAML files in the `man
 
 **Manual Installation Steps:**
 
-1. **Setup SSH Keys for VMs:**
+1. **Detect and update cluster domain:**
+   ```bash
+   ./validate-cluster-domain.sh
+   ```
+   This step ensures your configuration files use the correct cluster domain. The script automatically detects your cluster's domain and updates all necessary files.
+
+2. **Setup SSH Keys for VMs:**
    ```bash
    ./setup-ssh-key.sh
    ```
 
-2. **Validate and update cluster domain (recommended):**
+3. **Install GitOps Operator and create complete configuration:**
+   ```bash
+   ansible-playbook -i inventory/localhost playbooks/install-gitops.yaml
+   ```
+   This playbook installs the OpenShift GitOps operator, creates RBAC permissions, namespaces, and ArgoCD applications for all environments.
+
+4. **Create Repository Secret for private Git access:**
+   ```bash
+   oc create secret generic workshop-gitops-repo \
+     --from-file=sshPrivateKey=$HOME/.ssh/id_rsa \
+     --from-literal=type=git \
+     --from-literal=url=git@github.com:anibalcoral/OpenShift-Virtualization-GitOps.git \
+     -n openshift-gitops --dry-run=client -o yaml | oc apply -f -
+   
+   oc label secret workshop-gitops-repo -n openshift-gitops argocd.argoproj.io/secret-type=repository
+   ```
+
+**Alternative: Step-by-step Manual Installation (for detailed workshop demonstrations)**
+
+If you prefer to show each step individually during a workshop demonstration:
+
+1. **Detect and update cluster domain:**
    ```bash
    ./validate-cluster-domain.sh
    ```
-   While this step is optional, it's recommended to ensure your configuration files use the correct cluster domain. The manual installation will work with whatever domain is currently configured.
+
+2. **Setup SSH Keys for VMs:**
+   ```bash
+   ./setup-ssh-key.sh
+   ```
 
 3. **Install GitOps Operator:**
    ```bash
@@ -84,7 +115,17 @@ For detailed workshop demonstrations, use the pre-created YAML files in the `man
    oc wait --for=condition=Ready pod -l name=argocd-application-controller -n openshift-gitops --timeout=300s
    ```
 
-4. **Create Repository Secret:**
+4. **Create RBAC Permissions:**
+   ```bash
+   oc apply -f manual-install/02-cluster-role-binding.yaml
+   ```
+
+5. **Create Namespaces:**
+   ```bash
+   oc apply -f manual-install/03-namespaces.yaml
+   ```
+
+6. **Create Repository Secret:**
    ```bash
    oc create secret generic workshop-gitops-repo \
      --from-file=sshPrivateKey=$HOME/.ssh/id_rsa \
@@ -95,16 +136,6 @@ For detailed workshop demonstrations, use the pre-created YAML files in the `man
    oc label secret workshop-gitops-repo -n openshift-gitops argocd.argoproj.io/secret-type=repository
    ```
 
-5. **Create RBAC Permissions:**
-   ```bash
-   oc apply -f manual-install/02-cluster-role-binding.yaml
-   ```
-
-6. **Create Namespaces:**
-   ```bash
-   oc apply -f manual-install/03-namespaces.yaml
-   ```
-
 7. **Create ArgoCD Applications:**
    ```bash
    oc apply -f manual-install/04-argocd-app-dev.yaml
@@ -112,7 +143,7 @@ For detailed workshop demonstrations, use the pre-created YAML files in the `man
    oc apply -f manual-install/06-argocd-app-prd.yaml
    ```
 
-**Both installation methods produce the same final result.**
+**All installation methods produce the same final result.**
 
 ## Automatic Cluster Domain Detection
 

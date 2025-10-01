@@ -4,8 +4,7 @@
   gather_facts: false
   vars:
     workshop_namespace: "workshop-gitops-vms"
-    git_repo_url: "https://github.com/{{ github_username }}/workshop-gitops-ocpvirt.git"
-    github_username: "{{ lookup('env', 'GITHUB_USERNAME') | default('your-github-username', true) }}"
+    git_repo_url: "git@github.com:anibalcoral/OpenShift-Virtualization-GitOps.git"
 
   tasks:
     - name: Check if user is logged into OpenShift

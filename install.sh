@@ -67,17 +67,10 @@ oc create secret generic workshop-gitops-repo \
   --from-file=sshPrivateKey=/home/$USER/.ssh/id_rsa \
   --from-literal=type=git \
   --from-literal=url=git@github.com:anibalcoral/OpenShift-Virtualization-GitOps.git \
-  -n openshift-gitops --dry-run=client -o yaml | oc apply -f -
+  -n openshift-gitops --dry-run=client -o yaml | oc apply -f - &>/dev/null
 
 log "Labeling repository secret for ArgoCD..."
-oc label secret workshop-gitops-repo -n openshift-gitops argocd.argoproj.io/secret-type=repository
-
-log "ArgoCD will use its default SSH configuration for GitHub..."
-
-log "Creating ArgoCD applications for GitOps..."
-oc apply -f manual-install/04-argocd-app-dev.yaml
-oc apply -f manual-install/05-argocd-app-hml.yaml
-oc apply -f manual-install/06-argocd-app-prd.yaml
+oc label secret workshop-gitops-repo -n openshift-gitops argocd.argoproj.io/secret-type=repository &>/dev/null
 
 log "Cleaning up temporary files..."
 
