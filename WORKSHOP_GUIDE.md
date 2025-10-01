@@ -45,12 +45,13 @@ You have two options to install this workshop:
 1. Validates prerequisites (OpenShift login, ansible-playbook, oc CLI)
 2. Detects cluster domain automatically using OpenShift API
 3. Updates configuration files with detected domain
-4. Sets up SSH key for VM access
-5. Installs OpenShift GitOps Operator via Ansible
-6. Creates repository secret for private Git access
-7. Configures ArgoCD applications for all environments
-8. Creates necessary RBAC permissions
-9. Displays final configuration with correct URLs
+4. Sets up SSH key for VM access by running `./setup-ssh-key.sh`
+5. Installs OpenShift GitOps Operator via Ansible playbook
+6. Creates repository secret for private Git access with SSH private key
+7. Labels repository secret for ArgoCD recognition
+8. Creates ArgoCD applications for all environments (dev, hml, prd)
+9. Displays final configuration with correct URLs and credentials
+10. Cleans up temporary backup files
 
 ### Option 2: Manual Installation (Recommended for Workshop Demonstrations)
 
