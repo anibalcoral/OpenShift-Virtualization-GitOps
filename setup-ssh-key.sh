@@ -37,7 +37,7 @@ fi
 SSH_PUBLIC_KEY=$(cat "$SSH_PUBLIC_KEY_FILE")
 
 log "Updating SSH secret with your public key..."
-cat > base/ssh-secret.yaml << EOF
+cat > ../OpenShift-Virtualization-GitOps-Apps/base/ssh-secret.yaml << EOF
 apiVersion: v1
 kind: Secret
 metadata:
