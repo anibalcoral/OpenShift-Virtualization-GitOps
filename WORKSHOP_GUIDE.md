@@ -76,9 +76,14 @@ For detailed workshop demonstrations, use the pre-created YAML files in the `man
    ```bash
    ansible-playbook -i inventory/localhost playbooks/install-gitops.yaml
    ```
-   This playbook installs the OpenShift GitOps operator, creates RBAC permissions, namespaces, and ArgoCD applications for all environments.
+   This playbook:
+   - Installs the OpenShift GitOps operator
+   - Creates RBAC permissions
+   - Creates workshop namespaces for all environments (dev, hml, prd)
+   - Creates ArgoCD applications for all environments
+   - Sets up SSH known hosts for GitHub access
 
-4. **Create Repository Secret for private Git access:**
+3. **Create Repository Secret for private Git access:**
    ```bash
    oc create secret generic workshop-gitops-repo \
      --from-file=sshPrivateKey=$HOME/.ssh/ocpvirt-gitops-labs \
