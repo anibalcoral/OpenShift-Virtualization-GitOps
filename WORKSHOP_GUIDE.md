@@ -50,14 +50,27 @@ You have two options to install this workshop:
 ### Option 1: Automated Installation (Recommended for Quick Setup)
 
 **Prerequisites:**
-- SSH key pair generated (`ssh-keygen -t rsa -b 4096 -f ~/.ssh/ocpvirt-gitops`)
+- OpenShift cluster admin access
+- SSH key configured for GitHub access
 
+**Step 1: Verify SSH Configuration**
+```bash
+./verify-ssh.sh
+```
+This script will:
+- Generate SSH keys if they don't exist
+- Display your public key to add to GitHub
+- Test SSH connectivity to GitHub
+
+**Step 2: Run Installation**
 ```bash
 ./install.sh
 ```
 
 **What the automated installation does:**
 1. Validates prerequisites (OpenShift login, ansible-playbook, oc CLI)
+2. Verifies SSH key exists and GitHub connectivity
+3. Detects cluster domain automatically using OpenShift API
 2. Detects cluster domain automatically using OpenShift API
 3. Validates and updates Apps repository domain configuration automatically
 4. Installs OpenShift GitOps Operator via Ansible playbook
@@ -72,8 +85,15 @@ You have two options to install this workshop:
 For detailed workshop demonstrations, use the pre-created YAML files in the `manual-install/` directory. This approach allows you to explain each step during the workshop.
 
 **Prerequisites:**
-- SSH key pair generated (`ssh-keygen -t rsa -b 4096`)
-- OpenShift cluster admin access**Manual Installation Steps:**
+- OpenShift cluster admin access
+
+**Manual Installation Steps:**
+
+0. **Verify SSH Configuration:**
+   ```bash
+   ./verify-ssh.sh
+   ```
+   Ensure SSH connectivity to GitHub is working before proceeding.
 
 1. **Detect and update cluster domain:**
    ```bash
@@ -95,7 +115,7 @@ For detailed workshop demonstrations, use the pre-created YAML files in the `man
 3. **Create Repository Secret for private Git access:**
    ```bash
    oc create secret generic workshop-gitops-repo \
-     --from-file=sshPrivateKey=$HOME/.ssh/ocpvirt-gitops-labs \
+     --from-file=sshPrivateKey=$HOME/.ssh/ocpvirt-gitops \
      --from-literal=type=git \
      --from-literal=url=git@github.com:anibalcoral/OpenShift-Virtualization-GitOps-Apps.git \
      -n openshift-gitops --dry-run=client -o yaml | oc apply -f -
@@ -360,9 +380,9 @@ oc apply -f manual-install/02-cluster-role-binding.yaml
 ```bash
 # Create secret with your SSH private key
 oc create secret generic workshop-gitops-repo \
-  --from-file=sshPrivateKey=$HOME/.ssh/ocpvirt-gitops-labs \
+  --from-file=sshPrivateKey=$HOME/.ssh/ocpvirt-gitops \
   --from-literal=type=git \
-  --from-literal=url=git@github.com:$GITHUB_USERNAME/workshop-gitops-ocpvirt.git \
+  --from-literal=url=git@github.com:anibalcoral/OpenShift-Virtualization-GitOps-Apps.git \
   -n openshift-gitops
 
 # Label the secret for ArgoCD to recognize it
