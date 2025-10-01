@@ -190,7 +190,7 @@ oc get routes -A
 
 ```bash
 # Check ArgoCD Applications
-oc get applications -n openshift-gitops
+oc get applications.argoproj.io -n openshift-gitops
 
 # Check VMs in each environment
 oc get vms -n workshop-gitops-vms-dev
@@ -205,6 +205,24 @@ oc get vmi -A
 ```
 
 ### Troubleshooting
+
+**ArgoCD Applications Not Visible:**
+
+If you can't see ArgoCD applications when running `oc get applications -A`, this is due to CRD ambiguity. OpenShift has two different Application CRDs:
+- `applications.app.k8s.io` (Kubernetes native)
+- `applications.argoproj.io` (ArgoCD)
+
+Always use the specific ArgoCD CRD:
+```bash
+# Correct command to see ArgoCD applications
+oc get applications.argoproj.io -n openshift-gitops
+
+# Alternative with shorthand
+oc get app.argoproj.io -n openshift-gitops
+
+# Check available CRDs
+oc api-resources | grep applications
+```
 
 **VM Not Starting:**
 ```bash
@@ -248,11 +266,11 @@ oc get vm <vm-name> -n <namespace> -o yaml | grep -A 10 accessCredentials
 
 **ArgoCD Application Issues:**
 ```bash
-# Check application sync status
-oc get applications -n openshift-gitops
+# Check application status
+oc get applications.argoproj.io -n openshift-gitops
 
 # Force application sync if needed
-oc patch application workshop-vms-dev -n openshift-gitops --type merge --patch '{"operation":{"sync":{"revision":"HEAD"}}}'
+oc patch applications.argoproj.io workshop-vms-dev -n openshift-gitops --type merge --patch '{"operation":{"sync":{"revision":"HEAD"}}}'
 
 # Check application details
 oc describe application workshop-vms-dev -n openshift-gitops
@@ -368,10 +386,10 @@ oc apply -f manual-install/05-argocd-app-hml.yaml
 oc apply -f manual-install/06-argocd-app-prd.yaml
 
 # Verify applications were created
-oc get applications -n openshift-gitops
+oc get applications.argoproj.io -n openshift-gitops
 
 # Wait for initial sync (may take 1-2 minutes)
-watch "oc get applications -n openshift-gitops"
+watch "oc get applications.argoproj.io -n openshift-gitops"
 ```
 
 **Expected output**: Applications should show `Synced` and `Healthy` status.
@@ -385,7 +403,7 @@ echo "ArgoCD Username: admin"
 echo "ArgoCD Password: $(oc get secret openshift-gitops-cluster -n openshift-gitops -o jsonpath='{.data.admin\.password}' | base64 -d)"
 
 # Check application status
-oc get applications -n openshift-gitops
+oc get applications.argoproj.io -n openshift-gitops
 
 # Check workshop status
 ./demo-scripts/check-status.sh
@@ -537,17 +555,19 @@ oc describe application workshop-vms-dev -n openshift-gitops
 
 ### Check Application Status
 ```bash
-oc get applications -n openshift-gitops
+### Check Application Status
+```bash
+oc get applications.argoproj.io -n openshift-gitops
 ```
 
 ### Check Sync Status
 ```bash
-oc get application workshop-vms-dev -n openshift-gitops -o yaml
+oc get applications.argoproj.io workshop-vms-dev -n openshift-gitops -o yaml
 ```
 
 ### Force Sync
 ```bash
-oc patch application workshop-vms-dev -n openshift-gitops -p '{"operation":{"sync":{}}}' --type merge
+oc patch applications.argoproj.io workshop-vms-dev -n openshift-gitops -p '{"operation":{"sync":{}}}' --type merge
 ```
 
 ### Access ArgoCD UI
@@ -600,7 +620,7 @@ Após completar todos os passos manuais da instalação, verifique se tudo está
 
 ```bash
 # Verificar aplicações do ArgoCD
-oc get applications -n openshift-gitops
+oc get applications.argoproj.io -n openshift-gitops
 
 # Verificar VMs criadas
 oc get vm -A | grep workshop

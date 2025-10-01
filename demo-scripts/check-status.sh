@@ -29,14 +29,14 @@ echo "======================="
 
 log "1. Checking ArgoCD Applications..."
 echo "-----------------------------------"
-oc get applications -n openshift-gitops | grep workshop-vms &>/dev/null
+oc get applications.argoproj.io -n openshift-gitops | grep workshop-vms &>/dev/null
 
 echo ""
 log "2. Checking Application Sync Status..."
 echo "---------------------------------------"
 for app in workshop-vms-dev workshop-vms-hml workshop-vms-prd; do
-    status=$(oc get application $app -n openshift-gitops -o jsonpath='{.status.sync.status}' 2>/dev/null)
-    health=$(oc get application $app -n openshift-gitops -o jsonpath='{.status.health.status}' 2>/dev/null)
+    status=$(oc get applications.argoproj.io $app -n openshift-gitops -o jsonpath='{.status.sync.status}' 2>/dev/null)
+    health=$(oc get applications.argoproj.io $app -n openshift-gitops -o jsonpath='{.status.health.status}' 2>/dev/null)
     echo "$app: Sync=$status, Health=$health"
 done
 

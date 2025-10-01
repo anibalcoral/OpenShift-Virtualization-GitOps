@@ -53,7 +53,7 @@ oc delete dv $VM_NAME -n $NAMESPACE &>/dev/null || log_warning "DataVolume alrea
 echo ""
 log "Step 4: Check ArgoCD sync status..."
 log "The application should be 'OutOfSync'"
-oc get application workshop-vms-dev -n openshift-gitops -o jsonpath='{.status.sync.status}' &>/dev/null
+oc get applications.argoproj.io workshop-vms-dev -n openshift-gitops -o jsonpath='{.status.sync.status}' &>/dev/null
 
 echo ""
 log "Step 5: ArgoCD detects the missing VM and recreates it..."

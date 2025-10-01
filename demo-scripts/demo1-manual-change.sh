@@ -40,7 +40,7 @@ oc label vm $VM_NAME -n $NAMESPACE manually-added=true &>/dev/null
 echo ""
 log "Step 3: Checking ArgoCD sync status..."
 log "The application should now be 'OutOfSync'"
-oc get application workshop-vms-dev -n openshift-gitops -o jsonpath='{.status.sync.status}' &>/dev/null
+oc get applications.argoproj.io workshop-vms-dev -n openshift-gitops -o jsonpath='{.status.sync.status}' &>/dev/null
 
 echo ""
 log "Step 4: Checking VM with new label..."
