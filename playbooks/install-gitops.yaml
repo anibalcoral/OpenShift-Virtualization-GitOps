@@ -1,10 +1,10 @@
 ---
 - name: Install and Configure OpenShift GitOps for Virtualization Workshop
   hosts: local
-  gather_facts: false
+  gather_facts: true
   vars:
     workshop_namespace_base: "workshop-gitops-vms"
-    git_repo_url: "https://github.com/anibalcoral/OpenShift-Virtualization-GitOps-Apps.git"
+    git_repo_url: "git@github.com:anibalcoral/OpenShift-Virtualization-GitOps-Apps.git"
 
   tasks:
     - name: Check if user is logged into OpenShift
