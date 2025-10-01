@@ -60,7 +60,7 @@ ansible-playbook -i inventory/localhost playbooks/install-gitops.yaml
 
 log "Creating repository secret for private Git access..."
 oc create secret generic workshop-gitops-repo \
-  --from-file=sshPrivateKey=/home/$USER/.ssh/ocpvirt-gitops-labs \
+  --from-file=sshPrivateKey=/home/$USER/.ssh/ocpvirt-gitops \
   --from-literal=type=git \
   --from-literal=url=git@github.com:anibalcoral/OpenShift-Virtualization-GitOps-Apps.git \
   -n openshift-gitops --dry-run=client -o yaml | oc apply -f - &>/dev/null
