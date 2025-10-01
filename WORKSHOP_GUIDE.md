@@ -7,12 +7,18 @@ This workshop demonstrates how to implement GitOps principles for managing Virtu
 ## Architecture
 
 ```
-Git Repository (This Repo)
-├── master branch (Production VMs) → overlays/prd
-├── vms-hml branch (Homologation VMs) → overlays/hml
-└── vms-dev branch (Development VMs) → overlays/dev
+Git Repository Structure
+├── Main Repository: OpenShift-Virtualization-GitOps
+│   ├── Ansible playbooks for GitOps setup
+│   ├── Installation and demo scripts
+│   ├── Manual installation YAML files
+│   └── Workshop documentation
+└── Apps Repository: OpenShift-Virtualization-GitOps-Apps
+    ├── main branch (Production VMs) → overlays/prd
+    ├── vms-hml branch (Homologation VMs) → overlays/hml
+    └── vms-dev branch (Development VMs) → overlays/dev
 
-Kustomize Structure
+Kustomize Structure (in Apps Repository)
 ├── base/ (Base VM templates)
 │   ├── vm-web-01.yaml
 │   ├── vm-web-02.yaml
@@ -23,9 +29,9 @@ Kustomize Structure
     └── prd/ (Production patches)
 
 ArgoCD Applications
-├── workshop-vms-prd → master branch → overlays/prd → workshop-gitops-vms-prd namespace
-├── workshop-vms-hml → vms-hml branch → overlays/hml → workshop-gitops-vms-hml namespace
-└── workshop-vms-dev → vms-dev branch → overlays/dev → workshop-gitops-vms-dev namespace
+├── workshop-vms-prd → Apps repo main branch → overlays/prd → workshop-gitops-vms-prd namespace
+├── workshop-vms-hml → Apps repo vms-hml branch → overlays/hml → workshop-gitops-vms-hml namespace
+└── workshop-vms-dev → Apps repo vms-dev branch → overlays/dev → workshop-gitops-vms-dev namespace
 ```
 
 ## Installation Options
@@ -85,7 +91,7 @@ For detailed workshop demonstrations, use the pre-created YAML files in the `man
    oc create secret generic workshop-gitops-repo \
      --from-file=sshPrivateKey=$HOME/.ssh/id_rsa \
      --from-literal=type=git \
-     --from-literal=url=git@github.com:anibalcoral/OpenShift-Virtualization-GitOps.git \
+     --from-literal=url=git@github.com:anibalcoral/OpenShift-Virtualization-GitOps-Apps.git \
      -n openshift-gitops --dry-run=client -o yaml | oc apply -f -
    
    oc label secret workshop-gitops-repo -n openshift-gitops argocd.argoproj.io/secret-type=repository
@@ -95,17 +101,12 @@ For detailed workshop demonstrations, use the pre-created YAML files in the `man
 
 If you prefer to show each step individually during a workshop demonstration:
 
-1. **Detect and update cluster domain:**
-   ```bash
-   ./validate-cluster-domain.sh
-   ```
-
-2. **Setup SSH Keys for VMs:**
+1. **Setup SSH Keys for VMs:**
    ```bash
    ./setup-ssh-key.sh
    ```
 
-3. **Install GitOps Operator:**
+2. **Install GitOps Operator:**
    ```bash
    oc apply -f manual-install/01-gitops-operator-subscription.yaml
    ```
@@ -115,28 +116,28 @@ If you prefer to show each step individually during a workshop demonstration:
    oc wait --for=condition=Ready pod -l name=argocd-application-controller -n openshift-gitops --timeout=300s
    ```
 
-4. **Create RBAC Permissions:**
+3. **Create RBAC Permissions:**
    ```bash
    oc apply -f manual-install/02-cluster-role-binding.yaml
    ```
 
-5. **Create Namespaces:**
+4. **Create Namespaces:**
    ```bash
    oc apply -f manual-install/03-namespaces.yaml
    ```
 
-6. **Create Repository Secret:**
+5. **Create Repository Secret:**
    ```bash
    oc create secret generic workshop-gitops-repo \
      --from-file=sshPrivateKey=$HOME/.ssh/id_rsa \
-     --from-literal=url=git@github.com:anibalcoral/OpenShift-Virtualization-GitOps.git \
+     --from-literal=url=git@github.com:anibalcoral/OpenShift-Virtualization-GitOps-Apps.git \
      --from-literal=type=git \
      -n openshift-gitops --dry-run=client -o yaml | oc apply -f -
    
    oc label secret workshop-gitops-repo -n openshift-gitops argocd.argoproj.io/secret-type=repository
    ```
 
-7. **Create ArgoCD Applications:**
+6. **Create ArgoCD Applications:**
    ```bash
    oc apply -f manual-install/04-argocd-app-dev.yaml
    oc apply -f manual-install/05-argocd-app-hml.yaml
@@ -144,43 +145,6 @@ If you prefer to show each step individually during a workshop demonstration:
    ```
 
 **All installation methods produce the same final result.**
-
-## Automatic Cluster Domain Detection
-
-The installation scripts now automatically detect your OpenShift cluster's application domain and configure the routes accordingly. You no longer need to manually update domain references.
-
-### How It Works
-
-The scripts use the OpenShift API to query the cluster's ingress configuration:
-```bash
-oc get ingress.config.openshift.io/cluster -o jsonpath='{.spec.domain}'
-```
-
-This automatically detects domains like:
-- `apps.cluster-name.domain.com`
-- `apps.openshift.example.com` 
-- `apps.joe-quimby.chiarettolabs.com.br`
-
-### Domain Management Scripts
-
-1. **Automatic detection during installation** (recommended):
-   ```bash
-   ./install.sh
-   ```
-   The install script automatically detects your cluster domain and updates all configuration files.
-
-2. **Manual domain validation and update**:
-   ```bash
-   ./validate-cluster-domain.sh
-   ```
-   Interactive script to validate current domain settings and fix inconsistencies.
-
-### Final Route Configuration
-
-After installation, the following routes will be configured:
-- **Development**: `dev-workshop-vms.<detected-domain>`
-- **Homologation**: `hml-workshop-vms.<detected-domain>`
-- **Production**: `workshop-vms.<detected-domain>`
 
 ## Post-Installation: VM Access and Service Verification
 

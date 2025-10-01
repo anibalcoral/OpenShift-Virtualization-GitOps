@@ -52,12 +52,6 @@ fi
 
 log_success "Detected cluster domain: $CLUSTER_DOMAIN"
 
-log "Updating configuration files with cluster domain..."
-sed -i.bak "s/value: dev-workshop-vms\.apps\..*/value: dev-workshop-vms.$CLUSTER_DOMAIN/" overlays/dev/kustomization.yaml
-sed -i.bak "s/value: hml-workshop-vms\.apps\..*/value: hml-workshop-vms.$CLUSTER_DOMAIN/" overlays/hml/kustomization.yaml
-sed -i.bak "s/value: workshop-vms\.apps\..*/value: workshop-vms.$CLUSTER_DOMAIN/" overlays/prd/kustomization.yaml
-log_success "Configuration files updated successfully!"
-
 log "Installing OpenShift GitOps Operator and configuring workshop..."
 ./setup-ssh-key.sh
 ansible-playbook -i inventory/localhost playbooks/install-gitops.yaml
@@ -66,7 +60,7 @@ log "Creating repository secret for private Git access..."
 oc create secret generic workshop-gitops-repo \
   --from-file=sshPrivateKey=/home/$USER/.ssh/id_rsa \
   --from-literal=type=git \
-  --from-literal=url=git@github.com:anibalcoral/OpenShift-Virtualization-GitOps.git \
+  --from-literal=url=git@github.com:anibalcoral/OpenShift-Virtualization-GitOps-Apps.git \
   -n openshift-gitops --dry-run=client -o yaml | oc apply -f - &>/dev/null
 
 log "Labeling repository secret for ArgoCD..."

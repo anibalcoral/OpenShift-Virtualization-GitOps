@@ -17,9 +17,11 @@ This workshop demonstrates how to use OpenShift GitOps (ArgoCD) to manage Virtua
 
 This workshop uses a multi-branch strategy where each branch represents a different environment:
 
-- **master branch**: Production VMs (workshop-gitops-vms-prd namespace)
+- **main branch**: Production VMs (workshop-gitops-vms-prd namespace)
 - **vms-hml branch**: Staging/Homologation VMs (workshop-gitops-vms-hml namespace)
 - **vms-dev branch**: Development VMs (workshop-gitops-vms-dev namespace)
+
+Virtual Machine definitions and Kustomize configurations are stored in a separate repository: [OpenShift-Virtualization-GitOps-Apps](https://github.com/anibalcoral/OpenShift-Virtualization-GitOps-Apps)
 
 ## Quick Setup
 
@@ -38,6 +40,7 @@ This workshop uses a multi-branch strategy where each branch represents a differ
    ```bash
    ./validate-cluster-domain.sh
    ```
+   This script will automatically detect your cluster domain and update the Apps repository if needed.
 
 4. **Check workshop status:**
    ```bash

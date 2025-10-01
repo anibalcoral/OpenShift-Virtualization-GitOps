@@ -4,7 +4,7 @@
   gather_facts: false
   vars:
     workshop_namespace: "workshop-gitops-vms"
-    git_repo_url: "git@github.com:anibalcoral/OpenShift-Virtualization-GitOps.git"
+    git_repo_url: "git@github.com:anibalcoral/OpenShift-Virtualization-GitOps-Apps.git"
 
   tasks:
     - name: Check if user is logged into OpenShift
@@ -159,7 +159,7 @@
             project: default
             source:
               repoURL: "{{ git_repo_url }}"
-              targetRevision: master
+              targetRevision: main
               path: overlays/prd
             destination:
               server: https://kubernetes.default.svc
