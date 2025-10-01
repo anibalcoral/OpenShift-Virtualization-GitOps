@@ -52,16 +52,21 @@
       retries: 30
       delay: 10
 
-    - name: Create workshop namespace
+    - name: Create workshop namespaces for all environments
       kubernetes.core.k8s:
         state: present
         definition:
           apiVersion: v1
           kind: Namespace
           metadata:
-            name: "{{ workshop_namespace }}"
+            name: "{{ workshop_namespace }}-{{ item }}"
             labels:
               workshop: "gitops-ocpvirt"
+              environment: "{{ item }}"
+      loop:
+        - dev
+        - hml
+        - prd
 
     - name: Grant ArgoCD permissions to manage workshop resources
       kubernetes.core.k8s:
@@ -76,13 +81,14 @@
             kind: ClusterRole
             name: cluster-admin
           subjects:
-          - kind: ServiceAccount
-            name: openshift-gitops-argocd-application-controller
-            namespace: openshift-gitops
+            - kind: ServiceAccount
+              name: openshift-gitops-argocd-application-controller
+              namespace: openshift-gitops
 
     - name: Add GitHub to known hosts for ArgoCD
-      shell: ssh-keyscan github.com
+      ansible.builtin.shell: ssh-keyscan github.com
       register: github_host_key
+      changed_when: false
 
     - name: Create known hosts ConfigMap for ArgoCD
       kubernetes.core.k8s:
