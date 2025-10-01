@@ -4,7 +4,7 @@ echo "Demo 2: VM Recovery from Data Loss"
 echo "===================================="
 
 NAMESPACE="workshop-gitops-vms-dev"
-VM_NAME="dev-vm-db-01"
+VM_NAME="dev-vm-web-03"
 
 echo "Step 1: Check VM status..."
 oc get vm $VM_NAME -n $NAMESPACE

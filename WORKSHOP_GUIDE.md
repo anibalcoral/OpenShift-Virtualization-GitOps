@@ -67,11 +67,11 @@ For detailed workshop demonstrations, use the pre-created YAML files in the `man
    ./setup-ssh-key.sh
    ```
 
-2. **Validate and update cluster domain (optional):**
+2. **Validate and update cluster domain (recommended):**
    ```bash
    ./validate-cluster-domain.sh
    ```
-   This step is optional as the manual installation steps will use whatever domain is currently configured in the kustomization files.
+   While this step is optional, it's recommended to ensure your configuration files use the correct cluster domain. The manual installation will work with whatever domain is currently configured.
 
 3. **Install GitOps Operator:**
    ```bash
@@ -408,6 +408,7 @@ oc get applications -n openshift-gitops
 - **VMs**: 
   - `dev-vm-web-01` (1 CPU, 2GB RAM, 30GB disk)
   - `dev-vm-web-02` (1 CPU, 2GB RAM, 30GB disk)
+  - `dev-vm-web-03` (1 CPU, 2GB RAM, 30GB disk)
 - **Purpose**: Development and testing
 
 ### Homologation Environment (vms-hml branch)
@@ -415,6 +416,7 @@ oc get applications -n openshift-gitops
 - **VMs**:
   - `hml-vm-web-01` (2 CPU, 3GB RAM, 40GB disk)
   - `hml-vm-web-02` (2 CPU, 3GB RAM, 40GB disk)
+  - `hml-vm-web-03` (2 CPU, 3GB RAM, 40GB disk)
 - **Purpose**: Pre-production testing
 
 ### Production Environment (master branch)
@@ -422,6 +424,7 @@ oc get applications -n openshift-gitops
 - **VMs**:
   - `prd-vm-web-01` (2 CPU, 4GB RAM, 50GB disk)
   - `prd-vm-web-02` (2 CPU, 4GB RAM, 50GB disk)
+  - `prd-vm-web-03` (2 CPU, 4GB RAM, 50GB disk)
 - **Purpose**: Production workloads
 
 ## Demo Scenarios
@@ -628,15 +631,15 @@ workshop-vms-prd   Synced        Healthy
 **Máquinas Virtuais:**
 ```
 NAMESPACE                   NAME            STATUS
-workshop-gitops-vms-dev     dev-vm-db-01    Running
 workshop-gitops-vms-dev     dev-vm-web-01   Running
 workshop-gitops-vms-dev     dev-vm-web-02   Running
-workshop-gitops-vms-hml     hml-vm-db-01    Running
+workshop-gitops-vms-dev     dev-vm-web-03   Running
 workshop-gitops-vms-hml     hml-vm-web-01   Running
 workshop-gitops-vms-hml     hml-vm-web-02   Running
-workshop-gitops-vms-prd     prd-vm-db-01    Running
+workshop-gitops-vms-hml     hml-vm-web-03   Running
 workshop-gitops-vms-prd     prd-vm-web-01   Running
 workshop-gitops-vms-prd     prd-vm-web-02   Running
+workshop-gitops-vms-prd     prd-vm-web-03   Running
 ```
 
 **Acesso ao ArgoCD:**

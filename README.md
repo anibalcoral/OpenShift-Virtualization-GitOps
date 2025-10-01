@@ -127,14 +127,17 @@ Username: `admin`
 - **vms-dev**: Development environment (workshop-gitops-vms-dev namespace)
   - dev-vm-web-01 (1 CPU, 2GB RAM, 30GB disk)
   - dev-vm-web-02 (1 CPU, 2GB RAM, 30GB disk)
+  - dev-vm-web-03 (1 CPU, 2GB RAM, 30GB disk)
 
 - **vms-hml**: Homologation/Staging environment (workshop-gitops-vms-hml namespace)
   - hml-vm-web-01 (2 CPU, 3GB RAM, 40GB disk)
   - hml-vm-web-02 (2 CPU, 3GB RAM, 40GB disk)
+  - hml-vm-web-03 (2 CPU, 3GB RAM, 40GB disk)
 
 - **master**: Production environment (workshop-gitops-vms-prd namespace)
   - prd-vm-web-01 (2 CPU, 4GB RAM, 50GB disk)
   - prd-vm-web-02 (2 CPU, 4GB RAM, 50GB disk)
+  - prd-vm-web-03 (2 CPU, 4GB RAM, 50GB disk)
 
 ## VM Access
 
