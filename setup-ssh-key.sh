@@ -26,11 +26,11 @@ log_warning() {
 
 log "Setting up SSH key for workshop VMs..."
 
-SSH_PUBLIC_KEY_FILE="$HOME/.ssh/ocpvirt-gitops-labs.pub"
+SSH_PUBLIC_KEY_FILE="$HOME/.ssh/ocpvirt-gitops.pub"
 
 if [[ ! -f "$SSH_PUBLIC_KEY_FILE" ]]; then
     log_error "SSH public key not found at $SSH_PUBLIC_KEY_FILE"
-    log_error "Please generate SSH keys with: ssh-keygen -t rsa -b 4096 -f ~/.ssh/ocpvirt-gitops-labs"
+    log_error "Please generate SSH keys with: ssh-keygen -t rsa -b 4096 -f ~/.ssh/ocpvirt-gitops"
     exit 1
 fi
 
@@ -49,4 +49,4 @@ stringData:
 EOF
 
 log_success "SSH key setup completed!"
-log "Your VMs will be accessible via SSH using your private key: $HOME/.ssh/ocpvirt-gitops-labs"
+log "Your VMs will be accessible via SSH using your private key: $HOME/.ssh/ocpvirt-gitops"

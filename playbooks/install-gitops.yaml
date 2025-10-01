@@ -3,7 +3,7 @@
   hosts: local
   gather_facts: false
   vars:
-    workshop_namespace: "workshop-gitops-vms"
+    workshop_namespace_base: "workshop-gitops-vms"
     git_repo_url: "git@github.com:anibalcoral/OpenShift-Virtualization-GitOps-Apps.git"
 
   tasks:
@@ -59,7 +59,7 @@
           apiVersion: v1
           kind: Namespace
           metadata:
-            name: "{{ workshop_namespace }}-{{ item }}"
+            name: "{{ workshop_namespace_base }}-{{ item }}"
             labels:
               workshop: "gitops-ocpvirt"
               environment: "{{ item }}"
@@ -119,7 +119,7 @@
               path: overlays/dev
             destination:
               server: https://kubernetes.default.svc
-              namespace: "{{ workshop_namespace }}-dev"
+              namespace: "{{ workshop_namespace_base }}-dev"
             syncPolicy:
               automated:
                 prune: true
@@ -144,7 +144,7 @@
               path: overlays/hml
             destination:
               server: https://kubernetes.default.svc
-              namespace: "{{ workshop_namespace }}-hml"
+              namespace: "{{ workshop_namespace_base }}-hml"
             syncPolicy:
               automated:
                 prune: true
@@ -169,7 +169,7 @@
               path: overlays/prd
             destination:
               server: https://kubernetes.default.svc
-              namespace: "{{ workshop_namespace }}-prd"
+              namespace: "{{ workshop_namespace_base }}-prd"
             syncPolicy:
               automated:
                 prune: true
@@ -201,6 +201,6 @@
           - "Password: {{ argocd_secret.resources[0].data['admin.password'] | b64decode }}"
           - ""
           - "Workshop namespaces will be:"
-          - "- {{ workshop_namespace }}-dev (Development)"
-          - "- {{ workshop_namespace }}-hml (Homologation)"
-          - "- {{ workshop_namespace }}-prd (Production)"
+          - "- {{ workshop_namespace_base }}-dev (Development)"
+          - "- {{ workshop_namespace_base }}-hml (Homologation)"
+          - "- {{ workshop_namespace_base }}-prd (Production)"

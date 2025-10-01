@@ -1,6 +1,15 @@
 # Workshop Guide: OpenShift GitOps with OpenShift Virtualization
 
-## Over   This step ensures your configuration files use the correct cluster domain. The script automatically detects your cluster's domain and updates all necessary files.
+## Over   This3. **Create Repository Secret for private Git access:**
+   ```bash
+   oc create secret generic workshop-gitops-repo \
+     --from-file=sshPrivateKey=$HOME/.ssh/ocpvirt-gitops \
+     --from-literal=type=git \
+     --from-literal=url=git@github.com:anibalcoral/OpenShift-Virtualization-GitOps-Apps.git \
+     -n openshift-gitops --dry-run=client -o yaml | oc apply -f -
+   
+   oc label secret workshop-gitops-repo -n openshift-gitops argocd.argoproj.io/secret-type=repository
+   ```res your configuration files use the correct cluster domain. The script automatically detects your cluster's domain and updates all necessary files.
 
 2. **Install OpenShift GitOps Operator and create complete configuration:**is workshop demonstrates how to implement GitOps principles for managing Virtual Machines (VMs) in OpenShift Virtualization using OpenShift GitOps (ArgoCD).
 
@@ -41,7 +50,7 @@ You have two options to install this workshop:
 ### Option 1: Automated Installation (Recommended for Quick Setup)
 
 **Prerequisites:**
-- SSH key pair generated (`ssh-keygen -t rsa -b 4096 -f ~/.ssh/ocpvirt-gitops-labs`)
+- SSH key pair generated (`ssh-keygen -t rsa -b 4096 -f ~/.ssh/ocpvirt-gitops`)
 
 ```bash
 ./install.sh
@@ -121,7 +130,7 @@ If you prefer to show each step individually during a workshop demonstration:
 5. **Create Repository Secret:**
    ```bash
    oc create secret generic workshop-gitops-repo \
-     --from-file=sshPrivateKey=$HOME/.ssh/ocpvirt-gitops-labs \
+     --from-file=sshPrivateKey=$HOME/.ssh/ocpvirt-gitops \
      --from-literal=url=git@github.com:anibalcoral/OpenShift-Virtualization-GitOps-Apps.git \
      --from-literal=type=git \
      -n openshift-gitops --dry-run=client -o yaml | oc apply -f -
