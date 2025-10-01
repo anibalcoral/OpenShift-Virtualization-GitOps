@@ -1,8 +1,8 @@
 # Workshop Guide: OpenShift GitOps with OpenShift Virtualization
 
-## Overview
+## Over   This step ensures your configuration files use the correct cluster domain. The script automatically detects your cluster's domain and updates all necessary files.
 
-This workshop demonstrates how to implement GitOps principles for managing Virtual Machines (VMs) in OpenShift Virtualization using OpenShift GitOps (ArgoCD).
+2. **Install OpenShift GitOps Operator and create complete configuration:**is workshop demonstrates how to implement GitOps principles for managing Virtual Machines (VMs) in OpenShift Virtualization using OpenShift GitOps (ArgoCD).
 
 ## Architecture
 
@@ -51,8 +51,7 @@ You have two options to install this workshop:
 1. Validates prerequisites (OpenShift login, ansible-playbook, oc CLI)
 2. Detects cluster domain automatically using OpenShift API
 3. Validates and updates Apps repository domain configuration automatically
-4. Sets up SSH key for VM access by running `./setup-ssh-key.sh`
-5. Installs OpenShift GitOps Operator via Ansible playbook
+4. Installs OpenShift GitOps Operator via Ansible playbook
 6. Creates repository secret for private Git access with SSH private key
 7. Labels repository secret for ArgoCD recognition
 8. Creates ArgoCD applications for all environments (dev, hml, prd)
@@ -73,12 +72,7 @@ For detailed workshop demonstrations, use the pre-created YAML files in the `man
    ```
    This step ensures your configuration files use the correct cluster domain. The script automatically detects your cluster's domain and updates all necessary files.
 
-2. **Setup SSH Keys for VMs:**
-   ```bash
-   ./setup-ssh-key.sh
-   ```
-
-3. **Install GitOps Operator and create complete configuration:**
+2. **Install GitOps Operator and create complete configuration:**
    ```bash
    ansible-playbook -i inventory/localhost playbooks/install-gitops.yaml
    ```
@@ -99,12 +93,7 @@ For detailed workshop demonstrations, use the pre-created YAML files in the `man
 
 If you prefer to show each step individually during a workshop demonstration:
 
-1. **Setup SSH Keys for VMs:**
-   ```bash
-   ./setup-ssh-key.sh
-   ```
-
-2. **Install GitOps Operator:**
+1. **Install GitOps Operator:**
    ```bash
    oc apply -f manual-install/01-gitops-operator-subscription.yaml
    ```
@@ -258,8 +247,8 @@ oc get secret ssh-key-secret -n workshop-gitops-vms-prd
 # Check VM accessCredentials configuration
 oc get vm <vm-name> -n <namespace> -o yaml | grep -A 10 accessCredentials
 
-# Test SSH key setup script
-./setup-ssh-key.sh
+# SSH keys are pre-configured in the Apps repository SSH secret
+# No additional setup needed
 ```
 
 **ArgoCD Application Issues:**
@@ -345,23 +334,14 @@ oc get pods -n openshift-gitops
 oc apply -f manual-install/03-namespaces.yaml
 ```
 
-#### Step 6: Setup SSH Keys for VMs
-
-```bash
-# Setup SSH key configuration for VM access
-./setup-ssh-key.sh
-```
-
-This script will update the `base/ssh-secret.yaml` file with your public SSH key.
-
-#### Step 7: Grant ArgoCD Permissions
+#### Step 6: Grant ArgoCD Permissions
 
 ```bash
 # Configure RBAC permissions for ArgoCD
 oc apply -f manual-install/02-cluster-role-binding.yaml
 ```
 
-#### Step 8: Create Repository Secret for Private Git Access
+#### Step 7: Create Repository Secret for Private Git Access
 
 ```bash
 # Create secret with your SSH private key

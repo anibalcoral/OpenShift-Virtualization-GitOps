@@ -55,8 +55,6 @@ log_success "Detected cluster domain: $CLUSTER_DOMAIN"
 log "Validating and updating cluster domain in Apps repository..."
 ./validate-cluster-domain.sh -y
 
-log "Configuring SSH key..."
-./setup-ssh-key.sh
 log "Executing Ansible playbook to install GitOps Operator..."
 ansible-playbook -i inventory/localhost playbooks/install-gitops.yaml
 

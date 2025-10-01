@@ -11,7 +11,7 @@ This workshop demonstrates how to use OpenShift GitOps (ArgoCD) to manage Virtua
 - Git repository access
 - SSH key pair generated (`ssh-keygen -t rsa -b 4096 -f ~/.ssh/ocpvirt-gitops-labs`)
 
-**Important**: Before running the workshop, you must configure your SSH key by running `./setup-ssh-key.sh`. This replaces the SSH key template with your public key for VM access.
+**Important**: SSH keys for VM access are pre-configured in the workshop Apps repository. No additional SSH setup is required.
 
 ## Workshop Structure
 
@@ -55,11 +55,6 @@ Virtual Machine definitions and Kustomize configurations are stored in a separat
 ## Manual Installation
 
 If you prefer to install components manually or want to understand each step:
-
-1. **Set up SSH key for VM access:**
-   ```bash
-   ./setup-ssh-key.sh
-   ```
 
 2. **Install OpenShift GitOps Operator using Ansible:**
    ```bash
@@ -185,7 +180,7 @@ workshop-gitops-ocpvirt/
 ├── ansible.cfg                      # Ansible configuration
 ├── install.sh                       # Automated installation script
 ├── remove.sh                        # Cleanup script
-├── setup-ssh-key.sh                 # SSH key setup script
+├── validate-cluster-domain.sh            # Cluster domain validation script
 ├── requirements.yml                  # Ansible requirements
 ├── README.md                         # This file
 ├── WORKSHOP_GUIDE.md                 # Detailed workshop guide
@@ -333,7 +328,7 @@ After installation, routes are configured as:
    - Verify resource quotas in target namespaces
 
 3. **SSH access issues:**
-   - Ensure SSH key was properly set up with `./setup-ssh-key.sh`
+   - SSH keys are pre-configured in the Apps repository
    - Check if the SSH secret exists in the target namespace
    - Verify VM has an IP address assigned
 
