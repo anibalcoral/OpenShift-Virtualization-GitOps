@@ -50,7 +50,7 @@ You have two options to install this workshop:
 **What the automated installation does:**
 1. Validates prerequisites (OpenShift login, ansible-playbook, oc CLI)
 2. Detects cluster domain automatically using OpenShift API
-3. Updates configuration files with detected domain
+3. Validates and updates Apps repository domain configuration automatically
 4. Sets up SSH key for VM access by running `./setup-ssh-key.sh`
 5. Installs OpenShift GitOps Operator via Ansible playbook
 6. Creates repository secret for private Git access with SSH private key

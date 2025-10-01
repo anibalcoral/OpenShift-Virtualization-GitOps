@@ -8,6 +8,12 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m'
 
+# Check for -y parameter for non-interactive mode
+AUTO_YES=false
+if [[ "$1" == "-y" ]]; then
+    AUTO_YES=true
+fi
+
 log() {
     echo -e "${BLUE}[$(date '+%Y-%m-%d %H:%M:%S')]${NC} $1"
 }
@@ -64,9 +70,9 @@ cd "$APPS_REPO_PATH"
 # Make sure we're on the correct branch
 git checkout vms-dev &>/dev/null
 
-DEV_DOMAIN=$(grep -o "dev-workshop-vms\.[^\"]*" overlays/dev/kustomization.yaml | head -1 || echo "")
-HML_DOMAIN=$(grep -o "hml-workshop-vms\.[^\"]*" overlays/hml/kustomization.yaml | head -1 || echo "")
-PRD_DOMAIN=$(grep -o "workshop-vms\.[^\"]*" overlays/prd/kustomization.yaml | head -1 || echo "")
+DEV_DOMAIN=$(grep -o "value: dev-workshop-vms\.[^\"]*" overlays/dev/kustomization.yaml | sed 's/value: //' || echo "")
+HML_DOMAIN=$(grep -o "value: hml-workshop-vms\.[^\"]*" overlays/hml/kustomization.yaml | sed 's/value: //' || echo "")
+PRD_DOMAIN=$(grep -o "value: workshop-vms\.[^\"]*" overlays/prd/kustomization.yaml | sed 's/value: //' || echo "")
 
 echo ""
 log "Current domain configuration:"
@@ -94,20 +100,30 @@ fi
 if [ "$UPDATE_NEEDED" = true ]; then
     log_warning "Domain configuration update needed!"
     echo ""
-    read -p "Do you want to update the domain configuration? (y/N): " -r
-    echo ""
     
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
+    PROCEED=false
+    if [ "$AUTO_YES" = true ]; then
+        PROCEED=true
+        log "Auto-updating domain configuration (non-interactive mode)..."
+    else
+        read -p "Do you want to update the domain configuration? (y/N): " -r
+        echo ""
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+            PROCEED=true
+        fi
+    fi
+    
+    if [ "$PROCEED" = true ]; then
         log "Updating domain configuration in all environments..."
         
         # Update dev environment
-        sed -i.bak "s/value: dev-workshop-vms\.[^\"]*\"/value: dev-workshop-vms.$CLUSTER_DOMAIN\"/" overlays/dev/kustomization.yaml
+        sed -i.bak "s|value: dev-workshop-vms\.[^\"]*|value: dev-workshop-vms.$CLUSTER_DOMAIN|g" overlays/dev/kustomization.yaml
         
         # Update hml environment  
-        sed -i.bak "s/value: hml-workshop-vms\.[^\"]*\"/value: hml-workshop-vms.$CLUSTER_DOMAIN\"/" overlays/hml/kustomization.yaml
+        sed -i.bak "s|value: hml-workshop-vms\.[^\"]*|value: hml-workshop-vms.$CLUSTER_DOMAIN|g" overlays/hml/kustomization.yaml
         
         # Update prd environment
-        sed -i.bak "s/value: workshop-vms\.[^\"]*\"/value: workshop-vms.$CLUSTER_DOMAIN\"/" overlays/prd/kustomization.yaml
+        sed -i.bak "s|value: workshop-vms\.[^\"]*|value: workshop-vms.$CLUSTER_DOMAIN|g" overlays/prd/kustomization.yaml
         
         # Clean up backup files
         find . -name "*.bak" -delete
@@ -115,11 +131,26 @@ if [ "$UPDATE_NEEDED" = true ]; then
         log_success "Domain configuration updated!"
         
         # Commit and push changes
-        read -p "Do you want to commit and push the changes? (y/N): " -r
-        echo ""
+        COMMIT_PROCEED=false
+        if [ "$AUTO_YES" = true ]; then
+            COMMIT_PROCEED=true
+            log "Auto-committing and pushing changes (non-interactive mode)..."
+        else
+            read -p "Do you want to commit and push the changes? (y/N): " -r
+            echo ""
+            if [[ $REPLY =~ ^[Yy]$ ]]; then
+                COMMIT_PROCEED=true
+            fi
+        fi
         
-        if [[ $REPLY =~ ^[Yy]$ ]]; then
+        if [ "$COMMIT_PROCEED" = true ]; then
             log "Committing changes..."
+            
+            # Reset ssh-secret.yaml to avoid committing sensitive data
+            if [ -f "base/ssh-secret.yaml" ]; then
+                git checkout HEAD -- base/ssh-secret.yaml 2>/dev/null || true
+            fi
+            
             git add .
             git commit -m "feat: update cluster domain to $CLUSTER_DOMAIN
 

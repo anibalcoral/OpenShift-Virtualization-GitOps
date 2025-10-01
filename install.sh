@@ -52,8 +52,12 @@ fi
 
 log_success "Detected cluster domain: $CLUSTER_DOMAIN"
 
-log "Installing OpenShift GitOps Operator and configuring workshop..."
+log "Validating and updating cluster domain in Apps repository..."
+./validate-cluster-domain.sh -y
+
+log "Configuring SSH key..."
 ./setup-ssh-key.sh
+log "Executing Ansible playbook to install GitOps Operator..."
 ansible-playbook -i inventory/localhost playbooks/install-gitops.yaml
 
 log "Creating repository secret for private Git access..."
@@ -72,24 +76,24 @@ log_success "Installation completed successfully!"
 echo ""
 log "Workshop Information:"
 log "====================="
-echo "ArgoCD URL: https://$(oc get route openshift-gitops-server -n openshift-gitops -o jsonpath='{.spec.host}')"
-echo "ArgoCD Username: admin"
-echo "ArgoCD Password: $(oc get secret openshift-gitops-cluster -n openshift-gitops -o jsonpath='{.data.admin\.password}' | base64 -d)"
+log "ArgoCD URL: https://$(oc get route openshift-gitops-server -n openshift-gitops -o jsonpath='{.spec.host}')"
+log "ArgoCD Username: admin"
+log "ArgoCD Password: $(oc get secret openshift-gitops-cluster -n openshift-gitops -o jsonpath='{.data.admin\.password}' | base64 -d)"
 echo ""
 log "Workshop Applications:"
-echo "- workshop-vms-dev (Development VMs)"
-echo "- workshop-vms-hml (Homologation VMs)"  
-echo "- workshop-vms-prd (Production VMs)"
+log "- workshop-vms-dev (Development VMs)"
+log "- workshop-vms-hml (Homologation VMs)"
+log "- workshop-vms-prd (Production VMs)"
 echo ""
 log "Application URLs (after deployment):"
-echo "- Development: https://dev-workshop-vms.$CLUSTER_DOMAIN"
-echo "- Homologation: https://hml-workshop-vms.$CLUSTER_DOMAIN"
-echo "- Production: https://workshop-vms.$CLUSTER_DOMAIN"
+log "- Development: https://dev-workshop-vms.$CLUSTER_DOMAIN"
+log "- Homologation: https://hml-workshop-vms.$CLUSTER_DOMAIN"
+log "- Production: https://workshop-vms.$CLUSTER_DOMAIN"
 echo ""
 log "Next steps:"
-echo "1. Access ArgoCD UI using the credentials above"
-echo "2. Check workshop status: ./demo-scripts/check-status.sh"
-echo "3. Run demo scripts in demo-scripts/ directory"
+log "1. Access ArgoCD UI using the credentials above"
+log "2. Check workshop status: ./demo-scripts/check-status.sh"
+log "3. Run demo scripts in demo-scripts/ directory"
 
 log "Cleaning up backup files..."
 rm -f overlays/*/kustomization.yaml.bak
