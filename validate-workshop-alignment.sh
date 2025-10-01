@@ -31,10 +31,10 @@ echo "==============================="
 ERRORS=0
 
 log "1. Checking SSH key configuration alignment..."
-INSTALL_SSH_KEY=$(grep -o "ocpvirt-gitops-labs" install.sh | head -1)
-GUIDE_SSH_KEY=$(grep -o "ocpvirt-gitops-labs" WORKSHOP_GUIDE.md | head -1)
+INSTALL_SSH_KEY=$(grep -o "id_rsa" install.sh | head -1)
+GUIDE_SSH_KEY=$(grep -o "id_rsa" WORKSHOP_GUIDE.md | head -1)
 
-if [ "$INSTALL_SSH_KEY" = "ocpvirt-gitops-labs" ] && [ "$GUIDE_SSH_KEY" = "ocpvirt-gitops-labs" ]; then
+if [ "$INSTALL_SSH_KEY" = "id_rsa" ] && [ "$GUIDE_SSH_KEY" = "id_rsa" ]; then
     log_success "SSH key configuration is aligned"
 else
     log_error "SSH key configuration mismatch"
