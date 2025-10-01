@@ -81,7 +81,7 @@ For detailed workshop demonstrations, use the pre-created YAML files in the `man
 4. **Create Repository Secret for private Git access:**
    ```bash
    oc create secret generic workshop-gitops-repo \
-     --from-file=sshPrivateKey=$HOME/.ssh/id_rsa \
+     --from-file=sshPrivateKey=$HOME/.ssh/ocpvirt-gitops-labs \
      --from-literal=type=git \
      --from-literal=url=git@github.com:anibalcoral/OpenShift-Virtualization-GitOps-Apps.git \
      -n openshift-gitops --dry-run=client -o yaml | oc apply -f -
@@ -116,7 +116,7 @@ If you prefer to show each step individually during a workshop demonstration:
 5. **Create Repository Secret:**
    ```bash
    oc create secret generic workshop-gitops-repo \
-     --from-file=sshPrivateKey=$HOME/.ssh/id_rsa \
+     --from-file=sshPrivateKey=$HOME/.ssh/ocpvirt-gitops-labs \
      --from-literal=url=git@github.com:anibalcoral/OpenShift-Virtualization-GitOps-Apps.git \
      --from-literal=type=git \
      -n openshift-gitops --dry-run=client -o yaml | oc apply -f -
@@ -346,7 +346,7 @@ oc apply -f manual-install/02-cluster-role-binding.yaml
 ```bash
 # Create secret with your SSH private key
 oc create secret generic workshop-gitops-repo \
-  --from-file=sshPrivateKey=$HOME/.ssh/id_rsa \
+  --from-file=sshPrivateKey=$HOME/.ssh/ocpvirt-gitops-labs \
   --from-literal=type=git \
   --from-literal=url=git@github.com:$GITHUB_USERNAME/workshop-gitops-ocpvirt.git \
   -n openshift-gitops
