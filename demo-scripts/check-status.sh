@@ -1,14 +1,38 @@
 #!/bin/bash
 
+set -e
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m'
+
+log() {
+    echo -e "${BLUE}[$(date '+%Y-%m-%d %H:%M:%S')]${NC} $1"
+}
+
+log_success() {
+    echo -e "${GREEN}[$(date '+%Y-%m-%d %H:%M:%S')] SUCCESS:${NC} $1"
+}
+
+log_error() {
+    echo -e "${RED}[$(date '+%Y-%m-%d %H:%M:%S')] ERROR:${NC} $1"
+}
+
+log_warning() {
+    echo -e "${YELLOW}[$(date '+%Y-%m-%d %H:%M:%S')] WARNING:${NC} $1"
+}
+
 echo "Workshop Status Checker"
 echo "======================="
 
-echo "1. Checking ArgoCD Applications..."
+log "1. Checking ArgoCD Applications..."
 echo "-----------------------------------"
-oc get applications -n openshift-gitops | grep workshop-vms
+oc get applications -n openshift-gitops | grep workshop-vms &>/dev/null
 
 echo ""
-echo "2. Checking Application Sync Status..."
+log "2. Checking Application Sync Status..."
 echo "---------------------------------------"
 for app in workshop-vms-dev workshop-vms-hml workshop-vms-prd; do
     status=$(oc get application $app -n openshift-gitops -o jsonpath='{.status.sync.status}' 2>/dev/null)
@@ -17,10 +41,10 @@ for app in workshop-vms-dev workshop-vms-hml workshop-vms-prd; do
 done
 
 echo ""
-echo "3. Checking Workshop Namespaces..."
+log "3. Checking Workshop Namespaces..."
 echo "-----------------------------------"
 for ns in workshop-gitops-vms-dev workshop-gitops-vms-hml workshop-gitops-vms-prd; do
-    if oc get namespace $ns >/dev/null 2>&1; then
+    if oc get namespace $ns &>/dev/null; then
         echo "$ns: EXISTS"
     else
         echo "$ns: NOT FOUND"
@@ -28,7 +52,7 @@ for ns in workshop-gitops-vms-dev workshop-gitops-vms-hml workshop-gitops-vms-pr
 done
 
 echo ""
-echo "4. Checking Virtual Machines..."
+log "4. Checking Virtual Machines..."
 echo "--------------------------------"
 for ns in workshop-gitops-vms-dev workshop-gitops-vms-hml workshop-gitops-vms-prd; do
     echo "Namespace: $ns"
@@ -37,7 +61,7 @@ for ns in workshop-gitops-vms-dev workshop-gitops-vms-hml workshop-gitops-vms-pr
 done
 
 echo ""
-echo "5. Checking VM Services and Endpoints..."
+log "5. Checking VM Services and Endpoints..."
 echo "-----------------------------------------"
 for ns in workshop-gitops-vms-dev workshop-gitops-vms-hml workshop-gitops-vms-prd; do
     echo "Namespace: $ns"
@@ -54,7 +78,7 @@ for ns in workshop-gitops-vms-dev workshop-gitops-vms-hml workshop-gitops-vms-pr
 done
 
 echo ""
-echo "6. Checking SSH Key Configuration..."
+log "6. Checking SSH Key Configuration..."
 echo "-------------------------------------"
 # Check dev namespace
 ns="workshop-gitops-vms-dev"
@@ -84,7 +108,7 @@ else
 fi
 
 echo ""
-echo "7. Checking Routes..."
+log "7. Checking Routes..."
 echo "----------------------"
 for ns in workshop-gitops-vms-dev workshop-gitops-vms-hml workshop-gitops-vms-prd; do
     echo "Namespace: $ns"
@@ -93,7 +117,7 @@ for ns in workshop-gitops-vms-dev workshop-gitops-vms-hml workshop-gitops-vms-pr
 done
 
 echo ""
-echo "8. ArgoCD Access Information..."
+log "8. ArgoCD Access Information..."
 echo "-------------------------------"
 argocd_route=$(oc get route openshift-gitops-server -n openshift-gitops -o jsonpath='{.spec.host}' 2>/dev/null)
 if [ ! -z "$argocd_route" ]; then
