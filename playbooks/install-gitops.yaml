@@ -41,6 +41,18 @@
         namespace: openshift-operators
       register: gitops_subscription
 
+    - name: Wait for GitOps Operator CSV to be installed
+      kubernetes.core.k8s_info:
+        api_version: operators.coreos.com/v1alpha1
+        kind: ClusterServiceVersion
+        namespace: openshift-operators
+        label_selectors:
+          - "operators.coreos.com/openshift-gitops-operator.openshift-operators"
+      register: gitops_csv
+      until: gitops_csv.resources | length > 0 and gitops_csv.resources[0].status.phase == "Succeeded"
+      retries: 30
+      delay: 10
+
     - name: Wait for ArgoCD instance to be created
       kubernetes.core.k8s_info:
         api_version: argoproj.io/v1alpha1
@@ -48,9 +60,27 @@
         name: openshift-gitops
         namespace: openshift-gitops
       register: argocd_instance
-      until: argocd_instance.resources | length > 0
+      until:
+        - argocd_instance.api_found is defined
+        - argocd_instance.api_found
+        - argocd_instance.resources is defined
+        - argocd_instance.resources | length > 0
       retries: 30
       delay: 10
+      failed_when: false
+
+    - name: Wait for ArgoCD server pod to be ready
+      kubernetes.core.k8s_info:
+        api_version: v1
+        kind: Pod
+        namespace: openshift-gitops
+        label_selectors:
+          - "app.kubernetes.io/name=openshift-gitops-server"
+      register: argocd_pods
+      until: argocd_pods.resources | length > 0 and argocd_pods.resources[0].status.phase == "Running"
+      retries: 30
+      delay: 10
+      when: argocd_instance.resources is not defined or argocd_instance.resources | length == 0
 
     - name: Create workshop namespaces for all environments
       kubernetes.core.k8s:
@@ -144,31 +174,3 @@
           env: prd
           revision: main
           path: overlays/prd
-
-    - name: Get ArgoCD server route
-      kubernetes.core.k8s_info:
-        api_version: route.openshift.io/v1
-        kind: Route
-        name: openshift-gitops-server
-        namespace: openshift-gitops
-      register: argocd_route
-
-    - name: Get ArgoCD admin password
-      kubernetes.core.k8s_info:
-        api_version: v1
-        kind: Secret
-        name: openshift-gitops-cluster
-        namespace: openshift-gitops
-      register: argocd_secret
-
-#    - name: Display ArgoCD access information
-#      ansible.builtin.debug:
-#        msg:
-#          - "ArgoCD URL: https://{{ argocd_route.resources[0].spec.host }}"
-#          - "Username: admin"
-#          - "Password: {{ argocd_secret.resources[0].data['admin.password'] | b64decode }}"
-#          - ""
-#          - "Workshop namespaces will be:"
-#          - "- {{ workshop_namespace_base }}-dev (Development)"
-#          - "- {{ workshop_namespace_base }}-hml (Homologation)"
-#          - "- {{ workshop_namespace_base }}-prd (Production)"
