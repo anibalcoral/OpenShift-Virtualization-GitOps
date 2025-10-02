@@ -36,11 +36,11 @@ if ! command -v oc &> /dev/null; then
     exit 1
 fi
 
-log "Checking OpenShift connection..."
-if ! oc whoami &> /dev/null; then
-    log_error "Not connected to OpenShift cluster. Please login with 'oc login'."
-    exit 1
-fi
+#log "Checking OpenShift connection..."
+#if ! oc whoami &> /dev/null; then
+#    log_error "Not connected to OpenShift cluster. Please login with 'oc login'."
+#    exit 1
+#fi
 
 log "Detecting cluster domain..."
 CLUSTER_DOMAIN=$(oc get ingress.config.openshift.io/cluster -o jsonpath='{.spec.domain}' 2>/dev/null)
@@ -53,13 +53,13 @@ fi
 log_success "Detected cluster domain: $CLUSTER_DOMAIN"
 
 log "Validating and updating cluster domain in Apps repository..."
-./validate-cluster-domain.sh -y
+./validate-cluster-domain.sh
 
 log "Executing Ansible playbook to install GitOps Operator..."
 ansible-playbook -i inventory/localhost playbooks/install-gitops.yaml
 
-log "Setting up SSH key for VM access..."
-./setup-ssh-key.sh
+#log "Setting up SSH key for VM access..."
+#./setup-ssh-key.sh
 
 log "Cleaning up temporary files..."
 

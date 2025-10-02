@@ -7,16 +7,16 @@
     git_repo_url: "git@github.com:anibalcoral/OpenShift-Virtualization-GitOps-Apps.git"
 
   tasks:
-    - name: Check if user is logged into OpenShift
-      kubernetes.core.k8s_info:
-        api_version: v1
-        kind: User
-        name: "~"
-      register: current_user
-
-    - name: Display current OpenShift user
-      debug:
-        msg: "Connected to OpenShift as: {{ current_user.resources[0].metadata.name }}"
+#    - name: Check if user is logged into OpenShift
+#      kubernetes.core.k8s_info:
+#        api_version: v1
+#        kind: User
+#        name: "~"
+#      register: current_user
+#
+#    - name: Display current OpenShift user
+#      ansible.builtin.debug:
+#        msg: "Connected to OpenShift as: {{ current_user.resources[0].metadata.name }}"
 
     - name: Install OpenShift GitOps Operator
       kubernetes.core.k8s:
@@ -86,7 +86,7 @@
               namespace: openshift-gitops
 
     - name: Check if SSH private key exists
-      stat:
+      ansible.builtin.stat:
         path: "{{ ansible_env.HOME }}/.ssh/ocpvirt-gitops"
       register: ssh_private_key
 
@@ -107,80 +107,43 @@
             sshPrivateKey: "{{ lookup('file', ansible_env.HOME + '/.ssh/ocpvirt-gitops') | b64encode }}"
       when: ssh_private_key.stat.exists
 
-    - name: Create ArgoCD Application for Development VMs
+    - name: Create ArgoCD Applications for all environments
       kubernetes.core.k8s:
         state: present
         definition:
           apiVersion: argoproj.io/v1alpha1
           kind: Application
           metadata:
-            name: workshop-vms-dev
+            name: "{{ item.name }}"
             namespace: openshift-gitops
           spec:
             project: default
             source:
               repoURL: "{{ git_repo_url }}"
-              targetRevision: vms-dev
-              path: overlays/dev
+              targetRevision: "{{ item.revision }}"
+              path: "{{ item.path }}"
             destination:
               server: https://kubernetes.default.svc
-              namespace: "{{ workshop_namespace_base }}-dev"
+              namespace: "{{ workshop_namespace_base }}-{{ item.env }}"
             syncPolicy:
               automated:
                 prune: true
                 selfHeal: true
               syncOptions:
                 - CreateNamespace=true
-
-    - name: Create ArgoCD Application for Homologation VMs
-      kubernetes.core.k8s:
-        state: present
-        definition:
-          apiVersion: argoproj.io/v1alpha1
-          kind: Application
-          metadata:
-            name: workshop-vms-hml
-            namespace: openshift-gitops
-          spec:
-            project: default
-            source:
-              repoURL: "{{ git_repo_url }}"
-              targetRevision: vms-hml
-              path: overlays/hml
-            destination:
-              server: https://kubernetes.default.svc
-              namespace: "{{ workshop_namespace_base }}-hml"
-            syncPolicy:
-              automated:
-                prune: true
-                selfHeal: true
-              syncOptions:
-                - CreateNamespace=true
-
-    - name: Create ArgoCD Application for Production VMs
-      kubernetes.core.k8s:
-        state: present
-        definition:
-          apiVersion: argoproj.io/v1alpha1
-          kind: Application
-          metadata:
-            name: workshop-vms-prd
-            namespace: openshift-gitops
-          spec:
-            project: default
-            source:
-              repoURL: "{{ git_repo_url }}"
-              targetRevision: main
-              path: overlays/prd
-            destination:
-              server: https://kubernetes.default.svc
-              namespace: "{{ workshop_namespace_base }}-prd"
-            syncPolicy:
-              automated:
-                prune: true
-                selfHeal: true
-              syncOptions:
-                - CreateNamespace=true
+      loop:
+        - name: "workshop-vms-dev"
+          env: dev
+          revision: vms-dev
+          path: overlays/dev
+        - name: "workshop-vms-hml"
+          env: hml
+          revision: vms-hml
+          path: overlays/hml
+        - name: "workshop-vms-prd"
+          env: prd
+          revision: main
+          path: overlays/prd
 
     - name: Get ArgoCD server route
       kubernetes.core.k8s_info:
@@ -198,14 +161,14 @@
         namespace: openshift-gitops
       register: argocd_secret
 
-    - name: Display ArgoCD access information
-      ansible.builtin.debug:
-        msg:
-          - "ArgoCD URL: https://{{ argocd_route.resources[0].spec.host }}"
-          - "Username: admin"
-          - "Password: {{ argocd_secret.resources[0].data['admin.password'] | b64decode }}"
-          - ""
-          - "Workshop namespaces will be:"
-          - "- {{ workshop_namespace_base }}-dev (Development)"
-          - "- {{ workshop_namespace_base }}-hml (Homologation)"
-          - "- {{ workshop_namespace_base }}-prd (Production)"
+#    - name: Display ArgoCD access information
+#      ansible.builtin.debug:
+#        msg:
+#          - "ArgoCD URL: https://{{ argocd_route.resources[0].spec.host }}"
+#          - "Username: admin"
+#          - "Password: {{ argocd_secret.resources[0].data['admin.password'] | b64decode }}"
+#          - ""
+#          - "Workshop namespaces will be:"
+#          - "- {{ workshop_namespace_base }}-dev (Development)"
+#          - "- {{ workshop_namespace_base }}-hml (Homologation)"
+#          - "- {{ workshop_namespace_base }}-prd (Production)"
