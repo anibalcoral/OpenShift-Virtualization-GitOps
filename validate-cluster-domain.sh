@@ -72,9 +72,9 @@ PRD_DOMAIN=$(grep -o "value: workshop-vms\.[^\"]*" overlays/prd/kustomization.ya
 
 echo ""
 log "Current domain configuration:"
-echo "  Development: $DEV_DOMAIN"
-echo "  Homologation: $HML_DOMAIN" 
-echo "  Production: $PRD_DOMAIN"
+log "  Development: $DEV_DOMAIN"
+log "  Homologation: $HML_DOMAIN" 
+log "  Production: $PRD_DOMAIN"
 echo ""
 
 EXPECTED_DEV="dev-workshop-vms.$CLUSTER_DOMAIN"
@@ -82,9 +82,9 @@ EXPECTED_HML="hml-workshop-vms.$CLUSTER_DOMAIN"
 EXPECTED_PRD="workshop-vms.$CLUSTER_DOMAIN"
 
 log "Expected domain configuration:"
-echo "  Development: $EXPECTED_DEV"
-echo "  Homologation: $EXPECTED_HML"
-echo "  Production: $EXPECTED_PRD"
+log "  Development: $EXPECTED_DEV"
+log "  Homologation: $EXPECTED_HML"
+log "  Production: $EXPECTED_PRD"
 echo ""
 
 # Check if update is needed
@@ -101,7 +101,6 @@ if [ "$UPDATE_NEEDED" = true ]; then
     PROCEED=true
     log "Auto-updating domain configuration (non-interactive mode)..."
     
-    if [ "$PROCEED" = true ]; then
         log "Updating domain configuration in all environments..."
         
         # Update dev environment
@@ -118,52 +117,42 @@ if [ "$UPDATE_NEEDED" = true ]; then
         
         log_success "Domain configuration updated!"
         
-        # Commit and push changes
-        # Always commit and push in non-interactive mode
-        COMMIT_PROCEED=true
         log "Auto-committing and pushing changes (non-interactive mode)..."
         
-        if [ "$COMMIT_PROCEED" = true ]; then
-            log "Committing changes..."
-            
-            git add .
-            git commit -m "feat: update cluster domain to $CLUSTER_DOMAIN
+        log "Committing changes..."
+        
+        git add .
+        git commit -m "feat: update cluster domain to $CLUSTER_DOMAIN
 
 - Update development domain to: $EXPECTED_DEV
 - Update homologation domain to: $EXPECTED_HML  
 - Update production domain to: $EXPECTED_PRD"
            
-#            log "Pushing to vms-dev branch..."
-#            git push origin vms-dev
-#            
-#            # Merge to hml and push
-#            log "Merging to vms-hml branch..."
-#            git checkout vms-hml
-#            git merge vms-dev
-#            git push origin vms-hml
-#            
-#            # Merge to main and push
-#            log "Merging to main branch..."
-#            git checkout main
-#            git merge vms-hml
-#            git push origin main
+        log "Pushing to vms-dev branch..."
+        git push origin vms-dev
             
-            # Switch back to vms-dev
-            git checkout vms-dev
+        # Merge to hml and push
+        log "Merging to vms-hml branch..."
+        git checkout vms-hml
+        git merge vms-dev
+        git push origin vms-hml
             
-#            log_success "Changes committed and pushed to all branches!"
-        else
-            log_warning "Changes made but not committed. Don't forget to commit and push manually."
-        fi
-    else
-        log "Domain configuration update skipped."
-    fi
+        # Merge to main and push
+        log "Merging to main branch..."
+        git checkout main
+        git merge vms-hml
+        git push origin main
+            
+        # Switch back to vms-dev
+        git checkout vms-dev
+            
+        log_success "Changes committed and pushed to all branches!"
 else
     log_success "Domain configuration is already correct!"
 fi
 
 echo ""
 log "Final configuration:"
-echo "  Development: https://dev-workshop-vms.$CLUSTER_DOMAIN"
-echo "  Homologation: https://hml-workshop-vms.$CLUSTER_DOMAIN"
-echo "  Production: https://workshop-vms.$CLUSTER_DOMAIN"
+log "  Development: https://dev-workshop-vms.$CLUSTER_DOMAIN"
+log "  Homologation: https://hml-workshop-vms.$CLUSTER_DOMAIN"
+log "  Production: https://workshop-vms.$CLUSTER_DOMAIN"
