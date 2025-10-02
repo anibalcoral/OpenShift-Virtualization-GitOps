@@ -1,17 +1,7 @@
 # Workshop Guide: OpenShift GitOps with OpenShift Virtualization
 
-## Over   This3. **Create Repository Secret for private Git access:**
-   ```bash
-   oc create secret generic workshop-gitops-repo \
-     --from-file=sshPrivateKey=$HOME/.ssh/ocpvirt-gitops \
-     --from-literal=type=git \
-     --from-literal=url=git@github.com:anibalcoral/OpenShift-Virtualization-GitOps-Apps.git \
-     -n openshift-gitops --dry-run=client -o yaml | oc apply -f -
-   
-   oc label secret workshop-gitops-repo -n openshift-gitops argocd.argoproj.io/secret-type=repository
-   ```res your configuration files use the correct cluster domain. The script automatically detects your cluster's domain and updates all necessary files.
 
-2. **Install OpenShift GitOps Operator and create complete configuration:**is workshop demonstrates how to implement GitOps principles for managing Virtual Machines (VMs) in OpenShift Virtualization using OpenShift GitOps (ArgoCD).
+This workshop demonstrates how to implement GitOps principles for managing Virtual Machines (VMs) in OpenShift Virtualization using OpenShift GitOps (ArgoCD).
 
 ## Architecture
 
@@ -49,35 +39,21 @@ You have two options to install this workshop:
 
 ### Option 1: Automated Installation (Recommended for Quick Setup)
 
-**Prerequisites:**
-- OpenShift cluster admin access
-- SSH key configured for GitHub access
-
-**Step 1: Verify SSH Configuration**
-```bash
-./verify-ssh.sh
-```
-This script will:
-- Generate SSH keys if they don't exist
-- Display your public key to add to GitHub
-- Test SSH connectivity to GitHub
-
-**Step 2: Run Installation**
+**Run Installation**
 ```bash
 ./install.sh
 ```
 
 **What the automated installation does:**
-1. Validates prerequisites (OpenShift login, ansible-playbook, oc CLI)
-2. Verifies SSH key exists and GitHub connectivity
-3. Detects cluster domain automatically using OpenShift API
-2. Detects cluster domain automatically using OpenShift API
-3. Validates and updates Apps repository domain configuration automatically
-4. Installs OpenShift GitOps Operator via Ansible playbook
-6. Creates repository secret for private Git access with SSH private key
-7. Labels repository secret for ArgoCD recognition
-8. Creates ArgoCD applications for all environments (dev, hml, prd)
-9. Displays final configuration with correct URLs and credentials
+1.  Validates prerequisites (OpenShift login, ansible-playbook, oc CLI)
+2.  Verifies SSH key exists and GitHub connectivity
+3.  Detects cluster domain automatically using OpenShift API
+4.  Validates and updates Apps repository domain configuration automatically
+5.  Installs OpenShift GitOps Operator via Ansible playbook
+6.  Creates repository secret for private Git access with SSH private key
+7.  Labels repository secret for ArgoCD recognition
+8.  Creates ArgoCD applications for all environments (dev, hml, prd)
+9.  Displays final configuration with correct URLs and credentials
 10. Cleans up temporary backup files
 
 ### Option 2: Manual Installation (Recommended for Workshop Demonstrations)
@@ -88,12 +64,6 @@ For detailed workshop demonstrations, use the pre-created YAML files in the `man
 - OpenShift cluster admin access
 
 **Manual Installation Steps:**
-
-0. **Verify SSH Configuration:**
-   ```bash
-   ./verify-ssh.sh
-   ```
-   Ensure SSH connectivity to GitHub is working before proceeding.
 
 1. **Detect and update cluster domain:**
    ```bash
@@ -111,6 +81,7 @@ For detailed workshop demonstrations, use the pre-created YAML files in the `man
    - Creates workshop namespaces for all environments (dev, hml, prd)
    - Creates ArgoCD applications for all environments
    - Sets up SSH known hosts for GitHub access
+<<<<<<< HEAD
 
 3. **Create Repository Secret for private Git access:**
    ```bash
@@ -122,6 +93,8 @@ For detailed workshop demonstrations, use the pre-created YAML files in the `man
    
    oc label secret workshop-gitops-repo -n openshift-gitops argocd.argoproj.io/secret-type=repository
    ```
+=======
+>>>>>>> developer
 
 **Alternative: Step-by-step Manual Installation (for detailed workshop demonstrations)**
 
@@ -137,17 +110,17 @@ If you prefer to show each step individually during a workshop demonstration:
    oc wait --for=condition=Ready pod -l name=argocd-application-controller -n openshift-gitops --timeout=300s
    ```
 
-3. **Create RBAC Permissions:**
+2. **Create RBAC Permissions:**
    ```bash
    oc apply -f manual-install/02-cluster-role-binding.yaml
    ```
 
-4. **Create Namespaces:**
+3. **Create Namespaces:**
    ```bash
    oc apply -f manual-install/03-namespaces.yaml
    ```
 
-5. **Create Repository Secret:**
+4. **Create Repository Secret:**
    ```bash
    oc create secret generic workshop-gitops-repo \
      --from-file=sshPrivateKey=$HOME/.ssh/ocpvirt-gitops \
@@ -158,7 +131,7 @@ If you prefer to show each step individually during a workshop demonstration:
    oc label secret workshop-gitops-repo -n openshift-gitops argocd.argoproj.io/secret-type=repository
    ```
 
-6. **Create ArgoCD Applications:**
+5. **Create ArgoCD Applications:**
    ```bash
    oc apply -f manual-install/04-argocd-app-dev.yaml
    oc apply -f manual-install/05-argocd-app-hml.yaml
@@ -274,9 +247,9 @@ oc get svc vm-web-service -n <namespace> -o yaml | grep selector -A 3
 **SSH Access Issues:**
 ```bash
 # Verify SSH secret exists in each namespace
-oc get secret ssh-key-secret -n workshop-gitops-vms-dev
-oc get secret ssh-key-secret -n workshop-gitops-vms-hml
-oc get secret ssh-key-secret -n workshop-gitops-vms-prd
+oc get secret workshop-gitops-vms-dev -n workshop-gitops-vms-dev
+oc get secret workshop-gitops-vms-hml -n workshop-gitops-vms-hml
+oc get secret workshop-gitops-vms-prd -n workshop-gitops-vms-prd
 
 # Check VM accessCredentials configuration
 oc get vm <vm-name> -n <namespace> -o yaml | grep -A 10 accessCredentials
@@ -312,7 +285,6 @@ Follow the instructions below, or use the individual YAML files in `manual-insta
 ### Option 1: Automated Installation (Recommended for Quick Start)
 
 ```bash
-export GITHUB_USERNAME="your-github-username"
 ./install.sh
 ```
 
@@ -565,8 +537,6 @@ oc describe application workshop-vms-dev -n openshift-gitops
 
 ### Regular Monitoring Commands
 
-### Check Application Status
-```bash
 ### Check Application Status
 ```bash
 oc get applications.argoproj.io -n openshift-gitops
