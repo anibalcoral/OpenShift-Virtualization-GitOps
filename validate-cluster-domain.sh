@@ -8,11 +8,7 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m'
 
-# Check for -y parameter for non-interactive mode
-AUTO_YES=false
-if [[ "$1" == "-y" ]]; then
-    AUTO_YES=true
-fi
+# Non-interactive mode: always proceed and auto-commit
 
 log() {
     echo -e "${BLUE}[$(date '+%Y-%m-%d %H:%M:%S')]${NC} $1"
@@ -101,17 +97,9 @@ if [ "$UPDATE_NEEDED" = true ]; then
     log_warning "Domain configuration update needed!"
     echo ""
     
-    PROCEED=false
-    if [ "$AUTO_YES" = true ]; then
-        PROCEED=true
-        log "Auto-updating domain configuration (non-interactive mode)..."
-    else
-        read -p "Do you want to update the domain configuration? (y/N): " -r
-        echo ""
-        if [[ $REPLY =~ ^[Yy]$ ]]; then
-            PROCEED=true
-        fi
-    fi
+    # Always proceed in non-interactive mode
+    PROCEED=true
+    log "Auto-updating domain configuration (non-interactive mode)..."
     
     if [ "$PROCEED" = true ]; then
         log "Updating domain configuration in all environments..."
@@ -131,17 +119,9 @@ if [ "$UPDATE_NEEDED" = true ]; then
         log_success "Domain configuration updated!"
         
         # Commit and push changes
-        COMMIT_PROCEED=false
-        if [ "$AUTO_YES" = true ]; then
-            COMMIT_PROCEED=true
-            log "Auto-committing and pushing changes (non-interactive mode)..."
-        else
-            read -p "Do you want to commit and push the changes? (y/N): " -r
-            echo ""
-            if [[ $REPLY =~ ^[Yy]$ ]]; then
-                COMMIT_PROCEED=true
-            fi
-        fi
+        # Always commit and push in non-interactive mode
+        COMMIT_PROCEED=true
+        log "Auto-committing and pushing changes (non-interactive mode)..."
         
         if [ "$COMMIT_PROCEED" = true ]; then
             log "Committing changes..."
@@ -157,21 +137,21 @@ if [ "$UPDATE_NEEDED" = true ]; then
 - Update development domain to: $EXPECTED_DEV
 - Update homologation domain to: $EXPECTED_HML  
 - Update production domain to: $EXPECTED_PRD"
-            
-            log "Pushing to vms-dev branch..."
-            git push origin vms-dev
-            
-            # Merge to hml and push
-            log "Merging to vms-hml branch..."
-            git checkout vms-hml
-            git merge vms-dev
-            git push origin vms-hml
-            
-            # Merge to main and push
-            log "Merging to main branch..."
-            git checkout main
-            git merge vms-hml
-            git push origin main
+           
+        #    log "Pushing to vms-dev branch..."
+        #    git push origin vms-dev
+        #    
+        #    # Merge to hml and push
+        #    log "Merging to vms-hml branch..."
+        #    git checkout vms-hml
+        #    git merge vms-dev
+        #    git push origin vms-hml
+        #    
+        #    # Merge to main and push
+        #    log "Merging to main branch..."
+        #    git checkout main
+        #    git merge vms-hml
+        #    git push origin main
             
             # Switch back to vms-dev
             git checkout vms-dev
