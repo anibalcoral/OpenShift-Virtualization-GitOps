@@ -126,11 +126,6 @@ if [ "$UPDATE_NEEDED" = true ]; then
         if [ "$COMMIT_PROCEED" = true ]; then
             log "Committing changes..."
             
-            # Reset ssh-secret.yaml to avoid committing sensitive data
-            if [ -f "base/ssh-secret.yaml" ]; then
-                git checkout HEAD -- base/ssh-secret.yaml 2>/dev/null || true
-            fi
-            
             git add .
             git commit -m "feat: update cluster domain to $CLUSTER_DOMAIN
 
@@ -138,25 +133,25 @@ if [ "$UPDATE_NEEDED" = true ]; then
 - Update homologation domain to: $EXPECTED_HML  
 - Update production domain to: $EXPECTED_PRD"
            
-        #    log "Pushing to vms-dev branch..."
-        #    git push origin vms-dev
-        #    
-        #    # Merge to hml and push
-        #    log "Merging to vms-hml branch..."
-        #    git checkout vms-hml
-        #    git merge vms-dev
-        #    git push origin vms-hml
-        #    
-        #    # Merge to main and push
-        #    log "Merging to main branch..."
-        #    git checkout main
-        #    git merge vms-hml
-        #    git push origin main
+#            log "Pushing to vms-dev branch..."
+#            git push origin vms-dev
+#            
+#            # Merge to hml and push
+#            log "Merging to vms-hml branch..."
+#            git checkout vms-hml
+#            git merge vms-dev
+#            git push origin vms-hml
+#            
+#            # Merge to main and push
+#            log "Merging to main branch..."
+#            git checkout main
+#            git merge vms-hml
+#            git push origin main
             
             # Switch back to vms-dev
             git checkout vms-dev
             
-            log_success "Changes committed and pushed to all branches!"
+#            log_success "Changes committed and pushed to all branches!"
         else
             log_warning "Changes made but not committed. Don't forget to commit and push manually."
         fi
