@@ -81,20 +81,6 @@ For detailed workshop demonstrations, use the pre-created YAML files in the `man
    - Creates workshop namespaces for all environments (dev, hml, prd)
    - Creates ArgoCD applications for all environments
    - Sets up SSH known hosts for GitHub access
-<<<<<<< HEAD
-
-3. **Create Repository Secret for private Git access:**
-   ```bash
-   oc create secret generic workshop-gitops-repo \
-     --from-file=sshPrivateKey=$HOME/.ssh/ocpvirt-gitops \
-     --from-literal=type=git \
-     --from-literal=url=git@github.com:anibalcoral/OpenShift-Virtualization-GitOps-Apps.git \
-     -n openshift-gitops --dry-run=client -o yaml | oc apply -f -
-   
-   oc label secret workshop-gitops-repo -n openshift-gitops argocd.argoproj.io/secret-type=repository
-   ```
-=======
->>>>>>> developer
 
 **Alternative: Step-by-step Manual Installation (for detailed workshop demonstrations)**
 
