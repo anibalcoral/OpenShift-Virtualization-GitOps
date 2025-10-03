@@ -177,14 +177,8 @@
               targetRevision: "{{ item.revision }}"
               path: "{{ item.path }}"
             destination:
-              server: https://kubernetes.default.svc
+              server: https://kubernetes.defStep 4: Checking that the VM's runStrategy is indeed Haltedault.svc
               namespace: "{{ workshop_namespace_base }}-{{ item.env }}"
-            syncPolicy:
-              automated:
-                prune: true
-                selfHeal: true
-              syncOptions:
-                - CreateNamespace=true
       loop:
         - name: "workshop-vms-dev"
           env: dev
@@ -198,3 +192,27 @@
           env: prd
           revision: main
           path: overlays/prd
+
+    # oc patch applications.argoproj.io workshop-vms-dev -n openshift-gitops --type merge --patch '{"operation":{"sync":{"revision":"HEAD"}}}'
+    - name: Force sync ArgoCD Applications via k8s patch
+      kubernetes.core.k8s:
+        state: patched
+        definition:
+          apiVersion: argoproj.io/v1alpha1
+          kind: Application
+          metadata:
+            name: "{{ item.name }}"
+            namespace: openshift-gitops
+          operation:
+            sync:
+              revision: "HEAD"
+      loop:
+        - name: "workshop-vms-dev"
+          env: dev
+          revision: vms-dev
+        - name: "workshop-vms-hml"
+          env: hml
+          revision: vms-hml
+        - name: "workshop-vms-prd"
+          env: prd
+          revision: main

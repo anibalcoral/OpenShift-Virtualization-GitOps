@@ -443,6 +443,71 @@ Demonstrates complete VM recovery after catastrophic failure.
 4. ArgoCD recreates VM with fresh storage
 5. Complete recovery from Git definitions
 
+### Demo 3: Adding New Development VM via Git Change
+
+Demonstrates adding new infrastructure through Git commits and GitOps automation.
+
+```bash
+./demo-scripts/demo3-add-development-vm.sh
+```
+
+**What happens:**
+1. Currently only 2 VMs exist in development environment
+2. Developer needs a third VM for expanded testing
+3. Add vm-web-03.yaml to Git repository
+4. Update kustomization.yaml to include new VM
+5. Commit and push changes to vms-dev branch
+6. ArgoCD automatically detects and deploys new VM
+7. Development environment now has 3 VMs
+
+**Cleanup after demo:**
+```bash
+./demo-scripts/cleanup-demo3.sh
+```
+
+### Demo 4: Initial VM Deployment from Git Repository
+
+Demonstrates the complete GitOps deployment process from scratch.
+
+```bash
+./demo-scripts/demo4-initial-deployment.sh
+```
+
+**What happens:**
+1. Review VirtualMachine YAML structure in Git
+2. Examine production overlay customizations
+3. Show ArgoCD application in "OutOfSync" state
+4. Trigger manual sync in ArgoCD
+5. Monitor VM creation and startup process
+6. Verify all associated resources (DataVolume, Service, Route)
+
+### Demo 5: Live VM Configuration Update via Git
+
+Demonstrates live infrastructure updates through Git workflow.
+
+```bash
+./demo-scripts/demo5-live-config-update.sh
+```
+
+**What happens:**
+1. Check current VM configuration (2Gi memory)
+2. Edit VM configuration in Git (change to 4Gi memory)
+3. Commit and push changes to vms-hml branch
+4. ArgoCD automatically detects Git changes
+5. ArgoCD applies configuration update to running VM
+6. VM restarts with new memory configuration
+7. Configuration automatically restored to baseline after demo
+
+### Running All Demos
+
+Use the interactive demo runner to easily run any demo:
+
+```bash
+./demo-scripts/run-demos.sh
+```
+
+This script provides a menu-driven interface to run any demo or check workshop status.
+
 ## GitOps Workflow
 
 ### 1. Development Process

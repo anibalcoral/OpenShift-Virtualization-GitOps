@@ -2,27 +2,8 @@
 
 set -e
 
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m'
-
-log() {
-    echo -e "${BLUE}[$(date '+%Y-%m-%d %H:%M:%S')]${NC} $1"
-}
-
-log_success() {
-    echo -e "${GREEN}[$(date '+%Y-%m-%d %H:%M:%S')] SUCCESS:${NC} $1"
-}
-
-log_error() {
-    echo -e "${RED}[$(date '+%Y-%m-%d %H:%M:%S')] ERROR:${NC} $1"
-}
-
-log_warning() {
-    echo -e "${YELLOW}[$(date '+%Y-%m-%d %H:%M:%S')] WARNING:${NC} $1"
-}
+# Source common functions
+source "$(dirname "$0")/demo-functions.sh"
 
 echo "Workshop Status Checker"
 echo "======================="
@@ -35,9 +16,7 @@ echo ""
 log "2. Checking Application Sync Status..."
 echo "---------------------------------------"
 for app in workshop-vms-dev workshop-vms-hml workshop-vms-prd; do
-    status=$(oc get applications.argoproj.io $app -n openshift-gitops -o jsonpath='{.status.sync.status}' 2>/dev/null)
-    health=$(oc get applications.argoproj.io $app -n openshift-gitops -o jsonpath='{.status.health.status}' 2>/dev/null)
-    echo "$app: Sync=$status, Health=$health"
+    show_app_status $app
 done
 
 echo ""
