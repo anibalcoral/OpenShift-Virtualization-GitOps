@@ -69,6 +69,30 @@
       delay: 10
       failed_when: false
 
+    - name: Apply KubeVirt Health Check Customization to ArgoCD
+      kubernetes.core.k8s:
+        api_version: argoproj.io/v1alpha1
+        kind: ArgoCD
+        name: openshift-gitops
+        namespace: openshift-gitops
+        state: patched
+        definition:
+          spec:
+            extraConfig:
+              resource.customizations.health.Pod: |
+                hs = { status = "Progressing", message = "Pod is starting" }
+
+                if obj.status and obj.status.phase then
+                  local phase = obj.status.phase
+                  if phase == "Running" or phase == "Succeeded" then
+                    hs = { status = "Healthy", message = "Pod is running" }
+                  elseif phase == "Failed" then
+                    hs = { status = "Degraded", message = "Pod has failed." }
+                  end
+                end
+
+                return hs
+
     - name: Wait for ArgoCD server pod to be ready
       kubernetes.core.k8s_info:
         api_version: v1

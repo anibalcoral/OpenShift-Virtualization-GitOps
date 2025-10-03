@@ -121,6 +121,7 @@ if [ "$UPDATE_NEEDED" = true ]; then
         
         log "Committing changes..."
         
+        git pull
         git add .
         git commit -m "feat: update cluster domain to $CLUSTER_DOMAIN
 
@@ -134,12 +135,14 @@ if [ "$UPDATE_NEEDED" = true ]; then
         # Merge to hml and push
         log "Merging to vms-hml branch..."
         git checkout vms-hml
+        git pull
         git merge vms-dev
         git push origin vms-hml
             
         # Merge to main and push
         log "Merging to main branch..."
         git checkout main
+        git pull
         git merge vms-hml
         git push origin main
             
