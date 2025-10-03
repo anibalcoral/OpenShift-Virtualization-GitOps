@@ -14,6 +14,7 @@ echo "2. VM Recovery from Data Loss (Removing and Recreating VM)"
 echo "3. Adding New Development VM via Git Change"
 echo ""
 echo "Utility options:"
+echo "a. Run all demos sequentially"
 echo "s. Check workshop status"
 echo "c. Cleanup Demo 3 resources"
 echo "q. Quit"
@@ -51,6 +52,17 @@ while true; do
         q|Q)
             log "Exiting demo runner..."
             exit 0
+            ;;
+        a|A)
+            log "Running all demos sequentially..."
+            echo ""
+            ./demo-scripts/demo1-manual-change.sh
+            echo ""
+            ./demo-scripts/demo2-vm-recovery.sh
+            echo ""
+            ./demo-scripts/demo3-add-development-vm.sh
+            echo ""
+            ./demo-scripts/cleanup-demo3.sh
             ;;
         *)
             log_error "Invalid choice. Please select 1-5, s, c, or q."
