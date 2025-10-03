@@ -10,10 +10,8 @@ echo "======================================="
 echo ""
 echo "Available demos:"
 echo "1. Manual Change Detection and Drift Correction"
-echo "2. VM Recovery from Data Loss"
+echo "2. VM Recovery from Data Loss (Removing and Recreating VM)"
 echo "3. Adding New Development VM via Git Change"
-echo "4. Initial VM Deployment from Git Repository"
-echo "5. Live VM Configuration Update via Git"
 echo ""
 echo "Utility options:"
 echo "s. Check workshop status"
@@ -39,16 +37,6 @@ while true; do
             log "Running Demo 3: Adding New Development VM via Git Change"
             echo ""
             ./demo-scripts/demo3-add-development-vm.sh
-            ;;
-        4)
-            log "Running Demo 4: Initial VM Deployment from Git Repository"
-            echo ""
-            ./demo-scripts/demo4-initial-deployment.sh
-            ;;
-        5)
-            log "Running Demo 5: Live VM Configuration Update via Git"
-            echo ""
-            ./demo-scripts/demo5-live-config-update.sh
             ;;
         s|S)
             log "Checking workshop status..."

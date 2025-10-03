@@ -1,0 +1,167 @@
+# Demo 1: Manual Change Detection and Drift Correction
+
+## Overview
+This demo demonstrates how ArgoCD detects manual changes made directly to OpenShift resources and automatically corrects the configuration drift by reverting to the state defined in Git.
+
+## Prerequisites
+- ArgoCD Operator installed and configured
+- Workshop GitOps VMs development environment deployed
+- Access to OpenShift cluster with `oc` CLI
+
+## Environment Details
+- **Namespace**: `workshop-gitops-vms-dev`
+- **VM Name**: `dev-vm-web-01`
+- **ArgoCD Application**: `workshop-vms-dev`
+- **Git Run Strategy**: `Always` (VM should be running)
+- **Manual Change**: Set `runStrategy` to `Halted` (stop the VM)
+
+## Step-by-Step Manual Instructions
+
+### Step 1: Check Current VM State and Application Status
+
+1. Check the ArgoCD application status:
+```bash
+oc get applications.argoproj.io workshop-vms-dev -n openshift-gitops -o jsonpath='{.status.sync.status}'
+oc get applications.argoproj.io workshop-vms-dev -n openshift-gitops -o jsonpath='{.status.health.status}'
+```
+
+2. Verify the VM exists and is running:
+```bash
+oc get vm dev-vm-web-01 -n workshop-gitops-vms-dev
+oc get vmi dev-vm-web-01 -n workshop-gitops-vms-dev
+```
+
+3. Check the current runStrategy (should be "Always"):
+```bash
+oc get vm dev-vm-web-01 -n workshop-gitops-vms-dev -o jsonpath='{.spec.runStrategy}'
+```
+
+**Expected Result**: VM should exist and be running with `runStrategy: Always`
+
+### Step 2: Make Manual Change to Stop the VM
+
+1. Apply a manual change to halt the VM:
+```bash
+oc patch vm dev-vm-web-01 -n workshop-gitops-vms-dev --type merge -p '{"spec":{"runStrategy":"Halted"}}'
+```
+
+2. Verify the change was applied:
+```bash
+oc get vm dev-vm-web-01 -n workshop-gitops-vms-dev -o jsonpath='{.spec.runStrategy}'
+```
+
+**Expected Result**: `runStrategy` should now be "Halted"
+
+### Step 3: Wait for VM to Shut Down
+
+1. Monitor the VirtualMachineInstance deletion:
+```bash
+# Check VMI status until it's deleted
+oc get vmi dev-vm-web-01 -n workshop-gitops-vms-dev
+```
+
+2. Wait for the VMI to be completely removed:
+```bash
+# Keep checking until this command returns "not found"
+oc get vmi dev-vm-web-01 -n workshop-gitops-vms-dev
+```
+
+**Expected Result**: The VirtualMachineInstance should be deleted, confirming the VM has stopped
+
+### Step 4: Force ArgoCD to Detect the Drift
+
+1. Force application refresh to detect changes:
+```bash
+oc patch applications.argoproj.io workshop-vms-dev -n openshift-gitops --type merge -p '{"operation":{"initiatedBy":{"username":"admin"},"sync":{"revision":"HEAD"}}}'
+```
+
+2. Check application status repeatedly until drift is detected:
+```bash
+# Run this command multiple times until you see "OutOfSync"
+oc get applications.argoproj.io workshop-vms-dev -n openshift-gitops -o jsonpath='{.status.sync.status}'
+```
+
+**Expected Result**: Application sync status should change to "OutOfSync"
+
+### Step 5: Trigger ArgoCD Sync to Correct the Drift
+
+1. Trigger manual sync to revert the changes:
+```bash
+oc patch applications.argoproj.io workshop-vms-dev -n openshift-gitops --type merge -p '{"operation":{"initiatedBy":{"username":"admin"},"sync":{"revision":"HEAD"}}}'
+```
+
+2. Monitor the sync process:
+```bash
+# Watch the sync status return to "Synced"
+watch oc get applications.argoproj.io workshop-vms-dev -n openshift-gitops -o jsonpath='{.status.sync.status}'
+```
+
+**Expected Result**: Sync status should return to "Synced"
+
+### Step 6: Verify Configuration Restoration
+
+1. Check that the runStrategy has been reverted:
+```bash
+oc get vm dev-vm-web-01 -n workshop-gitops-vms-dev -o jsonpath='{.spec.runStrategy}'
+```
+
+2. Wait for the VM to start again:
+```bash
+# Monitor VM status
+watch oc get vm dev-vm-web-01 -n workshop-gitops-vms-dev -o jsonpath='{.status.printableStatus}'
+```
+
+3. Verify the VirtualMachineInstance is running:
+```bash
+oc get vmi dev-vm-web-01 -n workshop-gitops-vms-dev
+```
+
+**Expected Result**: 
+- `runStrategy` should be back to "Always"
+- VM status should be "Running"
+- VirtualMachineInstance should exist and be ready
+
+### Step 7: Final Verification
+
+1. Check final application status:
+```bash
+oc get applications.argoproj.io workshop-vms-dev -n openshift-gitops -o custom-columns="NAME:.metadata.name,SYNC:.status.sync.status,HEALTH:.status.health.status"
+```
+
+2. List all VMs in the development environment:
+```bash
+oc get vm -n workshop-gitops-vms-dev
+```
+
+**Expected Result**: Application should be "Synced" and "Healthy"
+
+## Summary of What Was Demonstrated
+
+✓ **Manual Change**: Made a direct change to VM configuration (stopped the VM)  
+✓ **Drift Detection**: ArgoCD detected the configuration drift (OutOfSync status)  
+✓ **Automatic Correction**: ArgoCD automatically reverted the change  
+✓ **State Restoration**: VM was restarted with the correct Git-defined configuration  
+✓ **GitOps Enforcement**: Demonstrated that Git is the single source of truth  
+
+## Key Learning Points
+
+- **Configuration Drift**: Manual changes to resources are detected by ArgoCD
+- **Self-Healing**: GitOps automatically corrects unauthorized changes
+- **Audit Trail**: All changes and corrections are logged in ArgoCD
+- **Consistency**: Git repository remains the authoritative source of configuration
+- **Operational Safety**: Prevents configuration drift in production environments
+
+## Troubleshooting
+
+If the demo doesn't work as expected:
+
+1. **VM not found**: Ensure the development environment is properly deployed
+2. **ArgoCD not detecting drift**: Try forcing a refresh with annotation:
+   ```bash
+   oc annotate applications.argoproj.io workshop-vms-dev -n openshift-gitops argocd.argoproj.io/refresh="$(date)" --overwrite
+   ```
+3. **VM not starting**: Check VM events and DataVolume status:
+   ```bash
+   oc describe vm dev-vm-web-01 -n workshop-gitops-vms-dev
+   oc get dv -n workshop-gitops-vms-dev
+   ```
