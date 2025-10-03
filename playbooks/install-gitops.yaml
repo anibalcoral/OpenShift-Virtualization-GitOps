@@ -69,7 +69,7 @@
       delay: 10
       failed_when: false
 
-    - name: Apply KubeVirt Health Check Customization to ArgoCD
+    - name: Apply KubeVirt Pod Health Check Customization to ArgoCD
       kubernetes.core.k8s:
         api_version: argoproj.io/v1alpha1
         kind: ArgoCD
