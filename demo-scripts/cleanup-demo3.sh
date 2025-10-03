@@ -54,7 +54,6 @@ resources:
   - ssh-secret.yaml
   - vm-web-01.yaml
   - vm-web-02.yaml
-  - vm-web-03.yaml
   - vm-web-service.yaml
 EOF
 
@@ -84,7 +83,6 @@ log "Step 4: Wait for ArgoCD to detect and apply cleanup..."
 cd -
 
 log "Step 4.1: Triggering an ArgoCD sync to correct the drift (with prune)..."
-# Include prune=true so ArgoCD will remove resources deleted from the Git repo
 oc patch applications.argoproj.io $APP_NAME -n openshift-gitops --type merge -p '{"operation":{"initiatedBy":{"username":"admin"},"sync":{"revision":"HEAD","prune":true}}}'
 log_success "ArgoCD sync with prune triggered."
 

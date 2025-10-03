@@ -134,7 +134,6 @@ resources:
   - ssh-secret.yaml
   - vm-web-01.yaml
   - vm-web-02.yaml
-  - vm-web-03.yaml
   - vm-web-service.yaml
 EOF
 
