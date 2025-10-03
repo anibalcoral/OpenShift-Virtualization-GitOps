@@ -164,7 +164,7 @@ git push origin vms-dev
 log_success "Changes committed and pushed to vms-dev branch"
 
 log "Step 4.1: Triggering an ArgoCD sync to correct the drift..."
-oc patch applications.argoproj.io $APP_NAME -n openshift-gitops --type merge -p '{"operation":{"initiatedBy":{"username":"admin"},"sync":{"revision":"HEAD"}}}'
+oc patch applications.argoproj.io $APP_NAME -n openshift-gitops --type merge -p '{"spec":{"syncPolicy":{"automated":null}},"operation":{"sync":{"revision":"HEAD","prune":true,"dryRun":false}}}'
 log_success "ArgoCD sync triggered."
 
 echo ""

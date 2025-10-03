@@ -1,67 +1,83 @@
 # OpenShift GitOps with OpenShift Virtualization Workshop
 
-This workshop demonstrates how to use OpenShift GitOps (ArgoCD) to manage Virtual Machines in OpenShift Virtualization using a GitOps approach.
+This workshop demonstrates how to use OpenShift GitOps (ArgoCD) to manage Virtual Machines in OpenShift Virtualization using a GitOps approach. The workshop includes automated installation, multiple environment configurations, and practical demos showing GitOps capabilities.
 
 ## Prerequisites
 
-- OpenShift cluster with OpenShift Virtualization installed
-- Fedora template available in OpenShift Virtualization
-- oc CLI tool configured and logged in to your cluster
-- ansible-playbook installed
-- Git repository access
-- SSH key pair generated (`ssh-keygen -t rsa -b 4096`)
+Before starting the workshop, ensure you have:
 
-**Important**: SSH keys for VM access are pre-configured in the workshop Apps repository. No additional SSH setup is required.
+- **OpenShift cluster** with OpenShift Virtualization operator installed and configured
+- **Fedora template** available in OpenShift Virtualization
+- **oc CLI tool** installed and configured with cluster-admin privileges
+- **ansible-playbook** installed (for automated installation)
+- **Git access** to the companion Apps repository
+- Both repositories cloned locally:
+  ```bash
+  git clone git@github.com:anibalcoral/OpenShift-Virtualization-GitOps.git
+  git clone git@github.com:anibalcoral/OpenShift-Virtualization-GitOps-Apps.git
+  ```
 
-## Workshop Structure
+**Note**: The Apps repository must be cloned as a sibling directory (`../OpenShift-Virtualization-GitOps-Apps`) for domain validation scripts to work correctly.
 
-This workshop uses a multi-branch strategy where each branch represents a different environment:
+## Workshop Architecture
 
-- **main branch**: Production VMs (workshop-gitops-vms-prd namespace)
-- **vms-hml branch**: Staging/Homologation VMs (workshop-gitops-vms-hml namespace)
+This workshop uses a **dual-repository strategy** with **multi-branch environments**:
+
+### Repository Structure
+- **Configuration Repository** (this repo): Contains installation scripts, playbooks, and workshop demos
+- **Applications Repository**: Contains VM definitions and Kustomize configurations for each environment
+
+### Environment Strategy
 - **vms-dev branch**: Development VMs (workshop-gitops-vms-dev namespace)
+- **vms-hml branch**: Homologation/Staging VMs (workshop-gitops-vms-hml namespace)  
+- **main branch**: Production VMs (workshop-gitops-vms-prd namespace)
 
-Virtual Machine definitions and Kustomize configurations are stored in a separate repository: [OpenShift-Virtualization-GitOps-Apps](https://github.com/anibalcoral/OpenShift-Virtualization-GitOps-Apps)
+Each environment uses Kustomize overlays for environment-specific resource configurations (CPU, memory, disk, naming prefixes).
 
-## Quick Setup
+## Quick Start Installation
 
-1. **Generate SSH key pair (if not already done):**
+### Automated Installation (Recommended)
+
+1. **Clone both repositories:**
    ```bash
-   ssh-keygen -t rsa -b 4096
+   git clone git@github.com:anibalcoral/OpenShift-Virtualization-GitOps.git
+   git clone git@github.com:anibalcoral/OpenShift-Virtualization-GitOps-Apps.git
+   cd OpenShift-Virtualization-GitOps
    ```
 
-2. **Install OpenShift GitOps and configure the workshop:**
+2. **Run the installation script:**
    ```bash
    ./install.sh
    ```
-   The installation script automatically detects your cluster's application domain and configures routes accordingly.
+   This script will:
+   - Detect your cluster's application domain automatically
+   - Install OpenShift GitOps operator
+   - Create workshop namespaces and ArgoCD applications
+   - Configure domain-specific routes in the Apps repository
 
-3. **Validate cluster domain configuration (optional):**
-   ```bash
-   ./validate-cluster-domain.sh
-   ```
-   This script will automatically detect your cluster domain and update the Apps repository if needed.
-
-4. **Check workshop status:**
+3. **Verify installation:**
    ```bash
    ./demo-scripts/check-status.sh
    ```
 
-5. **Clean up the workshop environment:**
+4. **Access ArgoCD UI:**
    ```bash
-   ./remove.sh
+   # Get ArgoCD URL and credentials
+   echo "ArgoCD URL: https://$(oc get route openshift-gitops-server -n openshift-gitops -o jsonpath='{.spec.host}')"
+   echo "Username: admin"
+   echo "Password: $(oc get secret openshift-gitops-cluster -n openshift-gitops -o jsonpath='{.data.admin\.password}' | base64 -d)"
    ```
 
-## Manual Installation
+### Manual Installation
 
-If you prefer to install components manually or want to understand each step:
+For step-by-step installation or troubleshooting:
 
-2. **Install OpenShift GitOps Operator using Ansible:**
+1. **Install GitOps operator:**
    ```bash
    ansible-playbook -i inventory/localhost playbooks/install-gitops.yaml
    ```
 
-3. **Apply the manual installation manifests:**
+2. **Apply manual manifests in order:**
    ```bash
    oc apply -f manual-install/01-gitops-operator-subscription.yaml
    oc apply -f manual-install/02-cluster-role-binding.yaml
@@ -71,125 +87,177 @@ If you prefer to install components manually or want to understand each step:
    oc apply -f manual-install/06-argocd-app-prd.yaml
    ```
 
-## Workshop Demos
+3. **Validate cluster domain configuration:**
+   ```bash
+   ./validate-cluster-domain.sh
+   ```
 
-### Demo 1: Manual Changes Detection
+## Workshop Demonstrations
+
+### Demo 1: Manual Change Detection and Drift Correction
 ```bash
 ./demo-scripts/demo1-manual-change.sh
 ```
+**Demonstrates:**
+- Manual modifications to VM resources
+- ArgoCD detecting "OutOfSync" status
+- Automatic drift correction and resource recreation
 
-Demonstrates:
-- Manual changes to VM objects
-- "OutOfSync" status in ArgoCD
-- Automatic VM recreation from Git
-
-### Demo 2: VM Recovery
+### Demo 2: Virtual Machine Recovery
 ```bash
 ./demo-scripts/demo2-vm-recovery.sh
 ```
+**Demonstrates:**
+- VM corruption/deletion simulation
+- Complete VM recovery from Git state
+- GitOps-based disaster recovery capabilities
 
-Demonstrates:
-- VM corruption/data loss simulation
-- Complete VM recovery from Git definitions
-- GitOps-based disaster recovery
+### Demo 3: Adding New Development VM
+```bash
+./demo-scripts/demo3-add-development-vm.sh
+```
+**Demonstrates:**
+- Git-based workflow for adding new VMs
+- Environment-specific configurations
+- ArgoCD automated deployment
+
+### Run All Demos Interactively
+```bash
+./demo-scripts/run-demos.sh
+```
 
 ## ArgoCD Applications
 
-After installation, three ArgoCD applications will be created:
+The workshop creates three ArgoCD applications:
 
 - **workshop-vms-dev**: Manages development VMs from the `vms-dev` branch
 - **workshop-vms-hml**: Manages homologation VMs from the `vms-hml` branch  
-- **workshop-vms-prd**: Manages production VMs from the `master` branch
+- **workshop-vms-prd**: Manages production VMs from the `main` branch
 
-Each application uses:
-- **Kustomize overlays** for environment-specific configurations
-- **Automated sync** with prune and self-heal enabled
-- **Auto-creation** of target namespaces
+Each application:
+- Points to a specific branch in the Apps repository
+- Uses **Kustomize overlays** for environment-specific configurations
+- Has **automated sync** enabled with prune and self-heal
+- **Auto-creates** target namespaces if they don't exist
 
-## Accessing ArgoCD
+## Environment Details
 
-After installation, you can access ArgoCD using:
+### Development Environment (vms-dev branch)
+- **Namespace**: `workshop-gitops-vms-dev`
+- **VMs**: 
+  - `dev-vm-web-01` (1 CPU, 2GB RAM, 30GB disk)
+  - `dev-vm-web-02` (1 CPU, 2GB RAM, 30GB disk)
+- **Route**: `https://dev-workshop-vms.<cluster-domain>`
 
+### Homologation Environment (vms-hml branch)
+- **Namespace**: `workshop-gitops-vms-hml`
+- **VMs**: 
+  - `hml-vm-web-01` (2 CPU, 3GB RAM, 40GB disk)
+  - `hml-vm-web-02` (2 CPU, 3GB RAM, 40GB disk)
+- **Route**: `https://hml-workshop-vms.<cluster-domain>`
+
+### Production Environment (main branch)
+- **Namespace**: `workshop-gitops-vms-prd`
+- **VMs**: 
+  - `prd-vm-web-01` (2 CPU, 4GB RAM, 50GB disk)
+  - `prd-vm-web-02` (2 CPU, 4GB RAM, 50GB disk)
+- **Route**: `https://workshop-vms.<cluster-domain>`
+
+## Virtual Machine Configuration
+
+All VMs are based on Fedora templates and include:
+
+- **Operating System**: Fedora (from OpenShift Virtualization template)
+- **Web Server**: Apache HTTP Server pre-configured
+- **Access Methods**:
+  - **Console Access**: Username `cloud-user`, Password `redhat123`
+  - **SSH Access**: Key-based authentication (automatically configured)
+  - **Web Interface**: HTTP server accessible via OpenShift routes
+- **Network**: Connected to pod network with services and routes for external access
+- **Storage**: Persistent volumes with environment-specific sizes
+
+### Accessing Virtual Machines
+
+1. **Via OpenShift Console**: Navigate to Virtualization → VirtualMachines
+2. **Via CLI**: 
+   ```bash
+   oc get vm -n <namespace>
+   virtctl console <vm-name> -n <namespace>
+   ```
+3. **Via SSH** (after VM is running):
+   ```bash
+   virtctl ssh cloud-user@<vm-name> -n <namespace>
+   ```
+4. **Via Web Routes**: Access the web application through the configured routes
+
+## Automatic Domain Configuration
+
+The workshop automatically detects and configures your OpenShift cluster's application domain, eliminating manual configuration.
+
+### How Domain Detection Works
+
+1. **Cluster Query**: The installation script queries the cluster's ingress configuration:
+   ```bash
+   oc get ingress.config.openshift.io/cluster -o jsonpath='{.spec.domain}'
+   ```
+
+2. **Automatic Updates**: Detected domains are automatically configured in route definitions within the Apps repository
+
+3. **Support for Any Domain**: Works with any valid OpenShift application domain pattern:
+   - `apps.cluster-name.domain.com`
+   - `apps.sandbox.x8y9.p1.openshiftapps.com`
+   - Custom enterprise domains
+
+### Domain Validation Tools
+
+- **Automatic during installation**: `./install.sh` (detects and configures automatically)
+- **Manual validation**: `./validate-cluster-domain.sh` (interactive validation and updates)
+
+## Cleanup and Maintenance
+
+### Complete Workshop Removal
 ```bash
-# Get ArgoCD URL
-echo "ArgoCD URL: https://$(oc get route openshift-gitops-server -n openshift-gitops -o jsonpath='{.spec.host}')"
-
-# Get ArgoCD admin password
-echo "ArgoCD Password: $(oc get secret openshift-gitops-cluster -n openshift-gitops -o jsonpath='{.data.admin\.password}' | base64 -d)"
+./remove.sh
 ```
+This removes:
+- All ArgoCD applications
+- Workshop namespaces and resources
+- GitOps operator (optional)
 
-Username: `admin`
-
-## Environment Branches
-
-- **vms-dev**: Development environment (workshop-gitops-vms-dev namespace)
-  - dev-vm-web-01 (1 CPU, 2GB RAM, 30GB disk)
-  - dev-vm-web-02 (1 CPU, 2GB RAM, 30GB disk)
-  - dev-vm-web-03 (1 CPU, 2GB RAM, 30GB disk)
-
-- **vms-hml**: Homologation/Staging environment (workshop-gitops-vms-hml namespace)
-  - hml-vm-web-01 (2 CPU, 3GB RAM, 40GB disk)
-  - hml-vm-web-02 (2 CPU, 3GB RAM, 40GB disk)
-  - hml-vm-web-03 (2 CPU, 3GB RAM, 40GB disk)
-
-- **master**: Production environment (workshop-gitops-vms-prd namespace)
-  - prd-vm-web-01 (2 CPU, 4GB RAM, 50GB disk)
-  - prd-vm-web-02 (2 CPU, 4GB RAM, 50GB disk)
-  - prd-vm-web-03 (2 CPU, 4GB RAM, 50GB disk)
-
-## VM Access
-
-All VMs are configured with SSH access using your public key:
-
-- **Username**: `cloud-user`
-- **Password**: `redhat123` (for console access)
-- **SSH Access**: Uses your `~/.ssh/ocpvirt-gitops-labs.pub` key automatically
-
-To access a VM via SSH:
+### Status Monitoring
 ```bash
-# Get VM IP address
-oc get vmi <vm-name> -n <namespace> -o jsonpath='{.status.interfaces[0].ipAddress}'
+# Check overall workshop status
+./demo-scripts/check-status.sh
 
-# SSH to VM
-ssh cloud-user@<vm-ip>
+# View ArgoCD applications
+oc get applications.argoproj.io -n openshift-gitops
+
+# Monitor VM status across environments
+oc get vm -A | grep workshop-gitops
 ```
 
-## VM Access
+## Repository Structure and Files
 
-All VMs are configured with SSH access using your public key:
-
-- **Username**: `cloud-user`
-- **Password**: `redhat123` (for console access)
-- **SSH Access**: Uses your `~/.ssh/ocpvirt-gitops-labs.pub` key automatically
-
-To access a VM via SSH:
-```bash
-# Get VM IP address
-oc get vmi <vm-name> -n <namespace> -o jsonpath='{.status.interfaces[0].ipAddress}'
-
-# SSH to VM
-ssh cloud-user@<vm-ip>
-```
-
-## Repository Structure
-
-The workshop uses the following repository structure:
+This repository contains the workshop configuration and automation:
 
 ```
-workshop-gitops-ocpvirt/
-├── ansible.cfg                      # Ansible configuration
-├── install.sh                       # Automated installation script
-├── remove.sh                        # Cleanup script
-├── validate-cluster-domain.sh            # Cluster domain validation script
-├── requirements.yml                  # Ansible requirements
-├── README.md                         # This file
-├── WORKSHOP_GUIDE.md                 # Detailed workshop guide
+OpenShift-Virtualization-GitOps/          # Main workshop repository
+├── install.sh                           # Automated installation script
+├── remove.sh                            # Complete cleanup script
+├── validate-cluster-domain.sh           # Domain detection and validation
+├── setup-ssh-key.sh                     # SSH key configuration (if needed)
+├── validate-workshop-alignment.sh       # Workshop validation utility
+├── ansible.cfg                          # Ansible configuration
+├── requirements.yml                     # Ansible requirements
+├── WORKSHOP_GUIDE.md                    # Detailed workshop instructions
+├── README.md                            # This file
 ├── inventory/
-│   └── localhost                     # Ansible inventory
+│   └── localhost                        # Ansible inventory for localhost
 ├── playbooks/
-│   ├── install-gitops.yaml          # GitOps installation playbook
-│   └── remove-gitops.yaml           # GitOps removal playbook
-├── manual-install/
+│   ├── install-gitops.yaml             # GitOps operator installation
+│   ├── remove-gitops.yaml              # GitOps operator removal
+│   └── templates/                       # Ansible templates
+├── manual-install/                      # Manual installation manifests
 │   ├── 01-gitops-operator-subscription.yaml
 │   ├── 02-cluster-role-binding.yaml
 │   ├── 03-namespaces.yaml
@@ -197,144 +265,155 @@ workshop-gitops-ocpvirt/
 │   ├── 05-argocd-app-hml.yaml
 │   ├── 06-argocd-app-prd.yaml
 │   └── README.md
-├── demo-scripts/
-│   ├── check-status.sh               # Check workshop status
-│   ├── demo1-manual-change.sh        # Manual changes demo
-│   └── demo2-vm-recovery.sh          # VM recovery demo
-├── base/                             # Base VM templates
-│   ├── kustomization.yaml
-│   ├── ssh-secret.yaml
-│   ├── vm-web-01.yaml
-│   ├── vm-web-02.yaml
-│   └── vm-web-service.yaml
-└── overlays/                         # Environment-specific overlays
-    ├── dev/
+└── demo-scripts/                        # Workshop demonstration scripts
+    ├── run-demos.sh                     # Interactive demo runner
+    ├── check-status.sh                  # Workshop status checker
+    ├── demo1-manual-change.sh           # Demo 1: Manual change detection
+    ├── demo2-vm-recovery.sh             # Demo 2: VM recovery
+    ├── demo3-add-development-vm.sh      # Demo 3: Adding new VMs
+    ├── cleanup-demo3.sh                 # Demo 3 cleanup
+    ├── demo-functions.sh                # Common demo functions
+    ├── DEMO1-MANUAL-CHANGE.md           # Demo 1 documentation
+    ├── DEMO2-VM-RECOVERY.md             # Demo 2 documentation
+    └── DEMO3-ADD-DEVELOPMENT-VM.md      # Demo 3 documentation
+
+OpenShift-Virtualization-GitOps-Apps/    # Companion Apps repository
+├── base/                                # Base VM templates and resources
+│   ├── kustomization.yaml              # Base Kustomize configuration
+│   ├── ssh-secret.yaml                 # SSH secret template
+│   ├── vm-web-01.yaml                  # Web server VM 01 definition
+│   ├── vm-web-02.yaml                  # Web server VM 02 definition
+│   └── vm-web-service.yaml             # Service and route definitions
+└── overlays/                           # Environment-specific customizations
+    ├── dev/                            # Development patches (smaller resources)
     │   └── kustomization.yaml
-    ├── hml/
+    ├── hml/                            # Homologation patches (medium resources)
     │   └── kustomization.yaml
-    └── prd/
+    └── prd/                            # Production patches (larger resources)
         └── kustomization.yaml
 ```
 
-## Documentation
+## GitOps Workflow and Kustomize Strategy
 
-See `WORKSHOP_GUIDE.md` for detailed workshop instructions and learning objectives.
+### Kustomize Configuration Pattern
 
-## Architecture
+The workshop uses Kustomize to manage environment-specific configurations:
 
-The workshop implements a complete GitOps workflow where:
+1. **Base Templates**: Define common VM structure without environment-specific values
+2. **Environment Overlays**: Apply patches for CPU, memory, disk, naming, and routing
+3. **JSON Patches**: Modify specific fields like resource requirements and hostnames
 
-- **Each branch represents a different environment** (dev, hml, prd)
-- **Kustomize overlays** provide environment-specific configurations
-- **Base templates** contain common VM definitions without hardcoded values
-- **ArgoCD monitors** each branch and deploys VMs using Kustomize
-- **Manual changes are detected** and corrected automatically
-- **Complete disaster recovery** is possible from Git definitions
+### Example Environment Customization
 
-## Kustomize Structure
-
-```
-base/                      # Base VM templates (no environment-specific values)
-├── kustomization.yaml     # Base kustomization file
-├── ssh-secret.yaml        # SSH public key secret for VM access
-├── vm-web-01.yaml         # First web server VM template
-├── vm-web-02.yaml         # Second web server VM template  
-└── vm-web-service.yaml    # Service and route definitions
-
-overlays/                  # Environment-specific customizations
-├── dev/                   # Development patches (smaller resources)
-│   └── kustomization.yaml
-├── hml/                   # Homologation patches (medium resources)
-│   └── kustomization.yaml
-└── prd/                   # Production patches (larger resources)
-    └── kustomization.yaml
-```
-
-## Customizing Route URLs
-
-Each environment can have its own custom route URL configured using Kustomize JSON patches. The current configuration includes:
-
-- **Development**: `dev-workshop-vms.apps.example.com`
-- **Homologation**: `hml-workshop-vms.apps.example.com`  
-- **Production**: `workshop-vms.apps.example.com`
-
-To customize the route URL for an environment, edit the corresponding kustomization file and update the patch:
-
+**Development Overlay** (`overlays/dev/kustomization.yaml`):
 ```yaml
 patches:
   - patch: |-
       - op: replace
-        path: /spec/to/name
-        value: dev-vm-web-service
-      - op: add
-        path: /spec/host
-        value: your-custom-url.apps.your-domain.com
+        path: /spec/template/spec/domain/resources/requests/memory
+        value: 2Gi
+      - op: replace  
+        path: /spec/template/spec/domain/cpu/cores
+        value: 1
     target:
-      kind: Route
-      name: vm-web-route
+      kind: VirtualMachine
 ```
 
-The patch performs two operations:
-1. **Replace service name**: Updates the service reference to match the environment prefix
-2. **Add custom host**: Sets the custom route URL for external access
-
-## Automatic Cluster Domain Detection
-
-The installation process now automatically detects your OpenShift cluster's application domain, eliminating the need to manually configure domain references.
-
-### How It Works
-
-The `install.sh` script queries the cluster's ingress configuration:
-```bash
-oc get ingress.config.openshift.io/cluster -o jsonpath='{.spec.domain}'
+**Production Overlay** (`overlays/prd/kustomization.yaml`):
+```yaml
+patches:
+  - patch: |-
+      - op: replace
+        path: /spec/template/spec/domain/resources/requests/memory
+        value: 4Gi
+      - op: replace
+        path: /spec/template/spec/domain/cpu/cores  
+        value: 2
+    target:
+      kind: VirtualMachine
 ```
-
-This automatically detects and configures domains such as:
-- `apps.cluster-name.domain.com`
-- `apps.joe-quimby.chiarettolabs.com.br`
-- Any valid OpenShift cluster application domain
-
-### Domain Management Tools
-
-1. **Automatic configuration during installation:**
-   ```bash
-   ./install.sh  # Detects and configures domain automatically
-   ```
-
-2. **Manual domain validation:**
-   ```bash
-   ./validate-cluster-domain.sh  # Validate and update domain interactively
-   ```
-
-### Final Configuration
-
-After installation, routes are configured as:
-- **Development**: `dev-workshop-vms.<your-cluster-domain>`
-- **Homologation**: `hml-workshop-vms.<your-cluster-domain>`
-- **Production**: `workshop-vms.<your-cluster-domain>`
 
 ## Troubleshooting
 
-### Common Issues
+### Common Issues and Solutions
 
-1. **ArgoCD applications not syncing:**
-   - Check if the target branches exist in the repository
-   - Verify SSH key is properly configured
-   - Check ArgoCD logs: `oc logs -n openshift-gitops deployment/openshift-gitops-application-controller`
+1. **ArgoCD Applications Not Syncing**
+   ```bash
+   # Check application status
+   oc get applications.argoproj.io -n openshift-gitops
+   
+   # Check ArgoCD controller logs
+   oc logs -n openshift-gitops deployment/openshift-gitops-application-controller
+   
+   # Verify repository access
+   oc describe application workshop-vms-dev -n openshift-gitops
+   ```
 
-2. **VMs not starting:**
-   - Ensure OpenShift Virtualization is properly installed
-   - Check if Fedora template is available
-   - Verify resource quotas in target namespaces
+2. **Virtual Machines Not Starting**
+   ```bash
+   # Check VM status and events
+   oc get vm -n <namespace>
+   oc describe vm <vm-name> -n <namespace>
+   
+   # Check OpenShift Virtualization operator status
+   oc get csv -n openshift-cnv | grep kubevirt
+   
+   # Verify Fedora template availability
+   oc get templates -n openshift | grep fedora
+   ```
 
-3. **SSH access issues:**
-   - SSH keys are pre-configured in the Apps repository
-   - Check if the SSH secret exists in the target namespace
-   - Verify VM has an IP address assigned
+3. **Domain Configuration Issues**
+   ```bash
+   # Re-run domain validation
+   ./validate-cluster-domain.sh
+   
+   # Check current cluster domain
+   oc get ingress.config.openshift.io/cluster -o jsonpath='{.spec.domain}'
+   
+   # Verify route configuration
+   oc get routes -A | grep workshop-vms
+   ```
 
-### Getting Help
+4. **SSH Access Problems**
+   ```bash
+   # Check if SSH secret exists
+   oc get secret -n <namespace> | grep ssh
+   
+   # Verify VM has IP address
+   oc get vmi -n <namespace>
+   
+   # Test VM console access first
+   virtctl console <vm-name> -n <namespace>
+   ```
 
-- Check the detailed workshop guide: `WORKSHOP_GUIDE.md`
-- Use the status check script: `./demo-scripts/check-status.sh`
-- Review ArgoCD UI for application sync status
-- Check OpenShift events in target namespaces
+### Workshop Validation Commands
+
+```bash
+# Comprehensive status check
+./demo-scripts/check-status.sh
+
+# Verify all workshop components
+oc get applications.argoproj.io -n openshift-gitops | grep workshop-vms
+oc get namespaces | grep workshop-gitops
+oc get vm -A | grep workshop-gitops
+
+# Check ArgoCD health
+oc get pods -n openshift-gitops
+oc get routes -n openshift-gitops
+```
+
+## Additional Resources
+
+- **Detailed Workshop Guide**: See `WORKSHOP_GUIDE.md` for comprehensive learning objectives and step-by-step instructions
+- **Demo Documentation**: Individual demo guides available in `demo-scripts/DEMO*.md` files
+- **Apps Repository**: [OpenShift-Virtualization-GitOps-Apps](https://github.com/anibalcoral/OpenShift-Virtualization-GitOps-Apps) contains VM definitions and Kustomize configurations
+
+## Workshop Learning Objectives
+
+This workshop teaches:
+- GitOps principles applied to virtual machine management
+- Multi-environment deployments using branch-based strategies
+- Kustomize for environment-specific configurations
+- ArgoCD for continuous deployment and drift detection
+- OpenShift Virtualization VM lifecycle management
+- Infrastructure as Code best practices for virtualized workloads

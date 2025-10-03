@@ -139,7 +139,7 @@ VMs are automatically configured with SSH key access. Use the same key pair you 
 oc get vmi -A
 
 # SSH to web VM (example for dev environment)
-ssh cloud-user@<vm-web-ip>
+virtctl ssh cloud-user@<vm-name>
 ```
 
 ### Service Verification
@@ -250,7 +250,7 @@ oc get vm <vm-name> -n <namespace> -o yaml | grep -A 10 accessCredentials
 oc get applications.argoproj.io -n openshift-gitops
 
 # Force application sync if needed
-oc patch applications.argoproj.io workshop-vms-dev -n openshift-gitops --type merge --patch '{"operation":{"sync":{"revision":"HEAD"}}}'
+oc patch applications.argoproj.io workshop-vms-dev -n openshift-gitops --type merge -p '{"spec":{"syncPolicy":{"automated":null}},"operation":{"sync":{"revision":"HEAD","prune":true,"dryRun":false}}}'
 
 # Check application details
 oc describe application workshop-vms-dev -n openshift-gitops

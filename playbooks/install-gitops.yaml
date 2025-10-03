@@ -193,7 +193,7 @@
           revision: main
           path: overlays/prd
 
-    # oc patch applications.argoproj.io workshop-vms-dev -n openshift-gitops --type merge --patch '{"operation":{"sync":{"revision":"HEAD"}}}'
+    # oc patch applications.argoproj.io workshop-vms-dev -n openshift-gitops --type merge -p '{"spec":{"syncPolicy":{"automated":null}},"operation":{"sync":{"revision":"HEAD","prune":true,"dryRun":false}}}'
     - name: Force sync ArgoCD Applications via k8s patch
       kubernetes.core.k8s:
         state: patched

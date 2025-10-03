@@ -69,14 +69,14 @@ wait_for_vmi_deleted $VM_NAME $NAMESPACE 60
 
 echo ""
 log "Step 3: Forcing application refresh in ArgoCD and waiting for it to detect the drift..."
-oc patch applications.argoproj.io $APP_NAME -n openshift-gitops --type merge -p '{"operation":{"initiatedBy":{"username":"admin"},"sync":{"revision":"HEAD"}}}'
+oc patch applications.argoproj.io $APP_NAME -n openshift-gitops --type merge -p '{"spec":{"syncPolicy":{"automated":null}},"operation":{"sync":{"revision":"HEAD","prune":true,"dryRun":false}}}'
 wait_for_sync_status $APP_NAME "OutOfSync" 30
 log_success "ArgoCD has detected the drift!"
 
 echo ""
 log "Step 4: Triggering an ArgoCD sync to correct the drift..."
 # The sync will revert the runStrategy to the state defined in Git ("Always")
-oc patch applications.argoproj.io $APP_NAME -n openshift-gitops --type merge -p '{"operation":{"initiatedBy":{"username":"admin"},"sync":{"revision":"HEAD"}}}'
+oc patch applications.argoproj.io $APP_NAME -n openshift-gitops --type merge -p '{"spec":{"syncPolicy":{"automated":null}},"operation":{"sync":{"revision":"HEAD","prune":true,"dryRun":false}}}'
 log_success "ArgoCD sync triggered."
 
 echo ""
