@@ -1,0 +1,53 @@
+---
+- name: Setup SSH Key for Workshop VMs
+  hosts: local
+  gather_facts: true
+  vars:
+    ssh_key_name: "ocpvirt-gitops"
+    apps_repo_path: "/home/lchiaret/git/OpenShift-Virtualization-GitOps-Apps"
+
+  tasks:
+    - name: Check if SSH public key exists
+      ansible.builtin.stat:
+        path: "{{ ansible_env.HOME }}/.ssh/{{ ssh_key_name }}.pub"
+      register: ssh_public_key_file
+
+    - name: Fail if SSH public key not found
+      ansible.builtin.fail:
+        msg: |
+          SSH public key not found at {{ ansible_env.HOME }}/.ssh/{{ ssh_key_name }}.pub
+          Please generate SSH keys with: ssh-keygen -t rsa -b 4096 -f ~/.ssh/{{ ssh_key_name }}
+      when: not ssh_public_key_file.stat.exists
+
+    - name: Read SSH public key content
+      ansible.builtin.slurp:
+        src: "{{ ansible_env.HOME }}/.ssh/{{ ssh_key_name }}.pub"
+      register: ssh_public_key_content
+
+    - name: Decode SSH public key
+      ansible.builtin.set_fact:
+        ssh_public_key: "{{ ssh_public_key_content.content | b64decode | trim }}"
+
+    - name: Check if Apps repository exists
+      ansible.builtin.stat:
+        path: "{{ apps_repo_path }}"
+      register: apps_repo
+
+    - name: Fail if Apps repository not found
+      ansible.builtin.fail:
+        msg: |
+          Apps repository not found at {{ apps_repo_path }}
+          Please clone the Apps repository first
+      when: not apps_repo.stat.exists
+
+    - name: Create SSH secret YAML file
+      ansible.builtin.template:
+        src: ssh-secret.yaml.j2
+        dest: "{{ apps_repo_path }}/base/ssh-secret.yaml"
+        mode: '0644'
+      vars:
+        ssh_key: "{{ ssh_public_key }}"
+
+    - name: Display success message
+      ansible.builtin.debug:
+        msg: "SSH secret updated successfully with your public key"

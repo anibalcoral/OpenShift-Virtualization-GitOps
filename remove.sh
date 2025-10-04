@@ -36,13 +36,24 @@ if ! command -v oc &> /dev/null; then
     exit 1
 fi
 
-log "Checking OpenShift connection..."
-if ! oc whoami &> /dev/null; then
-    log_error "Not connected to OpenShift cluster. Please login with 'oc login'."
-    exit 1
-fi
+echo ""
+echo "Remove GitOps operator as well?"
+echo "1. Remove only workshop resources (Recommended)"
+echo "2. Remove workshop resources and GitOps operator"
+echo ""
+read -p "Select option (1-2): " operator_choice
 
-log "Removing OpenShift GitOps Workshop resources..."
-ansible-playbook -i inventory/localhost playbooks/remove-gitops.yaml
-
-log_success "Workshop removal completed successfully!"
+case $operator_choice in
+    1)
+        log "Running Ansible playbook removal (preserving GitOps operator)..."
+        ansible-playbook -i inventory/localhost playbooks/remove-workshop.yaml
+        ;;
+    2)
+        log "Running Ansible playbook removal (including GitOps operator)..."
+        ansible-playbook -i inventory/localhost playbooks/remove-workshop.yaml -e remove_operator=true
+        ;;
+    *)
+        log_error "Invalid choice. Using default (preserve operator)."
+        ansible-playbook -i inventory/localhost playbooks/remove-workshop.yaml
+        ;;
+esac

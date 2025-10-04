@@ -1,0 +1,379 @@
+---
+- name: "Demo 3: Adding New Development VM via Git Change"
+  hosts: localhost
+  gather_facts: true
+  vars:
+    namespace: "workshop-gitops-vms-dev"
+    vm_name: "dev-vm-web-09"
+    app_name: "workshop-vms-dev"
+    apps_repo_path: "/home/lchiaret/git/OpenShift-Virtualization-GitOps-Apps"
+
+  tasks:
+    - name: "Demo 3: Adding New Development VM via Git Change"
+      ansible.builtin.debug:
+        msg: |
+          =================================================
+          Demo 3: Adding New Development VM via Git Change
+          =================================================
+
+    - name: "Step 1: Check current state - should only have 2 VMs"
+      kubernetes.core.k8s_info:
+        api_version: argoproj.io/v1alpha1
+        kind: Application
+        name: "{{ app_name }}"
+        namespace: openshift-gitops
+      register: app_status
+
+    - name: Display current application status
+      ansible.builtin.debug:
+        msg: |
+          Application: {{ app_name }}
+          Sync Status: {{ app_status.resources[0].status.sync.status | default('Unknown') }}
+          Health Status: {{ app_status.resources[0].status.health.status | default('Unknown') }}
+
+    - name: Get current VMs in development environment
+      kubernetes.core.k8s_info:
+        api_version: kubevirt.io/v1
+        kind: VirtualMachine
+        namespace: "{{ namespace }}"
+        label_selectors:
+          - "app=web-server"
+      register: current_vms
+
+    - name: Display current VMs
+      ansible.builtin.debug:
+        msg: "Current VMs in development environment: {{ current_vms.resources | map(attribute='metadata.name') | list }}"
+
+    - name: Check if VM already exists
+      kubernetes.core.k8s_info:
+        api_version: kubevirt.io/v1
+        kind: VirtualMachine
+        name: "{{ vm_name }}"
+        namespace: "{{ namespace }}"
+      register: existing_vm
+
+    - name: Warning if VM already exists
+      ansible.builtin.debug:
+        msg: "WARNING: VM '{{ vm_name }}' already exists - demo may have been run before"
+      when: existing_vm.resources | length > 0
+
+    - name: "Step 2: Adding vm-web-09.yaml to base directory"
+      ansible.builtin.debug:
+        msg: "Adding vm-web-09.yaml to base directory..."
+
+    - name: Create vm-web-09.yaml in base directory
+      ansible.builtin.copy:
+        dest: "{{ apps_repo_path }}/base/vm-web-09.yaml"
+        content: |
+          apiVersion: kubevirt.io/v1
+          kind: VirtualMachine
+          metadata:
+            name: vm-web-09
+            labels:
+              app: web-server
+              workshop: gitops-ocpvirt
+            annotations:
+              workshop.gitops/config-version: "v4-fedora-firewall-fix"
+          spec:
+            dataVolumeTemplates:
+            - apiVersion: cdi.kubevirt.io/v1beta1
+              kind: DataVolumeTemplate
+              metadata:
+                name: vm-web-09
+              spec:
+                sourceRef:
+                  kind: DataSource
+                  name: fedora
+                  namespace: openshift-virtualization-os-images
+                storage:
+                  resources:
+                    requests:
+                      storage: 30Gi
+            running: true
+            template:
+              metadata:
+                labels:
+                  kubevirt.io/size: small
+                  kubevirt.io/domain: vm-web-09
+                  app: web-server
+              spec:
+                domain:
+                  cpu:
+                    cores: 1
+                    sockets: 1
+                    threads: 1
+                  devices:
+                    disks:
+                    - disk:
+                        bus: virtio
+                      name: rootdisk
+                    - disk:
+                        bus: virtio
+                      name: cloudinitdisk
+                    interfaces:
+                    - masquerade: {}
+                      name: default
+                    networkInterfaceMultiqueue: true
+                    rng: {}
+                  machine:
+                    type: pc-q35-rhel8.6.0
+                  resources:
+                    requests:
+                      memory: 2Gi
+                evictionStrategy: LiveMigrate
+                networks:
+                - name: default
+                  pod: {}
+                terminationGracePeriodSeconds: 180
+                volumes:
+                - dataVolume:
+                    name: vm-web-09
+                  name: rootdisk
+                - cloudInitNoCloud:
+                    userData: |
+                      #cloud-config
+                      user: cloud-user
+                      password: redhat123
+                      chpasswd: { expire: False }
+                      packages:
+                        - httpd
+                        - firewalld
+                      runcmd:
+                        - systemctl enable httpd
+                        - systemctl start httpd
+                        - echo 'Web Server - VM 03 (Development)' > /var/www/html/index.html
+                        - systemctl enable firewalld
+                        - systemctl start firewalld
+                        - firewall-cmd --permanent --add-service=http || true
+                        - firewall-cmd --reload || true
+                  name: cloudinitdisk
+                accessCredentials:
+                - sshPublicKey:
+                    source:
+                      secret:
+                        secretName: workshop-ssh-key
+                    propagationMethod:
+                      noCloud: {}
+
+    - name: Confirm VM file created
+      ansible.builtin.debug:
+        msg: "✅ Created vm-web-09.yaml in base directory"
+
+    - name: "Step 3: Updating kustomization.yaml to include new VM"
+      ansible.builtin.debug:
+        msg: "Updating kustomization.yaml to include new VM..."
+
+    - name: Read current kustomization.yaml
+      ansible.builtin.slurp:
+        src: "{{ apps_repo_path }}/base/kustomization.yaml"
+      register: kustomization_content
+
+    - name: Check if vm-web-09.yaml is already in kustomization
+      ansible.builtin.set_fact:
+        vm_already_in_kustomization: "{{ 'vm-web-09.yaml' in (kustomization_content.content | b64decode) }}"
+
+    - name: Warning if already in kustomization
+      ansible.builtin.debug:
+        msg: "WARNING: base/kustomization.yaml already references vm-web-09.yaml"
+      when: vm_already_in_kustomization
+
+    - name: Create backup of kustomization.yaml
+      ansible.builtin.copy:
+        src: "{{ apps_repo_path }}/base/kustomization.yaml"
+        dest: "{{ apps_repo_path }}/base/kustomization.yaml.bak"
+        backup: true
+      when: not vm_already_in_kustomization
+
+    - name: Update kustomization.yaml to include vm-web-09.yaml
+      ansible.builtin.replace:
+        path: "{{ apps_repo_path }}/base/kustomization.yaml"
+        regexp: '^resources:'
+        replace: |
+          resources:
+            - vm-web-09.yaml
+      when: not vm_already_in_kustomization
+
+    - name: Confirm kustomization updated
+      ansible.builtin.debug:
+        msg: "✅ Added 'vm-web-09.yaml' to base/kustomization.yaml (backup saved as base/kustomization.yaml.bak)"
+      when: not vm_already_in_kustomization
+
+    - name: "Step 4: Committing changes to Git repository"
+      ansible.builtin.debug:
+        msg: "Committing changes to Git repository..."
+
+    - name: Get current Git branch
+      ansible.builtin.command:
+        cmd: git branch --show-current
+        chdir: "{{ apps_repo_path }}"
+      register: current_branch
+      changed_when: false
+
+    - name: Switch to vms-dev branch if needed
+      ansible.builtin.command:
+        cmd: git checkout vms-dev
+        chdir: "{{ apps_repo_path }}"
+      when: current_branch.stdout != "vms-dev"
+      register: branch_switch
+
+    - name: Show branch switch result
+      ansible.builtin.debug:
+        msg: "Switched to vms-dev branch"
+      when: branch_switch is changed
+
+    - name: Add changes to Git
+      ansible.builtin.command:
+        cmd: git add base/vm-web-09.yaml base/kustomization.yaml
+        chdir: "{{ apps_repo_path }}"
+      register: git_add
+      changed_when: git_add.rc == 0
+
+    - name: Commit changes
+      ansible.builtin.command:
+        cmd: >
+          git commit --quiet -m "feat: add development VM web-09 for expanded testing environment
+
+          - Add vm-web-09.yaml with Fedora-based web server configuration
+          - Update base kustomization to include new VM resource
+          - Provides additional development capacity for testing scenarios"
+        chdir: "{{ apps_repo_path }}"
+      register: git_commit
+      failed_when: false
+      changed_when: git_commit.rc == 0
+
+    - name: Warning if no changes to commit
+      ansible.builtin.debug:
+        msg: "WARNING: No changes to commit (maybe demo was run before?)"
+      when: git_commit.rc != 0
+
+    - name: Push changes to origin/vms-dev
+      ansible.builtin.command:
+        cmd: git push origin vms-dev
+        chdir: "{{ apps_repo_path }}"
+      register: git_push
+      when: git_commit.rc == 0
+
+    - name: Confirm Git operations
+      ansible.builtin.debug:
+        msg: "✅ Changes committed and pushed to vms-dev branch"
+      when: git_commit.rc == 0 and git_push.rc == 0
+
+    - name: "Step 5: Triggering ArgoCD sync"
+      ansible.builtin.debug:
+        msg: "Triggering an ArgoCD sync to correct the drift..."
+
+    - name: Trigger ArgoCD sync
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: argoproj.io/v1alpha1
+          kind: Application
+          metadata:
+            name: "{{ app_name }}"
+            namespace: openshift-gitops
+            annotations:
+              argocd.argoproj.io/refresh: "{{ ansible_date_time.iso8601 }}"
+
+    - name: Confirm sync triggered
+      ansible.builtin.debug:
+        msg: "✅ ArgoCD sync triggered"
+
+    - name: "Step 6: Waiting for ArgoCD to detect Git changes"
+      ansible.builtin.debug:
+        msg: "Waiting for ArgoCD to detect Git changes..."
+
+    - name: Wait for application to become OutOfSync (detecting changes)
+      kubernetes.core.k8s_info:
+        api_version: argoproj.io/v1alpha1
+        kind: Application
+        name: "{{ app_name }}"
+        namespace: openshift-gitops
+      register: app_sync_check
+      until: >
+        app_sync_check.resources | length > 0 and
+        app_sync_check.resources[0].status.sync.status == "OutOfSync"
+      retries: 30
+      delay: 2
+      ignore_errors: true
+
+    - name: "Step 7: Waiting for new VM to be created"
+      ansible.builtin.debug:
+        msg: "Waiting for new VM to be created..."
+
+    - name: Wait for VM to exist
+      kubernetes.core.k8s_info:
+        api_version: kubevirt.io/v1
+        kind: VirtualMachine
+        name: "{{ vm_name }}"
+        namespace: "{{ namespace }}"
+      register: vm_check
+      until: vm_check.resources | length > 0
+      retries: 60
+      delay: 2
+
+    - name: "Step 8: Waiting for application to return to Synced state"
+      ansible.builtin.debug:
+        msg: "Waiting for application to return to Synced state..."
+
+    - name: Wait for application to become Synced
+      kubernetes.core.k8s_info:
+        api_version: argoproj.io/v1alpha1
+        kind: Application
+        name: "{{ app_name }}"
+        namespace: openshift-gitops
+      register: final_sync_check
+      until: >
+        final_sync_check.resources | length > 0 and
+        final_sync_check.resources[0].status.sync.status == "Synced"
+      retries: 30
+      delay: 2
+
+    - name: "Step 9: Verifying the new VM is running"
+      ansible.builtin.debug:
+        msg: "Verifying the new VM is running..."
+
+    - name: Get final VM status
+      kubernetes.core.k8s_info:
+        api_version: kubevirt.io/v1
+        kind: VirtualMachine
+        name: "{{ vm_name }}"
+        namespace: "{{ namespace }}"
+      register: final_vm_status
+
+    - name: Display VM creation success
+      ansible.builtin.debug:
+        msg: |
+          ✅ VM '{{ vm_name }}' successfully created
+          VM Status: {{ final_vm_status.resources[0].status.printableStatus | default('Unknown') }}
+      when: final_vm_status.resources | length > 0
+
+    - name: Get all VMs in development environment
+      kubernetes.core.k8s_info:
+        api_version: kubevirt.io/v1
+        kind: VirtualMachine
+        namespace: "{{ namespace }}"
+        label_selectors:
+          - "app=web-server"
+      register: all_dev_vms
+
+    - name: Display all VMs in development environment
+      ansible.builtin.debug:
+        msg: |
+          All VMs in development environment:
+          {{ all_dev_vms.resources | map(attribute='metadata.name') | list | join(', ') }}
+
+    - name: Demo 3 completion summary
+      ansible.builtin.debug:
+        msg: |
+          
+          ✅ Demo 3 completed! New development VM added via Git changes.
+          
+          Summary:
+          =========
+          ✓ New VM definition added to Git repository
+          ✓ Base kustomization updated to include new resource
+          ✓ Changes committed and pushed to vms-dev branch
+          ✓ ArgoCD detected Git changes (OutOfSync state)
+          ✓ ArgoCD automatically deployed new VM
+          ✓ Development environment now has 3 VMs for expanded testing
+          ✓ Application returned to Synced state

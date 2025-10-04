@@ -2,7 +2,7 @@
 
 set -e
 
-# Source common functions
+# Source common functions for backward compatibility with remaining bash scripts
 source "$(dirname "$0")/demo-functions.sh"
 
 echo "OpenShift GitOps Workshop - Demo Runner"
@@ -26,12 +26,14 @@ case $choice in
     1)
         log "Running Demo 1: Manual Change Detection and Drift Correction"
         echo ""
-        ./demo-scripts/demo1-manual-change.sh
+        cd "$(dirname "$0")/.."
+        ansible-playbook -i inventory/localhost playbooks/demo1-manual-change.yaml
         ;;
     2)
         log "Running Demo 2: VM Recovery from Data Loss"
         echo ""
-        ./demo-scripts/demo2-vm-recovery.sh
+        cd "$(dirname "$0")/.."
+        ansible-playbook -i inventory/localhost playbooks/demo2-vm-recovery.yaml
         ;;
     3)
         log "Running Demo 3: Adding New Development VM via Git Change"
@@ -41,7 +43,8 @@ case $choice in
     s|S)
         log "Checking workshop status..."
         echo ""
-        ./demo-scripts/check-status.sh
+        cd "$(dirname "$0")/.."
+        ansible-playbook -i inventory/localhost playbooks/check-workshop-status.yaml
         ;;
     c|C)
         log "Running Demo 3 cleanup..."
@@ -55,16 +58,20 @@ case $choice in
     a|A)
         log "Running all demos sequentially..."
         echo ""
-        ./demo-scripts/demo1-manual-change.sh
+        cd "$(dirname "$0")/.."
+        log "Running Demo 1..."
+        ansible-playbook -i inventory/localhost playbooks/demo1-manual-change.yaml
         echo ""
-        ./demo-scripts/demo2-vm-recovery.sh
+        log "Running Demo 2..."
+        ansible-playbook -i inventory/localhost playbooks/demo2-vm-recovery.yaml
         echo ""
+        log "Running Demo 3..."
         ./demo-scripts/demo3-add-development-vm.sh
         echo ""
         ./demo-scripts/cleanup-demo3.sh
         ;;
     *)
-        log_error "Invalid choice. Please select 1-5, s, c, or q."
+        log_error "Invalid choice. Please select 1-3, a, s, c, or q."
         ;;
 esac
 

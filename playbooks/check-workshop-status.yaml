@@ -1,0 +1,154 @@
+---
+- name: Check Workshop Status
+  hosts: local
+  gather_facts: false
+  vars:
+    workshop_namespace_base: "workshop-gitops-vms"
+    argocd_namespace: "openshift-gitops"
+
+  tasks:
+    - name: Check ArgoCD Applications
+      kubernetes.core.k8s_info:
+        api_version: argoproj.io/v1alpha1
+        kind: Application
+        namespace: "{{ argocd_namespace }}"
+        label_selectors:
+          - "app.kubernetes.io/part-of!=argocd"
+      register: argocd_apps
+
+    - name: Filter workshop applications
+      ansible.builtin.set_fact:
+        workshop_apps: "{{ argocd_apps.resources | selectattr('metadata.name', 'match', '^workshop-vms-.*') | list }}"
+
+    - name: Display ArgoCD Applications status
+      ansible.builtin.debug:
+        msg: |
+          ArgoCD Applications:
+          ====================
+          {% for app in workshop_apps %}
+          {{ app.metadata.name }}: 
+            Sync Status: {{ app.status.sync.status | default('Unknown') }}
+            Health Status: {{ app.status.health.status | default('Unknown') }}
+          {% endfor %}
+
+    - name: Check workshop namespaces
+      kubernetes.core.k8s_info:
+        api_version: v1
+        kind: Namespace
+        name: "{{ workshop_namespace_base }}-{{ item }}"
+      register: namespace_status
+      loop:
+        - dev
+        - hml
+        - prd
+
+    - name: Display namespace status
+      ansible.builtin.debug:
+        msg: |
+          Workshop Namespaces:
+          ===================
+          {% for ns in namespace_status.results %}
+          {{ workshop_namespace_base }}-{{ ns.item }}: {{ 'EXISTS' if ns.resources else 'NOT FOUND' }}
+          {% endfor %}
+
+    - name: Check Virtual Machines in all environments
+      kubernetes.core.k8s_info:
+        api_version: kubevirt.io/v1
+        kind: VirtualMachine
+        namespace: "{{ workshop_namespace_base }}-{{ item }}"
+      register: vm_status
+      loop:
+        - dev
+        - hml
+        - prd
+      ignore_errors: true
+
+    - name: Display Virtual Machines status
+      ansible.builtin.debug:
+        msg: |
+          Virtual Machines:
+          ================
+          {% for env in vm_status.results %}
+          {% if env.resources is defined %}
+          {{ workshop_namespace_base }}-{{ env.item }}:
+          {% for vm in env.resources %}
+            {{ vm.metadata.name }}: {{ vm.status.printableStatus | default('Unknown') }}
+          {% endfor %}
+          {% else %}
+          {{ workshop_namespace_base }}-{{ env.item }}: No VMs found or namespace doesn't exist
+          {% endif %}
+          {% endfor %}
+
+    - name: Check Services in all environments
+      kubernetes.core.k8s_info:
+        api_version: v1
+        kind: Service
+        namespace: "{{ workshop_namespace_base }}-{{ item }}"
+        label_selectors:
+          - "app=workshop-vms"
+      register: service_status
+      loop:
+        - dev
+        - hml
+        - prd
+      ignore_errors: true
+
+    - name: Display Services status
+      ansible.builtin.debug:
+        msg: |
+          Services:
+          =========
+          {% for env in service_status.results %}
+          {% if env.resources is defined and env.resources | length > 0 %}
+          {{ workshop_namespace_base }}-{{ env.item }}:
+          {% for svc in env.resources %}
+            {{ svc.metadata.name }}: {{ svc.spec.type }} ({{ svc.spec.ports | map(attribute='port') | join(', ') }})
+          {% endfor %}
+          {% else %}
+          {{ workshop_namespace_base }}-{{ env.item }}: No services found
+          {% endif %}
+          {% endfor %}
+
+    - name: Check Routes in all environments
+      kubernetes.core.k8s_info:
+        api_version: route.openshift.io/v1
+        kind: Route
+        namespace: "{{ workshop_namespace_base }}-{{ item }}"
+      register: route_status
+      loop:
+        - dev
+        - hml
+        - prd
+      ignore_errors: true
+
+    - name: Display Routes status
+      ansible.builtin.debug:
+        msg: |
+          Routes:
+          =======
+          {% for env in route_status.results %}
+          {% if env.resources is defined and env.resources | length > 0 %}
+          {{ workshop_namespace_base }}-{{ env.item }}:
+          {% for route in env.resources %}
+            {{ route.metadata.name }}: https://{{ route.spec.host }}
+          {% endfor %}
+          {% else %}
+          {{ workshop_namespace_base }}-{{ env.item }}: No routes found
+          {% endif %}
+          {% endfor %}
+
+    - name: Calculate overall status
+      ansible.builtin.set_fact:
+        apps_healthy: "{{ workshop_apps | selectattr('status.health.status', 'equalto', 'Healthy') | list | length }}"
+        apps_synced: "{{ workshop_apps | selectattr('status.sync.status', 'equalto', 'Synced') | list | length }}"
+        total_apps: "{{ workshop_apps | length }}"
+        namespaces_exist: "{{ namespace_status.results | selectattr('resources', 'defined') | list | length }}"
+
+    - name: Display overall workshop status
+      ansible.builtin.debug:
+        msg: |
+          Overall Workshop Status:
+          =======================
+          Applications: {{ apps_synced }}/{{ total_apps }} synced, {{ apps_healthy }}/{{ total_apps }} healthy
+          Namespaces: {{ namespaces_exist }}/3 exist
+          Status: {{ 'HEALTHY' if (apps_healthy | int == total_apps | int and apps_synced | int == total_apps | int and namespaces_exist | int == 3) else 'ISSUES DETECTED' }}

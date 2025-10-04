@@ -1,0 +1,123 @@
+---
+- name: Demo 1 - Manual Change Detection and Drift Correction
+  hosts: local
+  gather_facts: false
+  vars:
+    demo_namespace: "workshop-gitops-vms-dev"
+    vm_name: "dev-vm-web-01"
+    app_name: "workshop-vms-dev"
+    argocd_namespace: "openshift-gitops"
+    git_run_strategy: "Always"
+    manual_run_strategy: "Halted"
+
+  tasks:
+    - name: Display demo introduction
+      ansible.builtin.debug:
+        msg: |
+          Demo 1: Manual Change Detection and Drift Correction
+          ====================================================
+          This demo shows how ArgoCD detects and corrects manual changes
+
+    - name: Check initial VM status
+      kubernetes.core.k8s_info:
+        api_version: kubevirt.io/v1
+        kind: VirtualMachine
+        name: "{{ vm_name }}"
+        namespace: "{{ demo_namespace }}"
+      register: initial_vm_status
+
+    - name: Display initial VM run strategy
+      ansible.builtin.debug:
+        msg: "Initial VM run strategy: {{ initial_vm_status.resources[0].spec.runStrategy | default('Unknown') }}"
+      when: initial_vm_status.resources
+
+    - name: Manually change VM run strategy (simulating drift)
+      kubernetes.core.k8s:
+        state: patched
+        api_version: kubevirt.io/v1
+        kind: VirtualMachine
+        name: "{{ vm_name }}"
+        namespace: "{{ demo_namespace }}"
+        definition:
+          spec:
+            runStrategy: "{{ manual_run_strategy }}"
+
+    - name: Display manual change
+      ansible.builtin.debug:
+        msg: "Manually changed VM run strategy to: {{ manual_run_strategy }}"
+
+    - name: Check application sync status after manual change
+      kubernetes.core.k8s_info:
+        api_version: argoproj.io/v1alpha1
+        kind: Application
+        name: "{{ app_name }}"
+        namespace: "{{ argocd_namespace }}"
+      register: app_status_after_change
+
+    - name: Display application status after manual change
+      ansible.builtin.debug:
+        msg: |
+          Application status after manual change:
+          Sync: {{ app_status_after_change.resources[0].status.sync.status | default('Unknown') }}
+          Health: {{ app_status_after_change.resources[0].status.health.status | default('Unknown') }}
+
+    - name: Wait for ArgoCD to detect drift (OutOfSync status)
+      kubernetes.core.k8s_info:
+        api_version: argoproj.io/v1alpha1
+        kind: Application
+        name: "{{ app_name }}"
+        namespace: "{{ argocd_namespace }}"
+      register: app_drift_status
+      until: app_drift_status.resources[0].status.sync.status == "OutOfSync"
+      retries: 12
+      delay: 10
+
+    - name: Display drift detection
+      ansible.builtin.debug:
+        msg: "ArgoCD detected configuration drift - Application is OutOfSync"
+
+    - name: Wait for ArgoCD self-heal to trigger automatic sync
+      kubernetes.core.k8s_info:
+        api_version: argoproj.io/v1alpha1
+        kind: Application
+        name: "{{ app_name }}"
+        namespace: "{{ argocd_namespace }}"
+      register: app_sync_status
+      until: app_sync_status.resources[0].status.sync.status == "Synced"
+      retries: 30
+      delay: 10
+
+    - name: Display self-heal completion
+      ansible.builtin.debug:
+        msg: "ArgoCD self-heal completed - Application is back to Synced"
+
+    - name: Verify VM run strategy is corrected
+      kubernetes.core.k8s_info:
+        api_version: kubevirt.io/v1
+        kind: VirtualMachine
+        name: "{{ vm_name }}"
+        namespace: "{{ demo_namespace }}"
+      register: corrected_vm_status
+
+    - name: Display corrected VM run strategy
+      ansible.builtin.debug:
+        msg: "VM run strategy corrected to: {{ corrected_vm_status.resources[0].spec.runStrategy | default('Unknown') }}"
+
+    - name: Wait for VM to be running again
+      kubernetes.core.k8s_info:
+        api_version: kubevirt.io/v1
+        kind: VirtualMachine
+        name: "{{ vm_name }}"
+        namespace: "{{ demo_namespace }}"
+      register: final_vm_status
+      until: final_vm_status.resources[0].status.printableStatus == "Running"
+      retries: 30
+      delay: 10
+
+    - name: Display demo completion
+      ansible.builtin.debug:
+        msg: |
+          Demo 1 completed successfully!
+          ==============================
+          Manual drift was detected and automatically corrected by ArgoCD
+          VM is now running with the correct configuration from Git

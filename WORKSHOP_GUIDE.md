@@ -418,7 +418,11 @@ oc get applications.argoproj.io -n openshift-gitops
 Demonstrates how ArgoCD detects and corrects manual changes made outside of Git.
 
 ```bash
-./demo-scripts/demo1-manual-change.sh
+# Using Ansible playbook
+ansible-playbook -i inventory/localhost playbooks/demo1-manual-change.yaml
+
+# Or using interactive runner
+./demo-scripts/run-demos.sh
 ```
 
 **What happens:**
@@ -433,7 +437,11 @@ Demonstrates how ArgoCD detects and corrects manual changes made outside of Git.
 Demonstrates complete VM recovery after catastrophic failure.
 
 ```bash
-./demo-scripts/demo2-vm-recovery.sh
+# Using Ansible playbook
+ansible-playbook -i inventory/localhost playbooks/demo2-vm-recovery.yaml
+
+# Or using interactive runner
+./demo-scripts/run-demos.sh
 ```
 
 **What happens:**
@@ -445,25 +453,26 @@ Demonstrates complete VM recovery after catastrophic failure.
 
 ### Demo 3: Adding New Development VM via Git Change
 
-Demonstrates adding new infrastructure through Git commits and GitOps automation.
+Demonstrates git-based workflow for infrastructure provisioning.
 
 ```bash
+# Using Ansible playbook
+ansible-playbook -i inventory/localhost playbooks/demo3-add-development-vm.yaml
+
+# Or using script wrapper
 ./demo-scripts/demo3-add-development-vm.sh
+
+# Or using interactive runner
+./demo-scripts/run-demos.sh
 ```
 
 **What happens:**
-1. Currently only 2 VMs exist in development environment
-2. Developer needs a third VM for expanded testing
-3. Add vm-web-03.yaml to Git repository
-4. Update kustomization.yaml to include new VM
-5. Commit and push changes to vms-dev branch
-6. ArgoCD automatically detects and deploys new VM
-7. Development environment now has 3 VMs
-
-**Cleanup after demo:**
-```bash
-./demo-scripts/cleanup-demo3.sh
-```
+1. Create a new VM definition file (vm-web-09.yaml)
+2. Update kustomization.yaml to include the new VM
+3. Commit and push changes to the vms-dev branch
+4. ArgoCD detects Git changes (OutOfSync state)
+5. ArgoCD automatically deploys the new VM
+6. Development environment expanded with additional resources
 
 ### Demo 4: Initial VM Deployment from Git Repository
 
@@ -701,7 +710,8 @@ workshop-gitops-vms-prd     prd-vm-web-03   Running
 With the workshop installed manually, you can demonstrate:
 
 1. **GitOps in Action**: Make changes in the branches and show automatic synchronization
-2. **Drift Detection**: Use the script `./demo-scripts/demo1-manual-change.sh`
-3. **Automatic Recovery**: Use the script `./demo-scripts/demo2-vm-recovery.sh`
-4. **ArgoCD Interface**: Show the web UI with synchronized applications
-5. **Continuous Checks**: Use `./demo-scripts/check-status.sh` at any time
+2. **Drift Detection**: Use `ansible-playbook -i inventory/localhost playbooks/demo1-manual-change.yaml`
+3. **Automatic Recovery**: Use `ansible-playbook -i inventory/localhost playbooks/demo2-vm-recovery.yaml`
+4. **Git-based Provisioning**: Use `ansible-playbook -i inventory/localhost playbooks/demo3-add-development-vm.yaml`
+5. **ArgoCD Interface**: Show the web UI with synchronized applications
+6. **Continuous Checks**: Use `./demo-scripts/check-status.sh` at any time

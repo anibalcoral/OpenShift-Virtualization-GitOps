@@ -1,6 +1,6 @@
 # OpenShift GitOps with OpenShift Virtualization Workshop
 
-This workshop demonstrates how to use OpenShift GitOps (ArgoCD) to manage Virtual Machines in OpenShift Virtualization using a GitOps approach. The workshop includes automated installation, multiple environment configurations, and practical demos showing GitOps capabilities.
+This workshop demonstrates how to use OpenShift GitOps (ArgoCD) to manage Virtual Machines in OpenShift Virtualization using a GitOps approach. The workshop includes automated Ansible-based installation, multiple environment configurations, and practical demos showing GitOps capabilities.
 
 ## Prerequisites
 
@@ -23,7 +23,7 @@ Before starting the workshop, ensure you have:
 This workshop uses a **dual-repository strategy** with **multi-branch environments**:
 
 ### Repository Structure
-- **Configuration Repository** (this repo): Contains installation scripts, playbooks, and workshop demos
+- **Configuration Repository** (this repo): Contains installation scripts, Ansible playbooks, and workshop demos
 - **Applications Repository**: Contains VM definitions and Kustomize configurations for each environment
 
 ### Environment Strategy
@@ -33,92 +33,152 @@ This workshop uses a **dual-repository strategy** with **multi-branch environmen
 
 Each environment uses Kustomize overlays for environment-specific resource configurations (CPU, memory, disk, naming prefixes).
 
-## Quick Start Installation
+## Installation
 
 ### Automated Installation (Recommended)
 
-1. **Clone both repositories:**
-   ```bash
-   git clone git@github.com:anibalcoral/OpenShift-Virtualization-GitOps.git
-   git clone git@github.com:anibalcoral/OpenShift-Virtualization-GitOps-Apps.git
-   cd OpenShift-Virtualization-GitOps
-   ```
+**Complete installation:**
+```bash
+./install.sh
+```
 
-2. **Run the installation script:**
-   ```bash
-   ./install.sh
-   ```
-   This script will:
-   - Detect your cluster's application domain automatically
-   - Install OpenShift GitOps operator
-   - Create workshop namespaces and ArgoCD applications
-   - Configure domain-specific routes in the Apps repository
+**Individual Ansible playbooks:**
+```bash
+# Install complete workshop
+ansible-playbook -i inventory/localhost playbooks/install-workshop.yaml
 
-3. **Verify installation:**
-   ```bash
-   ./demo-scripts/check-status.sh
-   ```
+# Or run individual components
+ansible-playbook -i inventory/localhost playbooks/validate-cluster-domain.yaml
+ansible-playbook -i inventory/localhost playbooks/setup-ssh-key.yaml
+ansible-playbook -i inventory/localhost playbooks/install-gitops.yaml
+```
 
-4. **Access ArgoCD UI:**
-   ```bash
-   # Get ArgoCD URL and credentials
-   echo "ArgoCD URL: https://$(oc get route openshift-gitops-server -n openshift-gitops -o jsonpath='{.spec.host}')"
-   echo "Username: admin"
-   echo "Password: $(oc get secret openshift-gitops-cluster -n openshift-gitops -o jsonpath='{.data.admin\.password}' | base64 -d)"
-   ```
-
-### Manual Installation
+### Manual Installation (for Learning)
 
 For step-by-step installation or troubleshooting:
 
-1. **Install GitOps operator:**
-   ```bash
-   ansible-playbook -i inventory/localhost playbooks/install-gitops.yaml
-   ```
+```bash
+# Apply manual manifests in order
+oc apply -f manual-install/01-gitops-operator-subscription.yaml
+oc apply -f manual-install/02-cluster-role-binding.yaml
+oc apply -f manual-install/03-namespaces.yaml
+oc apply -f manual-install/04-argocd-app-dev.yaml
+oc apply -f manual-install/05-argocd-app-hml.yaml
+oc apply -f manual-install/06-argocd-app-prd.yaml
+```
 
-2. **Apply manual manifests in order:**
-   ```bash
-   oc apply -f manual-install/01-gitops-operator-subscription.yaml
-   oc apply -f manual-install/02-cluster-role-binding.yaml
-   oc apply -f manual-install/03-namespaces.yaml
-   oc apply -f manual-install/04-argocd-app-dev.yaml
-   oc apply -f manual-install/05-argocd-app-hml.yaml
-   oc apply -f manual-install/06-argocd-app-prd.yaml
-   ```
+## Verification
 
-3. **Validate cluster domain configuration:**
-   ```bash
-   ./validate-cluster-domain.sh
-   ```
+**Access ArgoCD UI:**
+```bash
+echo "ArgoCD URL: https://$(oc get route openshift-gitops-server -n openshift-gitops -o jsonpath='{.spec.host}')"
+echo "Username: admin"
+echo "Password: $(oc get secret openshift-gitops-cluster -n openshift-gitops -o jsonpath='{.data.admin\.password}' | base64 -d)"
+```
+
+**Check workshop status:**
+```bash
+# Quick status check
+./demo-scripts/check-status.sh
+
+# Or use Ansible playbook directly
+ansible-playbook -i inventory/localhost playbooks/check-workshop-status.yaml
+```
 
 ## Workshop Demonstrations
 
 ### Demo 1: Manual Change Detection and Drift Correction
 ```bash
-./demo-scripts/demo1-manual-change.sh
+# Using Ansible playbook
+ansible-playbook -i inventory/localhost playbooks/demo1-manual-change.yaml
+
+# Or using interactive runner
+./demo-scripts/run-demos.sh
 ```
-**Demonstrates:**
 - Manual modifications to VM resources
 - ArgoCD detecting "OutOfSync" status
 - Automatic drift correction and resource recreation
 
-### Demo 2: Virtual Machine Recovery
-```bash
-./demo-scripts/demo2-vm-recovery.sh
-```
 **Demonstrates:**
-- VM corruption/deletion simulation
-- Complete VM recovery from Git state
-- GitOps-based disaster recovery capabilities
+- Manual configuration changes to VMs
+- ArgoCD detecting configuration drift (OutOfSync status)
+- Automatic self-healing and drift correction
+- VM returning to desired state from Git
 
-### Demo 3: Adding New Development VM
+### Demo 2: VM Recovery from Data Loss
 ```bash
-./demo-scripts/demo3-add-development-vm.sh
+# Using Ansible playbook
+ansible-playbook -i inventory/localhost playbooks/demo2-vm-recovery.yaml
+
+# Or using interactive runner
+./demo-scripts/run-demos.sh
 ```
 **Demonstrates:**
-- Git-based workflow for adding new VMs
-- Environment-specific configurations
-- ArgoCD automated deployment
+- Complete VM deletion (simulating data loss)
+- ArgoCD detecting missing resources
+- Recovery through Git-based re-sync
+- Complete VM recreation and functionality
+
+### Demo 3: Adding New Development VM via Git Change
+```bash
+# Using Ansible playbook
+ansible-playbook -i inventory/localhost playbooks/demo3-add-development-vm.yaml
+
+# Or using script wrapper
+./demo-scripts/demo3-add-development-vm.sh
+
+# Or using interactive runner
+./demo-scripts/run-demos.sh
+```
+**Demonstrates:**
+- Git-based workflow for infrastructure changes
+- Adding new VM definitions via Git commits
+- Automatic deployment through ArgoCD
+- Environment-specific customizations
+
+### Interactive Demo Runner
+```bash
+./demo-scripts/run-demos.sh
+```
+Provides a menu-driven interface to run all demos and utilities.
+
+### Demo Cleanup
+```bash
+# Clean up Demo 3 artifacts
+./demo-scripts/cleanup-demo3.sh
+
+# Or use Ansible directly
+ansible-playbook -i inventory/localhost playbooks/cleanup-demo3.yaml
+```
+
+## Cleanup
+
+### Complete Workshop Removal
+```bash
+./remove.sh
+```
+
+**Or use Ansible playbooks directly:**
+```bash
+# Remove workshop resources only
+ansible-playbook -i inventory/localhost playbooks/remove-workshop.yaml
+
+# Remove workshop resources and GitOps operator
+ansible-playbook -i inventory/localhost playbooks/remove-workshop.yaml -e remove_operator=true
+```
+
+### Status Monitoring
+```bash
+# Quick status check
+./demo-scripts/check-status.sh
+
+# Direct Ansible playbook
+ansible-playbook -i inventory/localhost playbooks/check-workshop-status.yaml
+
+# OpenShift CLI monitoring
+oc get applications.argoproj.io -n openshift-gitops
+oc get vm -A | grep workshop-gitops
+```
 
 ### Run All Demos Interactively
 ```bash
@@ -164,15 +224,20 @@ Each application:
 
 ## Virtual Machine Configuration
 
-All VMs are based on Fedora templates and include:
+Each environment deploys identical VMs with environment-specific resource allocations:
 
-- **Operating System**: Fedora (from OpenShift Virtualization template)
-- **Web Server**: Apache HTTP Server pre-configured
-- **Access Methods**:
-  - **Console Access**: Username `cloud-user`, Password `redhat123`
-  - **SSH Access**: Key-based authentication (automatically configured)
-  - **Web Interface**: HTTP server accessible via OpenShift routes
-- **Network**: Connected to pod network with services and routes for external access
+### VM Templates
+- **Base Image**: RHEL 9 cloud image
+- **Default User**: `cloud-user` 
+- **Default Password**: `redhat123`
+- **Applications**: Environment-specific web applications
+- **SSH Access**: Configured with workshop SSH keys
+- **Networking**: LoadBalancer services with external routes
+
+### Resource Scaling by Environment
+- **Development**: 1 vCPU, 2Gi RAM, 10Gi storage per VM
+- **Homologation**: 2 vCPU, 4Gi RAM, 20Gi storage per VM  
+- **Production**: 4 vCPU, 8Gi RAM, 40Gi storage per VM
 - **Storage**: Persistent volumes with environment-specific sizes
 
 ### Accessing Virtual Machines
@@ -195,13 +260,8 @@ The workshop automatically detects and configures your OpenShift cluster's appli
 
 ### How Domain Detection Works
 
-1. **Cluster Query**: The installation script queries the cluster's ingress configuration:
-   ```bash
-   oc get ingress.config.openshift.io/cluster -o jsonpath='{.spec.domain}'
-   ```
-
+1. **Cluster Query**: The installation queries the cluster's ingress configuration
 2. **Automatic Updates**: Detected domains are automatically configured in route definitions within the Apps repository
-
 3. **Support for Any Domain**: Works with any valid OpenShift application domain pattern:
    - `apps.cluster-name.domain.com`
    - `apps.sandbox.x8y9.p1.openshiftapps.com`
@@ -210,28 +270,42 @@ The workshop automatically detects and configures your OpenShift cluster's appli
 ### Domain Validation Tools
 
 - **Automatic during installation**: `./install.sh` (detects and configures automatically)
-- **Manual validation**: `./validate-cluster-domain.sh` (interactive validation and updates)
+- **Manual validation**: `./validate-cluster-domain.sh` (validates and updates domains)
 
 ## Cleanup and Maintenance
 
 ### Complete Workshop Removal
+
+**Choose removal method:**
 ```bash
 ./remove.sh
+# Select option 1 (Ansible) or option 2 (Bash)
 ```
-This removes:
-- All ArgoCD applications
-- Workshop namespaces and resources
-- GitOps operator (optional)
+
+**Or use Ansible playbooks directly:**
+```bash
+# Remove workshop resources only
+ansible-playbook -i inventory/localhost playbooks/remove-workshop.yaml
+
+# Remove workshop resources and GitOps operator
+ansible-playbook -i inventory/localhost playbooks/remove-workshop.yaml -e remove_operator=true
+```
 
 ### Status Monitoring
+
+**Ansible method:**
 ```bash
-# Check overall workshop status
+ansible-playbook -i inventory/localhost playbooks/check-workshop-status.yaml
+```
+
+**Bash method:**
+```bash
 ./demo-scripts/check-status.sh
+```
 
-# View ArgoCD applications
+**ArgoCD UI monitoring:**
+```bash
 oc get applications.argoproj.io -n openshift-gitops
-
-# Monitor VM status across environments
 oc get vm -A | grep workshop-gitops
 ```
 
@@ -241,11 +315,12 @@ This repository contains the workshop configuration and automation:
 
 ```
 OpenShift-Virtualization-GitOps/          # Main workshop repository
-├── install.sh                           # Automated installation script
-├── remove.sh                            # Complete cleanup script
-├── validate-cluster-domain.sh           # Domain detection and validation
-├── setup-ssh-key.sh                     # SSH key configuration (if needed)
-├── validate-workshop-alignment.sh       # Workshop validation utility
+├── install.sh                           # Interactive installation script (Ansible/Bash)
+├── remove.sh                            # Interactive cleanup script (Ansible/Bash)
+├── validate-cluster-domain.sh           # Domain detection and validation (Bash)
+├── validate-cluster-domain-ansible.sh   # Domain validation (Ansible wrapper)
+├── setup-ssh-key.sh                     # SSH key configuration (Bash)
+├── setup-ssh-key-ansible.sh            # SSH key setup (Ansible wrapper)
 ├── ansible.cfg                          # Ansible configuration
 ├── requirements.yml                     # Ansible requirements
 ├── WORKSHOP_GUIDE.md                    # Detailed workshop instructions
@@ -256,6 +331,21 @@ OpenShift-Virtualization-GitOps/          # Main workshop repository
 │   ├── install-gitops.yaml             # GitOps operator installation
 │   ├── remove-gitops.yaml              # GitOps operator removal
 │   └── templates/                       # Ansible templates
+├── inventory/
+│   └── localhost                        # Ansible inventory for localhost
+├── playbooks/                           # Ansible playbooks
+│   ├── install-workshop.yaml           # Complete workshop installation
+│   ├── install-gitops.yaml             # GitOps operator installation  
+│   ├── remove-workshop.yaml            # Complete workshop removal
+│   ├── remove-gitops.yaml              # GitOps operator removal (legacy)
+│   ├── validate-cluster-domain.yaml    # Cluster domain validation
+│   ├── setup-ssh-key.yaml              # SSH key configuration
+│   ├── check-workshop-status.yaml      # Workshop status checker
+│   ├── demo1-manual-change.yaml        # Demo 1: Manual change detection
+│   ├── demo2-vm-recovery.yaml          # Demo 2: VM recovery
+│   ├── demo-utilities.yaml             # Demo utility functions
+│   └── templates/                      # Ansible templates
+│       └── ssh-secret.yaml.j2         # SSH secret template
 ├── manual-install/                      # Manual installation manifests
 │   ├── 01-gitops-operator-subscription.yaml
 │   ├── 02-cluster-role-binding.yaml
@@ -265,13 +355,16 @@ OpenShift-Virtualization-GitOps/          # Main workshop repository
 │   ├── 06-argocd-app-prd.yaml
 │   └── README.md
 └── demo-scripts/                        # Workshop demonstration scripts
-    ├── run-demos.sh                     # Interactive demo runner
-    ├── check-status.sh                  # Workshop status checker
-    ├── demo1-manual-change.sh           # Demo 1: Manual change detection
-    ├── demo2-vm-recovery.sh             # Demo 2: VM recovery
-    ├── demo3-add-development-vm.sh      # Demo 3: Adding new VMs
+    ├── run-demos.sh                     # Interactive demo runner (Ansible/Bash)
+    ├── check-status.sh                  # Workshop status checker (Bash)
+    ├── check-status-ansible.sh          # Workshop status checker (Ansible wrapper)
+    ├── demo1-manual-change.sh           # Demo 1: Manual change detection (Bash)
+    ├── demo1-manual-change-ansible.sh   # Demo 1: Ansible wrapper
+    ├── demo2-vm-recovery.sh             # Demo 2: VM recovery (Bash)
+    ├── demo2-vm-recovery-ansible.sh     # Demo 2: Ansible wrapper
+    ├── demo3-add-development-vm.sh      # Demo 3: Adding new VMs (Bash)
     ├── cleanup-demo3.sh                 # Demo 3 cleanup
-    ├── demo-functions.sh                # Common demo functions
+    ├── demo-functions.sh                # Common demo functions (Bash)
     ├── DEMO1-MANUAL-CHANGE.md           # Demo 1 documentation
     ├── DEMO2-VM-RECOVERY.md             # Demo 2 documentation
     └── DEMO3-ADD-DEVELOPMENT-VM.md      # Demo 3 documentation
