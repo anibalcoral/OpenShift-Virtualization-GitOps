@@ -5,7 +5,7 @@
   vars:
     namespace: "workshop-gitops-vms-dev"
     vm_name: "dev-vm-web-09"
-    app_name: "workshop-vms-dev"
+    app_name: "workshop-gitops-vms-dev"
     apps_repo_path: "/home/lchiaret/git/OpenShift-Virtualization-GitOps-Apps"
 
   tasks:
@@ -40,8 +40,8 @@
       changed_when: false
 
     - name: Switch to vms-dev branch if needed
-      ansible.builtin.command:
-        cmd: git checkout vms-dev
+      ansible.builtin.shell: git checkout vms-dev
+      args:
         chdir: "{{ apps_repo_path }}"
       when: current_branch.stdout != "vms-dev"
       register: branch_switch

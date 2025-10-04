@@ -12,7 +12,7 @@ This demo demonstrates how to add new Virtual Machines to the environment using 
 ## Environment Details
 - **Namespace**: `workshop-gitops-vms-dev`
 - **New VM Name**: `dev-vm-web-09`
-- **ArgoCD Application**: `workshop-vms-dev`
+- **ArgoCD Application**: `workshop-gitops-vms-dev`
 - **Git Repository**: `OpenShift-Virtualization-GitOps-Apps`
 - **Target Branch**: `vms-dev`
 
@@ -22,7 +22,7 @@ This demo demonstrates how to add new Virtual Machines to the environment using 
 
 1. Check current ArgoCD application status:
 ```bash
-oc get applications.argoproj.io workshop-vms-dev -n openshift-gitops -o custom-columns="NAME:.metadata.name,SYNC:.status.sync.status,HEALTH:.status.health.status"
+oc get applications.argoproj.io workshop-gitops-vms-dev -n openshift-gitops -o custom-columns="NAME:.metadata.name,SYNC:.status.sync.status,HEALTH:.status.health.status"
 ```
 
 2. List existing VMs in development environment:
@@ -232,12 +232,12 @@ cd -
 
 2. Force ArgoCD to check for changes:
 ```bash
-oc patch applications.argoproj.io workshop-vms-dev -n openshift-gitops --type merge -p '{"operation":{"sync":{"syncStrategy":{"hook":{}}}}}
+oc patch applications.argoproj.io workshop-gitops-vms-dev -n openshift-gitops --type merge -p '{"operation":{"sync":{"syncStrategy":{"hook":{}}}}}
 ```
 
 3. Monitor application status until drift is detected:
 ```bash
-oc get applications.argoproj.io workshop-vms-dev -n openshift-gitops -o jsonpath='{.status.sync.status}'
+oc get applications.argoproj.io workshop-gitops-vms-dev -n openshift-gitops -o jsonpath='{.status.sync.status}'
 ```
 
 **Expected Result**: Application status should change to "OutOfSync"
@@ -246,12 +246,12 @@ oc get applications.argoproj.io workshop-vms-dev -n openshift-gitops -o jsonpath
 
 1. Trigger automatic sync (or wait for auto-sync if enabled):
 ```bash
-oc patch applications.argoproj.io workshop-vms-dev -n openshift-gitops --type merge -p '{"operation":{"sync":{"syncStrategy":{"hook":{}}}}}'
+oc patch applications.argoproj.io workshop-gitops-vms-dev -n openshift-gitops --type merge -p '{"operation":{"sync":{"syncStrategy":{"hook":{}}}}}'
 ```
 
 2. Monitor sync progress:
 ```bash
-watch oc get applications.argoproj.io workshop-vms-dev -n openshift-gitops -o jsonpath='{.status.sync.status}'
+watch oc get applications.argoproj.io workshop-gitops-vms-dev -n openshift-gitops -o jsonpath='{.status.sync.status}'
 ```
 
 **Expected Result**: Sync should be initiated
@@ -279,7 +279,7 @@ oc get dv -n workshop-gitops-vms-dev | grep dev-vm-web-09
 
 1. Monitor until application returns to Synced state:
 ```bash
-watch oc get applications.argoproj.io workshop-vms-dev -n openshift-gitops -o custom-columns="NAME:.metadata.name,SYNC:.status.sync.status,HEALTH:.status.health.status"
+watch oc get applications.argoproj.io workshop-gitops-vms-dev -n openshift-gitops -o custom-columns="NAME:.metadata.name,SYNC:.status.sync.status,HEALTH:.status.health.status"
 ```
 
 **Expected Result**: Application should return to "Synced" status
@@ -318,7 +318,7 @@ oc get vmi dev-vm-web-09 -n workshop-gitops-vms-dev
 
 1. Verify final application status:
 ```bash
-oc get applications.argoproj.io workshop-vms-dev -n openshift-gitops -o custom-columns="NAME:.metadata.name,SYNC:.status.sync.status,HEALTH:.status.health.status"
+oc get applications.argoproj.io workshop-gitops-vms-dev -n openshift-gitops -o custom-columns="NAME:.metadata.name,SYNC:.status.sync.status,HEALTH:.status.health.status"
 ```
 
 2. Count total VMs in environment:
@@ -392,7 +392,7 @@ If the demo doesn't work as expected:
 1. **Git push fails**: Check repository permissions and authentication
 2. **ArgoCD not detecting changes**: Force refresh:
    ```bash
-   oc annotate applications.argoproj.io workshop-vms-dev -n openshift-gitops argocd.argoproj.io/refresh="$(date)" --overwrite
+   oc annotate applications.argoproj.io workshop-gitops-vms-dev -n openshift-gitops argocd.argoproj.io/refresh="$(date)" --overwrite
    ```
 3. **VM creation stuck**: Check DataVolume and storage:
    ```bash

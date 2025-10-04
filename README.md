@@ -189,9 +189,9 @@ oc get vm -A | grep workshop-gitops
 
 The workshop creates three ArgoCD applications:
 
-- **workshop-vms-dev**: Manages development VMs from the `vms-dev` branch
-- **workshop-vms-hml**: Manages homologation VMs from the `vms-hml` branch  
-- **workshop-vms-prd**: Manages production VMs from the `main` branch
+- **workshop-gitops-vms-dev**: Manages development VMs from the `vms-dev` branch
+- **workshop-gitops-vms-hml**: Manages homologation VMs from the `vms-hml` branch  
+- **workshop-gitops-vms-prd**: Manages production VMs from the `main` branch
 
 Each application:
 - Points to a specific branch in the Apps repository
@@ -206,21 +206,21 @@ Each application:
 - **VMs**: 
   - `dev-vm-web-01` (1 CPU, 2GB RAM, 30GB disk)
   - `dev-vm-web-02` (1 CPU, 2GB RAM, 30GB disk)
-- **Route**: `https://dev-workshop-vms.<cluster-domain>`
+- **Route**: `https://dev-workshop-gitops-vms.<cluster-domain>`
 
 ### Homologation Environment (vms-hml branch)
 - **Namespace**: `workshop-gitops-vms-hml`
 - **VMs**: 
   - `hml-vm-web-01` (2 CPU, 3GB RAM, 40GB disk)
   - `hml-vm-web-02` (2 CPU, 3GB RAM, 40GB disk)
-- **Route**: `https://hml-workshop-vms.<cluster-domain>`
+- **Route**: `https://hml-workshop-gitops-vms.<cluster-domain>`
 
 ### Production Environment (main branch)
 - **Namespace**: `workshop-gitops-vms-prd`
 - **VMs**: 
   - `prd-vm-web-01` (2 CPU, 4GB RAM, 50GB disk)
   - `prd-vm-web-02` (2 CPU, 4GB RAM, 50GB disk)
-- **Route**: `https://workshop-vms.<cluster-domain>`
+- **Route**: `https://workshop-gitops-vms.<cluster-domain>`
 
 ## Virtual Machine Configuration
 
@@ -438,7 +438,7 @@ patches:
    oc logs -n openshift-gitops deployment/openshift-gitops-application-controller
    
    # Verify repository access
-   oc describe applications.argoproj.io workshop-vms-dev -n openshift-gitops
+   oc describe applications.argoproj.io workshop-gitops-vms-dev -n openshift-gitops
    ```
 
 2. **Virtual Machines Not Starting**
@@ -463,7 +463,7 @@ patches:
    oc get ingress.config.openshift.io/cluster -o jsonpath='{.spec.domain}'
    
    # Verify route configuration
-   oc get routes -A | grep workshop-vms
+   oc get routes -A | grep workshop-gitops-vms
    ```
 
 4. **SSH Access Problems**
@@ -488,7 +488,7 @@ patches:
 ./demo-scripts/check-status.sh
 
 # Verify all workshop components
-oc get applications.argoproj.io -n openshift-gitops | grep workshop-vms
+oc get applications.argoproj.io -n openshift-gitops | grep workshop-gitops-vms
 oc get namespaces | grep workshop-gitops
 oc get vm -A | grep workshop-gitops
 

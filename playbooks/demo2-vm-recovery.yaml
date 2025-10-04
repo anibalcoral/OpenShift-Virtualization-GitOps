@@ -5,7 +5,7 @@
   vars:
     demo_namespace: "workshop-gitops-vms-dev"
     vm_name: "dev-vm-web-01"
-    app_name: "workshop-vms-dev"
+    app_name: "workshop-gitops-vms-dev"
     argocd_namespace: "openshift-gitops"
 
   tasks:

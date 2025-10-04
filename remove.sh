@@ -37,23 +37,26 @@ if ! command -v oc &> /dev/null; then
 fi
 
 echo ""
-echo "Remove GitOps operator as well?"
-echo "1. Remove only workshop resources (Recommended)"
-echo "2. Remove workshop resources and GitOps operator"
-echo ""
-read -p "Select option (1-2): " operator_choice
+#echo "Remove GitOps operator as well?"
+#echo "1. Remove only workshop resources (Recommended)"
+#echo "2. Remove workshop resources and GitOps operator"
+#echo ""
+#read -p "Select option (1-2): " operator_choice
 
-case $operator_choice in
-    1)
-        log "Running Ansible playbook removal (preserving GitOps operator)..."
-        ansible-playbook -i inventory/localhost playbooks/remove-workshop.yaml
-        ;;
-    2)
-        log "Running Ansible playbook removal (including GitOps operator)..."
-        ansible-playbook -i inventory/localhost playbooks/remove-workshop.yaml -e remove_operator=true
-        ;;
-    *)
-        log_error "Invalid choice. Using default (preserve operator)."
-        ansible-playbook -i inventory/localhost playbooks/remove-workshop.yaml
-        ;;
-esac
+#case $operator_choice in
+#    1)
+#        log "Running Ansible playbook removal (preserving GitOps operator)..."
+#        ansible-playbook -i inventory/localhost playbooks/remove-workshop.yaml
+#        ;;
+#    2)
+#        log "Running Ansible playbook removal (including GitOps operator)..."
+#        ansible-playbook -i inventory/localhost playbooks/remove-workshop.yaml -e remove_operator=true
+#        ;;
+#    *)
+#        log_error "Invalid choice. Using default (preserve operator)."
+#        ansible-playbook -i inventory/localhost playbooks/remove-workshop.yaml
+#        ;;
+#esac
+
+log "Running Ansible playbook removal (preserving GitOps operator)..."
+ansible-playbook -i inventory/localhost playbooks/remove-workshop.yaml

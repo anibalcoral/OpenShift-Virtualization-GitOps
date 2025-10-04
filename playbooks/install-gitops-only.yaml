@@ -1,0 +1,7 @@
+---
+- name: Install GitOps Applications
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Include GitOps installation tasks
+      ansible.builtin.include_tasks: tasks/install-gitops-tasks.yaml

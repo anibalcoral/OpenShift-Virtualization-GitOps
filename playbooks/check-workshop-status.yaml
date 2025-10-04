@@ -1,6 +1,6 @@
 ---
 - name: Check Workshop Status
-  hosts: local
+  hosts: localhost
   gather_facts: false
   vars:
     workshop_namespace_base: "workshop-gitops-vms"
@@ -18,7 +18,7 @@
 
     - name: Filter workshop applications
       ansible.builtin.set_fact:
-        workshop_apps: "{{ argocd_apps.resources | selectattr('metadata.name', 'match', '^workshop-vms-.*') | list }}"
+        workshop_apps: "{{ argocd_apps.resources | selectattr('metadata.name', 'match', '^workshop-gitops-vms-.*') | list }}"
 
     - name: Display ArgoCD Applications status
       ansible.builtin.debug:
@@ -85,7 +85,7 @@
         kind: Service
         namespace: "{{ workshop_namespace_base }}-{{ item }}"
         label_selectors:
-          - "app=workshop-vms"
+          - "app=workshop-gitops-vms"
       register: service_status
       loop:
         - dev

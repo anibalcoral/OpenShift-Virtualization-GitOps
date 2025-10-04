@@ -1,6 +1,6 @@
 ---
 - name: Validate and Configure Cluster Domain
-  hosts: local
+  hosts: localhost
   gather_facts: true
   vars:
     apps_repo_path: "/home/lchiaret/git/OpenShift-Virtualization-GitOps-Apps"
@@ -35,16 +35,15 @@
         msg: "Detected cluster domain: {{ cluster_domain }}"
 
     - name: Switch to vms-dev branch
-      ansible.builtin.git:
-        repo: "{{ apps_repo_path }}"
-        dest: "{{ apps_repo_path }}"
-        version: vms-dev
+      ansible.builtin.shell: git checkout vms-dev
+      args:
+        chdir: "{{ apps_repo_path }}"
       delegate_to: localhost
 
     - name: Get current domain configuration from dev environment
       ansible.builtin.lineinfile:
         path: "{{ apps_repo_path }}/overlays/dev/kustomization.yaml"
-        regexp: 'value: dev-workshop-vms\.'
+        regexp: 'value: dev-workshop-gitops-vms\.'
         line: "temporary"
         state: present
       register: dev_domain_check
@@ -52,27 +51,30 @@
 
     - name: Extract current dev domain
       ansible.builtin.shell: |
-        grep -o "value: dev-workshop-vms\.[^\"]*" "{{ apps_repo_path }}/overlays/dev/kustomization.yaml" | sed 's/value: //' || echo ""
+        set -o pipefail
+        grep -o "value: dev-workshop-gitops-vms\.[^\"]*" "{{ apps_repo_path }}/overlays/dev/kustomization.yaml" | sed 's/value: //' || echo ""
       register: current_dev_domain
       changed_when: false
 
     - name: Extract current hml domain
       ansible.builtin.shell: |
-        grep -o "value: hml-workshop-vms\.[^\"]*" "{{ apps_repo_path }}/overlays/hml/kustomization.yaml" | sed 's/value: //' || echo ""
+        set -o pipefail
+        grep -o "value: hml-workshop-gitops-vms\.[^\"]*" "{{ apps_repo_path }}/overlays/hml/kustomization.yaml" | sed 's/value: //' || echo ""
       register: current_hml_domain
       changed_when: false
 
     - name: Extract current prd domain
       ansible.builtin.shell: |
-        grep -o "value: workshop-vms\.[^\"]*" "{{ apps_repo_path }}/overlays/prd/kustomization.yaml" | sed 's/value: //' || echo ""
+        set -o pipefail
+        grep -o "value: workshop-gitops-vms\.[^\"]*" "{{ apps_repo_path }}/overlays/prd/kustomization.yaml" | sed 's/value: //' || echo ""
       register: current_prd_domain
       changed_when: false
 
     - name: Set expected domain variables
       ansible.builtin.set_fact:
-        expected_dev_domain: "dev-workshop-vms.{{ cluster_domain }}"
-        expected_hml_domain: "hml-workshop-vms.{{ cluster_domain }}"
-        expected_prd_domain: "workshop-vms.{{ cluster_domain }}"
+        expected_dev_domain: "dev-workshop-gitops-vms.{{ cluster_domain }}"
+        expected_hml_domain: "hml-workshop-gitops-vms.{{ cluster_domain }}"
+        expected_prd_domain: "workshop-gitops-vms.{{ cluster_domain }}"
 
     - name: Display current domain configuration
       ansible.builtin.debug:
@@ -102,39 +104,33 @@
     - name: Update dev environment domain
       ansible.builtin.replace:
         path: "{{ apps_repo_path }}/overlays/dev/kustomization.yaml"
-        regexp: 'value: dev-workshop-vms\.[^"]*'
+        regexp: 'value: dev-workshop-gitops-vms\.[^"]*'
         replace: "value: {{ expected_dev_domain }}"
       when: update_needed
 
     - name: Update hml environment domain
       ansible.builtin.replace:
         path: "{{ apps_repo_path }}/overlays/hml/kustomization.yaml"
-        regexp: 'value: hml-workshop-vms\.[^"]*'
+        regexp: 'value: hml-workshop-gitops-vms\.[^"]*'
         replace: "value: {{ expected_hml_domain }}"
       when: update_needed
 
     - name: Update prd environment domain
       ansible.builtin.replace:
         path: "{{ apps_repo_path }}/overlays/prd/kustomization.yaml"
-        regexp: 'value: workshop-vms\.[^"]*'
+        regexp: 'value: workshop-gitops-vms\.[^"]*'
         replace: "value: {{ expected_prd_domain }}"
       when: update_needed
 
     - name: Pull latest changes
-      ansible.builtin.shell: git pull
-      args:
-        chdir: "{{ apps_repo_path }}"
-      when: update_needed and auto_commit
-
-    - name: Add changes to git
-      ansible.builtin.shell: git add .
+      ansible.builtin.shell: git pull origin vms-dev
       args:
         chdir: "{{ apps_repo_path }}"
       when: update_needed and auto_commit
 
     - name: Commit domain configuration changes
       ansible.builtin.shell: |
-        git commit -m "feat: update cluster domain to {{ cluster_domain }}
+        git add . && git commit -m "feat: update cluster domain to {{ cluster_domain }}
 
         - Update development domain to: {{ expected_dev_domain }}
         - Update homologation domain to: {{ expected_hml_domain }}
@@ -150,19 +146,18 @@
       when: update_needed and auto_commit
 
     - name: Switch to vms-hml branch
-      ansible.builtin.git:
-        repo: "{{ apps_repo_path }}"
-        dest: "{{ apps_repo_path }}"
-        version: vms-hml
-      when: update_needed and auto_commit
-
-    - name: Pull latest changes for hml
-      ansible.builtin.shell: git pull
+      ansible.builtin.shell: git checkout vms-hml
       args:
         chdir: "{{ apps_repo_path }}"
       when: update_needed and auto_commit
 
-    - name: Merge vms-dev to vms-hml
+    - name: Pull latest changes for hml
+      ansible.builtin.shell: git pull origin vms-hml
+      args:
+        chdir: "{{ apps_repo_path }}"
+      when: update_needed and auto_commit
+
+    - name: Merge vms-dev to vms-hml using git module
       ansible.builtin.shell: git merge vms-dev
       args:
         chdir: "{{ apps_repo_path }}"
@@ -175,14 +170,13 @@
       when: update_needed and auto_commit
 
     - name: Switch to main branch
-      ansible.builtin.git:
-        repo: "{{ apps_repo_path }}"
-        dest: "{{ apps_repo_path }}"
-        version: main
+      ansible.builtin.shell: git checkout main
+      args:
+        chdir: "{{ apps_repo_path }}"
       when: update_needed and auto_commit
 
     - name: Pull latest changes for main
-      ansible.builtin.shell: git pull
+      ansible.builtin.shell: git pull origin main
       args:
         chdir: "{{ apps_repo_path }}"
       when: update_needed and auto_commit

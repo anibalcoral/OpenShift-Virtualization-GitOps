@@ -11,7 +11,7 @@ This demo demonstrates how GitOps can recover from complete VM and data loss sce
 ## Environment Details
 - **Namespace**: `workshop-gitops-vms-dev`
 - **VM Name**: `dev-vm-web-02`
-- **ArgoCD Application**: `workshop-vms-dev`
+- **ArgoCD Application**: `workshop-gitops-vms-dev`
 - **Scenario**: Complete VM and storage deletion (simulating data corruption)
 
 ## Step-by-Step Manual Instructions
@@ -20,7 +20,7 @@ This demo demonstrates how GitOps can recover from complete VM and data loss sce
 
 1. Check the ArgoCD application status:
 ```bash
-oc get applications.argoproj.io workshop-vms-dev -n openshift-gitops -o custom-columns="NAME:.metadata.name,SYNC:.status.sync.status,HEALTH:.status.health.status"
+oc get applications.argoproj.io workshop-gitops-vms-dev -n openshift-gitops -o custom-columns="NAME:.metadata.name,SYNC:.status.sync.status,HEALTH:.status.health.status"
 ```
 
 2. Verify the VM exists and its current state:
@@ -92,12 +92,12 @@ oc get dv dev-vm-web-02 -n workshop-gitops-vms-dev
 
 1. Monitor application sync status until drift is detected:
 ```bash
-oc get applications.argoproj.io workshop-vms-dev -n openshift-gitops -o jsonpath='{.status.sync.status}'
+oc get applications.argoproj.io workshop-gitops-vms-dev -n openshift-gitops -o jsonpath='{.status.sync.status}'
 ```
 
 2. You can force a refresh if needed:
 ```bash
-oc annotate applications.argoproj.io workshop-vms-dev -n openshift-gitops argocd.argoproj.io/refresh="$(date)" --overwrite
+oc annotate applications.argoproj.io workshop-gitops-vms-dev -n openshift-gitops argocd.argoproj.io/refresh="$(date)" --overwrite
 ```
 
 **Expected Result**: Application sync status should change to "OutOfSync"
@@ -111,7 +111,7 @@ oc patch applications.argoproj.io $app_name -n $namespace --type merge -p '{"ope
 
 2. Monitor the sync process:
 ```bash
-watch oc get applications.argoproj.io workshop-vms-dev -n openshift-gitops -o jsonpath='{.status.sync.status}'
+watch oc get applications.argoproj.io workshop-gitops-vms-dev -n openshift-gitops -o jsonpath='{.status.sync.status}'
 ```
 
 **Expected Result**: ArgoCD should start recreating the missing VM
@@ -140,12 +140,12 @@ oc get dv -n workshop-gitops-vms-dev | grep dev-vm-web-02
 
 1. Monitor until application returns to Synced state:
 ```bash
-watch oc get applications.argoproj.io workshop-vms-dev -n openshift-gitops -o jsonpath='{.status.sync.status}'
+watch oc get applications.argoproj.io workshop-gitops-vms-dev -n openshift-gitops -o jsonpath='{.status.sync.status}'
 ```
 
 2. Check application health:
 ```bash
-oc get applications.argoproj.io workshop-vms-dev -n openshift-gitops -o jsonpath='{.status.health.status}'
+oc get applications.argoproj.io workshop-gitops-vms-dev -n openshift-gitops -o jsonpath='{.status.health.status}'
 ```
 
 **Expected Result**: Application should return to "Synced" and "Healthy" status
@@ -189,7 +189,7 @@ oc get vm -n workshop-gitops-vms-dev
 
 2. Check final application status:
 ```bash
-oc get applications.argoproj.io workshop-vms-dev -n openshift-gitops -o custom-columns="NAME:.metadata.name,SYNC:.status.sync.status,HEALTH:.status.health.status"
+oc get applications.argoproj.io workshop-gitops-vms-dev -n openshift-gitops -o custom-columns="NAME:.metadata.name,SYNC:.status.sync.status,HEALTH:.status.health.status"
 ```
 
 3. Verify the recreated VM has fresh storage:
@@ -231,7 +231,7 @@ If the demo doesn't work as expected:
 
 1. **VM not recreating**: Check ArgoCD application events:
    ```bash
-   oc describe applications.argoproj.io workshop-vms-dev -n openshift-gitops
+   oc describe applications.argoproj.io workshop-gitops-vms-dev -n openshift-gitops
    ```
 
 2. **DataVolume creation issues**: Check storage class and CSI driver:
@@ -252,5 +252,5 @@ If the demo doesn't work as expected:
 
 4. **Force sync if needed**:
    ```bash
-   oc patch applications.argoproj.io workshop-vms-dev -n openshift-gitops --type merge -p '{"operation":{"sync":{"syncStrategy":{"hook":{}}}}}'
+   oc patch applications.argoproj.io workshop-gitops-vms-dev -n openshift-gitops --type merge -p '{"operation":{"sync":{"syncStrategy":{"hook":{}}}}}'
    ```

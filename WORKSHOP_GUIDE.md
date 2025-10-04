@@ -28,9 +28,9 @@ Kustomize Structure (in Apps Repository)
     └── prd/ (Production patches)
 
 ArgoCD Applications
-├── workshop-vms-prd → Apps repo main branch → overlays/prd → workshop-gitops-vms-prd namespace
-├── workshop-vms-hml → Apps repo vms-hml branch → overlays/hml → workshop-gitops-vms-hml namespace
-└── workshop-vms-dev → Apps repo vms-dev branch → overlays/dev → workshop-gitops-vms-dev namespace
+├── workshop-gitops-vms-prd → Apps repo main branch → overlays/prd → workshop-gitops-vms-prd namespace
+├── workshop-gitops-vms-hml → Apps repo vms-hml branch → overlays/hml → workshop-gitops-vms-hml namespace
+└── workshop-gitops-vms-dev → Apps repo vms-dev branch → overlays/dev → workshop-gitops-vms-dev namespace
 ```
 
 ## Installation Options
@@ -250,10 +250,10 @@ oc get vm <vm-name> -n <namespace> -o yaml | grep -A 10 accessCredentials
 oc get applications.argoproj.io -n openshift-gitops
 
 # Force application sync if needed
-oc patch applications.argoproj.io workshop-vms-dev -n openshift-gitops --type merge -p '{"spec":{"syncPolicy":{"automated":null}},"operation":{"sync":{"revision":"HEAD","prune":true,"dryRun":false}}}'
+oc patch applications.argoproj.io workshop-gitops-vms-dev -n openshift-gitops --type merge -p '{"spec":{"syncPolicy":{"automated":null}},"operation":{"sync":{"revision":"HEAD","prune":true,"dryRun":false}}}'
 
 # Check application details
-oc describe applications.argoproj.io workshop-vms-dev -n openshift-gitops
+oc describe applications.argoproj.io workshop-gitops-vms-dev -n openshift-gitops
 ```
 
 **Detailed Manual Steps:**
@@ -589,10 +589,10 @@ oc exec deployment/openshift-gitops-repo-server -n openshift-gitops -- git ls-re
 #### Application Sync Issues
 ```bash
 # Force application sync
-oc patch applications.argoproj.io workshop-vms-dev -n openshift-gitops --type merge --patch '{"operation":{"initiatedBy":{"username":"admin"},"sync":{"revision":"HEAD"}}}'
+oc patch applications.argoproj.io workshop-gitops-vms-dev -n openshift-gitops --type merge --patch '{"operation":{"initiatedBy":{"username":"admin"},"sync":{"revision":"HEAD"}}}'
 
 # Check application details
-oc describe applications.argoproj.io workshop-vms-dev -n openshift-gitops
+oc describe applications.argoproj.io workshop-gitops-vms-dev -n openshift-gitops
 ```
 
 ### Regular Monitoring Commands
@@ -604,12 +604,12 @@ oc get applications.argoproj.io -n openshift-gitops
 
 ### Check Sync Status
 ```bash
-oc get applications.argoproj.io workshop-vms-dev -n openshift-gitops -o yaml
+oc get applications.argoproj.io workshop-gitops-vms-dev -n openshift-gitops -o yaml
 ```
 
 ### Force Sync
 ```bash
-oc patch applications.argoproj.io workshop-vms-dev -n openshift-gitops -p '{"operation":{"sync":{}}}' --type merge
+oc patch applications.argoproj.io workshop-gitops-vms-dev -n openshift-gitops -p '{"operation":{"sync":{}}}' --type merge
 ```
 
 ### Access ArgoCD UI
@@ -681,9 +681,9 @@ After the manual installation, you should see:
 **ArgoCD Applications:**
 ```
 NAME               SYNC STATUS   HEALTH STATUS
-workshop-vms-dev   Synced        Healthy
-workshop-vms-hml   Synced        Healthy
-workshop-vms-prd   Synced        Healthy
+workshop-gitops-vms-dev   Synced        Healthy
+workshop-gitops-vms-hml   Synced        Healthy
+workshop-gitops-vms-prd   Synced        Healthy
 ```
 
 **Virtual Machines:**

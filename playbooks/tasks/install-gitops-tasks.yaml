@@ -1,0 +1,160 @@
+---
+# Tasks for installing GitOps operator and applications
+- name: Apply GitOps operator subscription
+  kubernetes.core.k8s:
+    definition:
+      apiVersion: operators.coreos.com/v1alpha1
+      kind: Subscription
+      metadata:
+        name: openshift-gitops-operator
+        namespace: openshift-operators
+      spec:
+        channel: latest
+        installPlanApproval: Automatic
+        name: openshift-gitops-operator
+        source: redhat-operators
+        sourceNamespace: openshift-marketplace
+
+- name: Wait for GitOps operator to be ready
+  kubernetes.core.k8s_info:
+    api_version: apps/v1
+    kind: Deployment
+    name: openshift-gitops-server
+    namespace: openshift-gitops
+    wait: true
+    wait_condition:
+      type: Available
+      status: "True"
+    wait_timeout: 300
+
+- name: Create cluster role binding for ArgoCD
+  kubernetes.core.k8s:
+    definition:
+      apiVersion: rbac.authorization.k8s.io/v1
+      kind: ClusterRoleBinding
+      metadata:
+        name: openshift-gitops-argocd-application-controller
+      subjects:
+      - kind: ServiceAccount
+        name: openshift-gitops-argocd-application-controller
+        namespace: openshift-gitops
+      roleRef:
+        apiGroup: rbac.authorization.k8s.io
+        kind: ClusterRole
+        name: cluster-admin
+
+- name: Read SSH private key
+  ansible.builtin.slurp:
+    src: "{{ ansible_env.HOME }}/.ssh/ocpvirt-gitops"
+  register: ssh_private_key_content
+
+- name: Create workshop namespaces for all environments
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: "workshop-gitops-vms-{{ item }}"
+        labels:
+          workshop: "gitops-ocpvirt"
+          environment: "{{ item }}"
+  loop:
+    - dev
+    - hml
+    - prd
+
+- name: Create SSH secret for repository access
+  kubernetes.core.k8s:
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: workshop-repo-ssh
+        namespace: openshift-gitops
+        labels:
+          argocd.argoproj.io/secret-type: repository
+      type: Opaque
+      stringData:
+        type: git
+        url: git@github.com:anibalcoral/OpenShift-Virtualization-GitOps-Apps.git
+        sshPrivateKey: "{{ ssh_private_key_content.content | b64decode }}"
+
+- name: Apply workshop SSH secret to namespaces
+  kubernetes.core.k8s:
+    src: "{{ apps_repo_path }}/base/ssh-secret.yaml"
+    namespace: "{{ item }}"
+    state: present
+  loop:
+    - workshop-gitops-vms-dev
+    - workshop-gitops-vms-hml
+    - workshop-gitops-vms-prd
+
+- name: Create workshop namespaces
+  kubernetes.core.k8s:
+    definition:
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: "{{ item }}"
+        labels:
+          openshift.io/cluster-monitoring: "true"
+    state: present
+  loop:
+    - workshop-gitops-vms-dev
+    - workshop-gitops-vms-hml
+    - workshop-gitops-vms-prd
+
+- name: Create ArgoCD application for development
+  kubernetes.core.k8s:
+    definition:
+      apiVersion: argoproj.io/v1alpha1
+      kind: Application
+      metadata:
+        name: workshop-gitops-vms-dev
+        namespace: openshift-gitops
+      spec:
+        project: default
+        source:
+          repoURL: git@github.com:anibalcoral/OpenShift-Virtualization-GitOps-Apps.git
+          targetRevision: vms-dev
+          path: overlays/dev
+        destination:
+          server: https://kubernetes.default.svc
+          namespace: workshop-gitops-vms-dev
+
+- name: Create ArgoCD application for homologation
+  kubernetes.core.k8s:
+    definition:
+      apiVersion: argoproj.io/v1alpha1
+      kind: Application
+      metadata:
+        name: workshop-gitops-vms-hml
+        namespace: openshift-gitops
+      spec:
+        project: default
+        source:
+          repoURL: git@github.com:anibalcoral/OpenShift-Virtualization-GitOps-Apps.git
+          targetRevision: vms-hml
+          path: overlays/hml
+        destination:
+          server: https://kubernetes.default.svc
+          namespace: workshop-gitops-vms-hml
+
+- name: Create ArgoCD application for production
+  kubernetes.core.k8s:
+    definition:
+      apiVersion: argoproj.io/v1alpha1
+      kind: Application
+      metadata:
+        name: workshop-gitops-vms-prd
+        namespace: openshift-gitops
+      spec:
+        project: default
+        source:
+          repoURL: git@github.com:anibalcoral/OpenShift-Virtualization-GitOps-Apps.git
+          targetRevision: main
+          path: overlays/prd
+        destination:
+          server: https://kubernetes.default.svc
+          namespace: workshop-gitops-vms-prd

@@ -180,20 +180,20 @@
               server: https://kubernetes.default.svc
               namespace: "{{ workshop_namespace_base }}-{{ item.env }}"
       loop:
-        - name: "workshop-vms-dev"
+        - name: "workshop-gitops-vms-dev"
           env: dev
           revision: vms-dev
           path: overlays/dev
-        - name: "workshop-vms-hml"
+        - name: "workshop-gitops-vms-hml"
           env: hml
           revision: vms-hml
           path: overlays/hml
-        - name: "workshop-vms-prd"
+        - name: "workshop-gitops-vms-prd"
           env: prd
           revision: main
           path: overlays/prd
 
-    # oc patch applications.argoproj.io workshop-vms-dev -n openshift-gitops --type merge -p '{"spec":{"syncPolicy":{"automated":null}},"operation":{"sync":{"revision":"HEAD","prune":true,"dryRun":false}}}'
+    # oc patch applications.argoproj.io workshop-gitops-vms-dev -n openshift-gitops --type merge -p '{"spec":{"syncPolicy":{"automated":null}},"operation":{"sync":{"revision":"HEAD","prune":true,"dryRun":false}}}'
     - name: Force sync ArgoCD Applications via k8s patch
       kubernetes.core.k8s:
         state: patched
@@ -207,12 +207,12 @@
             sync:
               revision: "HEAD"
       loop:
-        - name: "workshop-vms-dev"
+        - name: "workshop-gitops-vms-dev"
           env: dev
           revision: vms-dev
-        - name: "workshop-vms-hml"
+        - name: "workshop-gitops-vms-hml"
           env: hml
           revision: vms-hml
-        - name: "workshop-vms-prd"
+        - name: "workshop-gitops-vms-prd"
           env: prd
           revision: main

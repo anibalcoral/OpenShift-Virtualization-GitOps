@@ -1,11 +1,13 @@
 ---
 - name: OpenShift GitOps Workshop - Complete Installation
-  hosts: local
+  hosts: localhost
   gather_facts: true
   vars:
     apps_repo_path: "/home/lchiaret/git/OpenShift-Virtualization-GitOps-Apps"
     skip_domain_validation: false
     skip_ssh_setup: false
+    ssh_key_name: "ocpvirt-gitops"
+    auto_commit: true
 
   tasks:
     - name: Display installation start
@@ -25,15 +27,15 @@
       when: ansible_facts['env']['PATH'] is not search('oc')
 
     - name: Validate and configure cluster domain
-      ansible.builtin.include_tasks: validate-cluster-domain.yaml
+      ansible.builtin.include_tasks: tasks/validate-cluster-domain-tasks.yaml
       when: not skip_domain_validation
 
     - name: Setup SSH keys for VMs
-      ansible.builtin.include_tasks: setup-ssh-key.yaml
+      ansible.builtin.include_tasks: tasks/setup-ssh-key-tasks.yaml
       when: not skip_ssh_setup
 
     - name: Install GitOps operator and applications
-      ansible.builtin.include_tasks: install-gitops.yaml
+      ansible.builtin.include_tasks: tasks/install-gitops-tasks.yaml
 
     - name: Wait for applications to be ready
       kubernetes.core.k8s_info:
@@ -46,9 +48,9 @@
           type: SyncCompleted
         wait_timeout: 600
       loop:
-        - workshop-vms-dev
-        - workshop-vms-hml
-        - workshop-vms-prd
+        - workshop-gitops-vms-dev
+        - workshop-gitops-vms-hml
+        - workshop-gitops-vms-prd
       ignore_errors: true
 
     - name: Get ArgoCD server route
@@ -92,14 +94,14 @@
           ArgoCD Password: {{ argocd_password }}
           
           Workshop Applications:
-          - workshop-vms-dev (Development VMs)
-          - workshop-vms-hml (Homologation VMs)
-          - workshop-vms-prd (Production VMs)
+          - workshop-gitops-vms-dev (Development VMs)
+          - workshop-gitops-vms-hml (Homologation VMs)
+          - workshop-gitops-vms-prd (Production VMs)
           
           Application URLs (after deployment):
-          - Development: https://dev-workshop-vms.{{ cluster_domain }}
-          - Homologation: https://hml-workshop-vms.{{ cluster_domain }}
-          - Production: https://workshop-vms.{{ cluster_domain }}
+          - Development: https://dev-workshop-gitops-vms.{{ cluster_domain }}
+          - Homologation: https://hml-workshop-gitops-vms.{{ cluster_domain }}
+          - Production: https://workshop-gitops-vms.{{ cluster_domain }}
           
           Next steps:
           1. Access ArgoCD UI using the credentials above
