@@ -4,6 +4,7 @@
   gather_facts: true
   vars:
     apps_repo_path: "/home/lchiaret/git/OpenShift-Virtualization-GitOps-Apps"
+    apps_repo_url: "git@github.com:anibalcoral/OpenShift-Virtualization-GitOps-Apps.git"
     skip_domain_validation: false
     skip_ssh_setup: false
     ssh_key_name: "ocpvirt-gitops"
@@ -30,28 +31,12 @@
       ansible.builtin.include_tasks: tasks/validate-cluster-domain-tasks.yaml
       when: not skip_domain_validation
 
-    - name: Setup SSH keys for VMs
-      ansible.builtin.include_tasks: tasks/setup-ssh-key-tasks.yaml
-      when: not skip_ssh_setup
+#    - name: Setup SSH keys for VMs
+#      ansible.builtin.include_tasks: tasks/setup-ssh-key-tasks.yaml
+#      when: not skip_ssh_setup
 
     - name: Install GitOps operator and applications
       ansible.builtin.include_tasks: tasks/install-gitops-tasks.yaml
-
-    - name: Wait for applications to be ready
-      kubernetes.core.k8s_info:
-        api_version: argoproj.io/v1alpha1
-        kind: Application
-        name: "{{ item }}"
-        namespace: openshift-gitops
-        wait: true
-        wait_condition:
-          type: SyncCompleted
-        wait_timeout: 600
-      loop:
-        - workshop-gitops-vms-dev
-        - workshop-gitops-vms-hml
-        - workshop-gitops-vms-prd
-      ignore_errors: true
 
     - name: Get ArgoCD server route
       kubernetes.core.k8s_info:
@@ -87,22 +72,22 @@
         msg: |
           Installation completed successfully!
           ===================================
-          
+
           Workshop Information:
           ArgoCD URL: {{ argocd_url }}
           ArgoCD Username: admin
           ArgoCD Password: {{ argocd_password }}
-          
+
           Workshop Applications:
           - workshop-gitops-vms-dev (Development VMs)
           - workshop-gitops-vms-hml (Homologation VMs)
           - workshop-gitops-vms-prd (Production VMs)
-          
+
           Application URLs (after deployment):
           - Development: https://dev-workshop-gitops-vms.{{ cluster_domain }}
           - Homologation: https://hml-workshop-gitops-vms.{{ cluster_domain }}
           - Production: https://workshop-gitops-vms.{{ cluster_domain }}
-          
+
           Next steps:
           1. Access ArgoCD UI using the credentials above
           2. Check workshop status: ansible-playbook -i inventory/localhost playbooks/check-workshop-status.yaml

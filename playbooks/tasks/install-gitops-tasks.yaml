@@ -122,6 +122,10 @@
         destination:
           server: https://kubernetes.default.svc
           namespace: workshop-gitops-vms-dev
+        syncPolicy:
+          automated:
+            prune: true
+            selfHeal: true
 
 - name: Create ArgoCD application for homologation
   kubernetes.core.k8s:
@@ -140,6 +144,10 @@
         destination:
           server: https://kubernetes.default.svc
           namespace: workshop-gitops-vms-hml
+        syncPolicy:
+          automated:
+            prune: true
+            selfHeal: true
 
 - name: Create ArgoCD application for production
   kubernetes.core.k8s:
@@ -158,3 +166,58 @@
         destination:
           server: https://kubernetes.default.svc
           namespace: workshop-gitops-vms-prd
+        syncPolicy:
+          automated:
+            prune: true
+            selfHeal: true
+
+- name: Sync ArgoCD applications
+  kubernetes.core.k8s:
+    api_version: argoproj.io/v1alpha1
+    kind: Application
+    name: "{{ item }}"
+    namespace: openshift-gitops
+    state: present
+    definition:
+      spec:
+        syncPolicy:
+          automated:
+            prune: true
+            selfHeal: true
+  loop:
+    - workshop-gitops-vms-dev
+    - workshop-gitops-vms-hml
+    - workshop-gitops-vms-prd
+
+- name: Trigger ArgoCD refresh for applications
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: argoproj.io/v1alpha1
+      kind: Application
+      metadata:
+        name: "{{ item }}"
+        namespace: openshift-gitops
+        annotations:
+          argocd.argoproj.io/refresh: "{{ ansible_date_time.iso8601 }}"
+  loop:
+    - workshop-gitops-vms-dev
+    - workshop-gitops-vms-hml
+    - workshop-gitops-vms-prd
+
+- name: Wait for applications to reach Synced state
+  kubernetes.core.k8s_info:
+    api_version: argoproj.io/v1alpha1
+    kind: Application
+    name: "{{ item }}"
+    namespace: openshift-gitops
+  register: final_sync_check
+  until: >
+    final_sync_check.resources | length > 0 and
+    final_sync_check.resources[0].status.sync.status == "Synced"
+  retries: 30
+  delay: 2
+  loop:
+    - workshop-gitops-vms-dev
+    - workshop-gitops-vms-hml
+    - workshop-gitops-vms-prd
