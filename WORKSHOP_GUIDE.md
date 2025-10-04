@@ -253,7 +253,7 @@ oc get applications.argoproj.io -n openshift-gitops
 oc patch applications.argoproj.io workshop-vms-dev -n openshift-gitops --type merge -p '{"spec":{"syncPolicy":{"automated":null}},"operation":{"sync":{"revision":"HEAD","prune":true,"dryRun":false}}}'
 
 # Check application details
-oc describe application workshop-vms-dev -n openshift-gitops
+oc describe applications.argoproj.io workshop-vms-dev -n openshift-gitops
 ```
 
 **Detailed Manual Steps:**
@@ -580,10 +580,10 @@ oc exec deployment/openshift-gitops-repo-server -n openshift-gitops -- git ls-re
 #### Application Sync Issues
 ```bash
 # Force application sync
-oc patch application workshop-vms-dev -n openshift-gitops --type merge --patch '{"operation":{"initiatedBy":{"username":"admin"},"sync":{"revision":"HEAD"}}}'
+oc patch applications.argoproj.io workshop-vms-dev -n openshift-gitops --type merge --patch '{"operation":{"initiatedBy":{"username":"admin"},"sync":{"revision":"HEAD"}}}'
 
 # Check application details
-oc describe application workshop-vms-dev -n openshift-gitops
+oc describe applications.argoproj.io workshop-vms-dev -n openshift-gitops
 ```
 
 ### Regular Monitoring Commands

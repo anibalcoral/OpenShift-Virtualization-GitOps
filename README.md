@@ -346,7 +346,7 @@ patches:
    oc logs -n openshift-gitops deployment/openshift-gitops-application-controller
    
    # Verify repository access
-   oc describe application workshop-vms-dev -n openshift-gitops
+   oc describe applications.argoproj.io workshop-vms-dev -n openshift-gitops
    ```
 
 2. **Virtual Machines Not Starting**
