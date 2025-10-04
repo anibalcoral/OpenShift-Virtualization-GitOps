@@ -84,23 +84,11 @@ oc patch applications.argoproj.io workshop-vms-dev -n openshift-gitops --type me
 oc get applications.argoproj.io workshop-vms-dev -n openshift-gitops -o jsonpath='{.status.sync.status}'
 ```
 
-**Expected Result**: Application sync status should change to "OutOfSync"
 
-### Step 5: Trigger ArgoCD Sync to Correct the Drift
-
-1. Trigger manual sync to revert the changes:
-```bash
-oc patch applications.argoproj.io workshop-vms-dev -n openshift-gitops --type merge -p '{"operation":{"initiatedBy":{"username":"admin"},"sync":{"revision":"HEAD"}}}'
-```
-
-2. Monitor the sync process:
-```bash
-watch oc get applications.argoproj.io workshop-vms-dev -n openshift-gitops -o jsonpath='{.status.sync.status}'
-```
 
 **Expected Result**: Sync status should return to "Synced"
 
-### Step 6: Verify Configuration Restoration
+### Step 5: Verify Configuration Restoration
 
 1. Check that the runStrategy has been reverted:
 ```bash
@@ -122,7 +110,7 @@ oc get vmi dev-vm-web-01 -n workshop-gitops-vms-dev
 - VM status should be "Running"
 - VirtualMachineInstance should exist and be ready
 
-### Step 7: Final Verification
+### Step 6: Final Verification
 
 1. Check final application status:
 ```bash
