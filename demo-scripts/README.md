@@ -98,6 +98,4 @@ Some demos create Git changes (Demo 3). Clean up using the provided helper or by
 - Top-level `README.md` — workshop overview and installation instructions: [../README.md](../README.md)
 - `manual-install/README.md` — manual installation manifest ordering: [manual-install/README.md](../manual-install/README.md)
 - Apps repository (GitHub) — companion Apps project with VM definitions and kustomize overlays: [anibalcoral/OpenShift-Virtualization-GitOps-Apps](https://github.com/anibalcoral/OpenShift-Virtualization-GitOps-Apps)
-   - Local sibling repo: [../OpenShift-Virtualization-GitOps-Apps](../OpenShift-Virtualization-GitOps-Apps)
-
 ````
