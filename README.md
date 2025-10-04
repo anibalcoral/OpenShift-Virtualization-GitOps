@@ -408,6 +408,11 @@ oc get routes -n openshift-gitops
 
 - **Detailed Workshop Guide**: See `WORKSHOP_GUIDE.md` for comprehensive learning objectives and step-by-step instructions
 - **Demo Documentation**: Individual demo guides available in `demo-scripts/DEMO*.md` files
+ - **Detailed Workshop Guide**: See [WORKSHOP_GUIDE.md](WORKSHOP_GUIDE.md) for comprehensive learning objectives and step-by-step instructions
+ - **Demo Documentation**: Individual demo guides available:
+    - [DEMO1-MANUAL-CHANGE.md](demo-scripts/DEMO1-MANUAL-CHANGE.md)
+    - [DEMO2-VM-RECOVERY.md](demo-scripts/DEMO2-VM-RECOVERY.md)
+    - [DEMO3-ADD-DEVELOPMENT-VM.md](demo-scripts/DEMO3-ADD-DEVELOPMENT-VM.md)
 - **Apps Repository**: [OpenShift-Virtualization-GitOps-Apps](https://github.com/anibalcoral/OpenShift-Virtualization-GitOps-Apps) contains VM definitions and Kustomize configurations
 
 ## Workshop Learning Objectives
