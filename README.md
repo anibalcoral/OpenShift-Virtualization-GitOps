@@ -7,7 +7,6 @@ This workshop demonstrates how to use OpenShift GitOps (ArgoCD) to manage Virtua
 Before starting the workshop, ensure you have:
 
 - **OpenShift cluster** with OpenShift Virtualization operator installed and configured
-- **Fedora template** available in OpenShift Virtualization
 - **oc CLI tool** installed and configured with cluster-admin privileges
 - **ansible-playbook** installed (for automated installation)
 - **Git access** to the companion Apps repository
@@ -384,6 +383,9 @@ patches:
    
    # Test VM console access first
    virtctl console <vm-name> -n <namespace>
+
+   # Test SSH to Virtual Machine
+   virtctl ssh cloud-user@<vm-name>
    ```
 
 ### Workshop Validation Commands
