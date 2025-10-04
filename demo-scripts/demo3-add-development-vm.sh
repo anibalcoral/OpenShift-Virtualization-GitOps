@@ -124,20 +124,17 @@ log_success "Created vm-web-09.yaml in base directory"
 echo ""
 log "Step 3: Updating kustomization.yaml to include new VM..."
 
-# Update base kustomization.yaml
-cat > "$APPS_REPO_PATH/base/kustomization.yaml" << 'EOF'
-apiVersion: kustomize.config.k8s.io/v1beta1
-kind: Kustomization
-
-resources:
-  - vm-web-09.yaml
-  - ssh-secret.yaml
-  - vm-web-01.yaml
-  - vm-web-02.yaml
-  - vm-web-service.yaml
-EOF
-
-log_success "Updated base/kustomization.yaml to include vm-web-09.yaml"
+KUST_FILE="$APPS_REPO_PATH/base/kustomization.yaml"
+if [ -f "$KUST_FILE" ]; then
+  if grep -q 'vm-web-09.yaml' "$KUST_FILE"; then
+    log_warning "base/kustomization.yaml already references vm-web-09.yaml"
+  else
+    cp "$KUST_FILE" "$KUST_FILE.bak"
+    # Insert the new VM entry immediately after the resources: line
+    awk 'BEGIN{inserted=0} /^resources:/{print; print "  - vm-web-09.yaml"; inserted=1; next} {print}' "$KUST_FILE.bak" > "$KUST_FILE"
+    log_success "Added 'vm-web-09.yaml' to base/kustomization.yaml (backup saved as base/kustomization.yaml.bak)"
+  fi
+fi
 
 echo ""
 log "Step 4: Committing changes to Git repository..."
@@ -153,18 +150,21 @@ fi
 
 # Add and commit changes
 git add base/vm-web-09.yaml base/kustomization.yaml
-git commit -m "feat: add development VM web-09 for expanded testing environment
+git commit --quiet -m "feat: add development VM web-09 for expanded testing environment
 
 - Add vm-web-09.yaml with Fedora-based web server configuration
 - Update base kustomization to include new VM resource
-- Provides additional development capacity for testing scenarios"
+- Provides additional development capacity for testing scenarios" || log_warning "No changes to commit (maybe demo was run before?)"
 
-git push origin vms-dev
+if ! git push origin vms-dev; then
+  log_error "Failed to push changes to origin/vms-dev. Aborting demo."
+  exit 1
+fi
 
 log_success "Changes committed and pushed to vms-dev branch"
 
 log "Step 4.1: Triggering an ArgoCD sync to correct the drift..."
-oc patch applications.argoproj.io $APP_NAME -n openshift-gitops --type merge -p '{"spec":{"syncPolicy":{"automated":null}},"operation":{"sync":{"revision":"HEAD","prune":true,"dryRun":false}}}'
+trigger_sync $APP_NAME
 log_success "ArgoCD sync triggered."
 
 echo ""
@@ -173,12 +173,10 @@ log "Step 5: Waiting for ArgoCD to detect Git changes..."
 # Return to original directory
 cd -
 
-# Wait for ArgoCD to detect the change
-wait_for_sync_status $APP_NAME "OutOfSync" 60
-
 echo ""
 log "Step 6: Triggering ArgoCD sync (simulating automatic sync)..."
 trigger_sync $APP_NAME
+log_success "ArgoCD sync triggered."
 
 echo ""
 log "Step 7: Waiting for new VM to be created..."

@@ -129,8 +129,8 @@ trigger_sync() {
         --type merge -p '{"operation":{"sync":{"syncStrategy":{"hook":{}}}}}' &>/dev/null || true
     
     # Alternative method using annotation
-    oc annotate applications.argoproj.io $app_name -n $namespace \
-        argocd.argoproj.io/refresh="$(date)" --overwrite &>/dev/null || true
+    #oc annotate applications.argoproj.io $app_name -n $namespace \
+    #    argocd.argoproj.io/refresh="$(date)" --overwrite &>/dev/null || true
         
     log_success "Sync triggered for application '$app_name'"
 }

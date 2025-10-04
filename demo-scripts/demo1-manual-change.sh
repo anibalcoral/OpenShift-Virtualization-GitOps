@@ -4,7 +4,6 @@ set -e
 
 # Source common functions
 # Assuming the demo-functions.sh file exists and contains the logging and wait functions.
-# NOTE: You will need to add the two new functions: wait_for_vmi_deleted and wait_for_vmi_status
 source "$(dirname "$0")/demo-functions.sh"
 
 echo "Demo 1: Manual Change Detection and Drift Correction"
@@ -14,8 +13,8 @@ echo "======================================================"
 NAMESPACE="workshop-gitops-vms-dev"
 VM_NAME="dev-vm-web-01"
 APP_NAME="workshop-vms-dev"
-GIT_RUN_STRATEGY="Always"    # The runStrategy defined in the Git repository
-MANUAL_RUN_STRATEGY="Halted" # The runStrategy we will apply manually to stop the VM
+GIT_RUN_STRATEGY="Always"
+MANUAL_RUN_STRATEGY="Halted"
 
 # --- Helper Functions (add these to demo-functions.sh or keep them here) ---
 
@@ -60,23 +59,16 @@ wait_for_vmi_status $VM_NAME $NAMESPACE 180 # Ensure VM is running before we sta
 echo ""
 log "Step 2: Making a manual change (setting runStrategy to '$MANUAL_RUN_STRATEGY')..."
 log "This will cause the running Virtual Machine Instance (VMI) to shut down."
-oc patch vm $VM_NAME -n $NAMESPACE --type merge -p "{\"spec\":{\"runStrategy\":\"$MANUAL_RUN_STRATEGY\"}}"
+oc patch vm $VM_NAME -n $NAMESPACE --type merge -p "{\"spec\":{\"runStrategy\":\"$MANUAL_RUN_STRATEGY\"}}" 2>&1 >/dev/null
 log_success "VM '$VM_NAME' patched to be Halted."
 
 echo ""
-log "Step 2.1: Waiting for the VMI to be shut down to confirm the manual change took effect..."
+log "Step 3: Waiting for the VMI to be shut down to confirm the manual change took effect..."
 wait_for_vmi_deleted $VM_NAME $NAMESPACE 60
 
 echo ""
-log "Step 3: Forcing application refresh in ArgoCD and waiting for it to detect the drift..."
-oc patch applications.argoproj.io $APP_NAME -n openshift-gitops --type merge -p '{"spec":{"syncPolicy":{"automated":null}},"operation":{"sync":{"revision":"HEAD","prune":true,"dryRun":false}}}'
-wait_for_sync_status $APP_NAME "OutOfSync" 30
-log_success "ArgoCD has detected the drift!"
-
-echo ""
 log "Step 4: Triggering an ArgoCD sync to correct the drift..."
-# The sync will revert the runStrategy to the state defined in Git ("Always")
-oc patch applications.argoproj.io $APP_NAME -n openshift-gitops --type merge -p '{"spec":{"syncPolicy":{"automated":null}},"operation":{"sync":{"revision":"HEAD","prune":true,"dryRun":false}}}'
+trigger_sync $APP_NAME
 log_success "ArgoCD sync triggered."
 
 echo ""
@@ -102,7 +94,6 @@ log "Summary:"
 log "========="
 log "✓ A manual change to the VM spec (runStrategy: Halted) was made."
 log "✓ The running VM instance (VMI) was terminated as a result."
-log "✓ ArgoCD detected this fundamental configuration drift (OutOfSync state)."
 log "✓ A sync was triggered to enforce the state from Git."
 log "✓ ArgoCD automatically corrected the VM's runStrategy back to 'Always'."
 log "✓ OpenShift Virtualization automatically started the VM again."

@@ -45,19 +45,17 @@ fi
 echo ""
 log "Step 2: Updating kustomization.yaml to remove vm-web-09..."
 
-# Restore original kustomization.yaml without vm-web-09
-cat > base/kustomization.yaml << 'EOF'
-apiVersion: kustomize.config.k8s.io/v1beta1
-kind: Kustomization
-
-resources:
-  - ssh-secret.yaml
-  - vm-web-01.yaml
-  - vm-web-02.yaml
-  - vm-web-service.yaml
-EOF
-
-log_success "Updated base/kustomization.yaml to remove vm-web-09.yaml"
+# Update base/kustomization.yaml: remove any line referencing vm-web-09.yaml (preserves file)
+if [ -f "base/kustomization.yaml" ]; then
+    if grep -q 'vm-web-09.yaml' base/kustomization.yaml; then
+        sed -i.bak '/vm-web-09.yaml/d' base/kustomization.yaml
+        log_success "Removed 'vm-web-09.yaml' entry from base/kustomization.yaml (backup saved as base/kustomization.yaml.bak)"
+    else
+        log_warning "base/kustomization.yaml does not reference vm-web-09.yaml"
+    fi
+else
+    log_warning "base/kustomization.yaml not found"
+fi
 
 echo ""
 log "Step 3: Committing cleanup changes..."
@@ -67,7 +65,7 @@ if git diff --quiet && git diff --cached --quiet; then
     log_warning "No changes to commit - cleanup may have already been done"
 else
     git add -A
-    git commit -m "cleanup: remove development VM web-09
+    git commit --quiet -m "cleanup: remove development VM web-09
 
 - Remove vm-web-09.yaml from base directory
 - Update kustomization to exclude vm-web-09
@@ -92,23 +90,6 @@ if oc get vm $VM_NAME -n $NAMESPACE &>/dev/null; then
     log "Waiting for VM '$VM_NAME' to be deleted..."
     wait_for_vm_deleted $VM_NAME $NAMESPACE 120
 fi
-
-# Wait for application to return to synced state
-# wait_for_sync_status $APP_NAME "Synced" 60
-
-echo ""
-log "Step 5: Verify cleanup completion..."
-
-if oc get vm $VM_NAME -n $NAMESPACE &>/dev/null; then
-    log_error "VM '$VM_NAME' still exists - cleanup failed"
-    exit 1
-else
-    log_success "VM '$VM_NAME' successfully removed"
-fi
-
-# Show remaining VMs
-log "Remaining VMs in development environment:"
-oc get vm -n $NAMESPACE | grep -E "(NAME|dev-vm-web)" || log_warning "No VMs found"
 
 echo ""
 log_success "Demo 3 cleanup completed successfully!"

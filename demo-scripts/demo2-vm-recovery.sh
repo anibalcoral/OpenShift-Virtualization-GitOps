@@ -51,7 +51,7 @@ log "Step 4: Wait for ArgoCD to detect the missing resources..."
 wait_for_sync_status $APP_NAME "OutOfSync" 30
 
 log "Step 4.1: Triggering an ArgoCD sync to correct the drift..."
-oc patch applications.argoproj.io $APP_NAME -n openshift-gitops --type merge -p '{"spec":{"syncPolicy":{"automated":null}},"operation":{"sync":{"revision":"HEAD","prune":true,"dryRun":false}}}'
+trigger_sync $APP_NAME
 log_success "ArgoCD sync triggered."
 
 echo ""
