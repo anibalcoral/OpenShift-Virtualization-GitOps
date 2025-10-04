@@ -164,5 +164,7 @@ If the demo doesn't work as expected:
 3. **VM not starting**: Check VM events and DataVolume status:
    ```bash
    oc describe vm dev-vm-web-01 -n workshop-gitops-vms-dev
+   ```
+   ```bash
    oc get dv -n workshop-gitops-vms-dev
    ```
