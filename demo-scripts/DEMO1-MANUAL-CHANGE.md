@@ -22,12 +22,18 @@ This demo demonstrates how ArgoCD detects manual changes made directly to OpenSh
 1. Check the ArgoCD application status:
 ```bash
 oc get applications.argoproj.io workshop-vms-dev -n openshift-gitops -o jsonpath='{.status.sync.status}'
+```
+
+```bash
 oc get applications.argoproj.io workshop-vms-dev -n openshift-gitops -o jsonpath='{.status.health.status}'
 ```
 
 2. Verify the VM exists and is running:
 ```bash
 oc get vm dev-vm-web-01 -n workshop-gitops-vms-dev
+```
+
+```bash
 oc get vmi dev-vm-web-01 -n workshop-gitops-vms-dev
 ```
 
@@ -56,13 +62,11 @@ oc get vm dev-vm-web-01 -n workshop-gitops-vms-dev -o jsonpath='{.spec.runStrate
 
 1. Monitor the VirtualMachineInstance deletion:
 ```bash
-# Check VMI status until it's deleted
 oc get vmi dev-vm-web-01 -n workshop-gitops-vms-dev
 ```
 
 2. Wait for the VMI to be completely removed:
 ```bash
-# Keep checking until this command returns "not found"
 oc get vmi dev-vm-web-01 -n workshop-gitops-vms-dev
 ```
 
@@ -77,7 +81,6 @@ oc patch applications.argoproj.io workshop-vms-dev -n openshift-gitops --type me
 
 2. Check application status repeatedly until drift is detected:
 ```bash
-# Run this command multiple times until you see "OutOfSync"
 oc get applications.argoproj.io workshop-vms-dev -n openshift-gitops -o jsonpath='{.status.sync.status}'
 ```
 
@@ -92,7 +95,6 @@ oc patch applications.argoproj.io workshop-vms-dev -n openshift-gitops --type me
 
 2. Monitor the sync process:
 ```bash
-# Watch the sync status return to "Synced"
 watch oc get applications.argoproj.io workshop-vms-dev -n openshift-gitops -o jsonpath='{.status.sync.status}'
 ```
 
@@ -107,7 +109,6 @@ oc get vm dev-vm-web-01 -n workshop-gitops-vms-dev -o jsonpath='{.spec.runStrate
 
 2. Wait for the VM to start again:
 ```bash
-# Monitor VM status
 watch oc get vm dev-vm-web-01 -n workshop-gitops-vms-dev -o jsonpath='{.status.printableStatus}'
 ```
 

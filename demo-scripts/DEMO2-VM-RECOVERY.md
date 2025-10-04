@@ -26,6 +26,8 @@ oc get applications.argoproj.io workshop-vms-dev -n openshift-gitops -o custom-c
 2. Verify the VM exists and its current state:
 ```bash
 oc get vm dev-vm-web-02 -n workshop-gitops-vms-dev
+```
+```bash
 oc get vmi dev-vm-web-02 -n workshop-gitops-vms-dev
 ```
 
@@ -90,7 +92,6 @@ oc get dv dev-vm-web-02 -n workshop-gitops-vms-dev
 
 1. Monitor application sync status until drift is detected:
 ```bash
-# Run this command repeatedly until you see "OutOfSync"
 oc get applications.argoproj.io workshop-vms-dev -n openshift-gitops -o jsonpath='{.status.sync.status}'
 ```
 
@@ -105,7 +106,7 @@ oc annotate applications.argoproj.io workshop-vms-dev -n openshift-gitops argocd
 
 1. Trigger manual sync to recreate the missing resources:
 ```bash
-oc patch applications.argoproj.io workshop-vms-dev -n openshift-gitops --type merge -p '{"operation":{"initiatedBy":{"username":"admin"},"sync":{"revision":"HEAD"}}}'
+oc patch applications.argoproj.io $app_name -n $namespace --type merge -p '{"operation":{"sync":{"syncStrategy":{"hook":{}}}}}' &>/dev/null
 ```
 
 2. Monitor the sync process:
@@ -139,7 +140,6 @@ oc get dv -n workshop-gitops-vms-dev | grep dev-vm-web-02
 
 1. Monitor until application returns to Synced state:
 ```bash
-# Continue watching until status returns to "Synced"
 watch oc get applications.argoproj.io workshop-vms-dev -n openshift-gitops -o jsonpath='{.status.sync.status}'
 ```
 
@@ -165,6 +165,8 @@ oc get dv -n workshop-gitops-vms-dev | grep dev-vm-web-02
 3. Verify VM configuration matches Git definition:
 ```bash
 oc get vm dev-vm-web-02 -n workshop-gitops-vms-dev -o jsonpath='{.spec.runStrategy}'
+```
+```bash
 oc get vm dev-vm-web-02 -n workshop-gitops-vms-dev -o jsonpath='{.spec.template.spec.domain.resources.requests.memory}'
 ```
 
@@ -235,12 +237,16 @@ If the demo doesn't work as expected:
 2. **DataVolume creation issues**: Check storage class and CSI driver:
    ```bash
    oc get storageclass
+   ```
+   ```bash
    oc get pods -n openshift-storage
    ```
 
 3. **VM stuck in provisioning**: Check DataVolume and CDI pods:
    ```bash
    oc describe dv dev-vm-web-02 -n workshop-gitops-vms-dev
+   ```
+   ```bash
    oc get pods -n openshift-cnv | grep cdi
    ```
 

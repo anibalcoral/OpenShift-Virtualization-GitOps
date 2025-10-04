@@ -237,7 +237,6 @@ oc patch applications.argoproj.io workshop-vms-dev -n openshift-gitops --type me
 
 3. Monitor application status until drift is detected:
 ```bash
-# Run this command repeatedly until you see "OutOfSync"
 oc get applications.argoproj.io workshop-vms-dev -n openshift-gitops -o jsonpath='{.status.sync.status}'
 ```
 
@@ -261,7 +260,6 @@ watch oc get applications.argoproj.io workshop-vms-dev -n openshift-gitops -o js
 
 1. Watch for new VM creation:
 ```bash
-# Run this command repeatedly until VM appears
 oc get vm dev-vm-web-09 -n workshop-gitops-vms-dev
 ```
 
@@ -281,7 +279,6 @@ oc get dv -n workshop-gitops-vms-dev | grep dev-vm-web-09
 
 1. Monitor until application returns to Synced state:
 ```bash
-# Continue watching until status returns to "Synced"
 watch oc get applications.argoproj.io workshop-vms-dev -n openshift-gitops -o custom-columns="NAME:.metadata.name,SYNC:.status.sync.status,HEALTH:.status.health.status"
 ```
 
@@ -297,6 +294,8 @@ oc get vm dev-vm-web-09 -n workshop-gitops-vms-dev -o custom-columns="NAME:.meta
 2. Verify VM configuration:
 ```bash
 oc get vm dev-vm-web-09 -n workshop-gitops-vms-dev -o jsonpath='{.spec.running}'
+```
+```bash
 oc get vm dev-vm-web-09 -n workshop-gitops-vms-dev -o jsonpath='{.spec.template.spec.domain.cpu.cores}'
 ```
 
@@ -368,7 +367,6 @@ To remove the new VM after the demo:
 1. Remove from kustomization:
 ```bash
 cd /path/to/OpenShift-Virtualization-GitOps-Apps
-# Edit base/kustomization.yaml to remove vm-web-09.yaml
 ```
 
 2. Delete the VM file:
@@ -379,7 +377,11 @@ rm base/vm-web-09.yaml
 3. Commit and push:
 ```bash
 git add -A
+```
+```bash
 git commit -m "cleanup: remove demo VM web-09"
+```
+```bash
 git push origin vms-dev
 ```
 
