@@ -649,27 +649,27 @@ After completing this workshop, participants will understand:
 
 ## Manual Installation Verification
 
-Após completar todos os passos manuais da instalação, verifique se tudo está funcionando:
+After completing all manual installation steps, verify everything is working:
 
 ```bash
-# Verificar aplicações do ArgoCD
+# Check ArgoCD applications
 oc get applications.argoproj.io -n openshift-gitops
 
-# Verificar VMs criadas
+# Check created VMs
 oc get vm -A | grep workshop
 
-# Verificar serviços
+# Check services
 oc get svc -A | grep workshop
 
-# Executar script de verificação completa
+# Run the full verification script
 ./demo-scripts/check-status.sh
 ```
 
-### Resultados Esperados
+### Expected Results
 
-Após a instalação manual, você deve ver:
+After the manual installation, you should see:
 
-**Aplicações ArgoCD:**
+**ArgoCD Applications:**
 ```
 NAME               SYNC STATUS   HEALTH STATUS
 workshop-vms-dev   Synced        Healthy
@@ -677,7 +677,7 @@ workshop-vms-hml   Synced        Healthy
 workshop-vms-prd   Synced        Healthy
 ```
 
-**Máquinas Virtuais:**
+**Virtual Machines:**
 ```
 NAMESPACE                   NAME            STATUS
 workshop-gitops-vms-dev     dev-vm-web-01   Running
@@ -691,17 +691,17 @@ workshop-gitops-vms-prd     prd-vm-web-02   Running
 workshop-gitops-vms-prd     prd-vm-web-03   Running
 ```
 
-**Acesso ao ArgoCD:**
-- URL: `https://openshift-gitops-server-openshift-gitops.apps.<seu-cluster>`
+**Access to ArgoCD:**
+- URL: `https://openshift-gitops-server-openshift-gitops.apps.<your-cluster>`
 - Username: `admin`
-- Password: (obtida com o comando no passo 6)
+- Password: (obtained with the command in step 10)
 
-### Próximos Passos na Demonstração
+### Next Steps in the Demonstration
 
-Com o workshop instalado manualmente, você pode demonstrar:
+With the workshop installed manually, you can demonstrate:
 
-1. **GitOps em Ação**: Fazer alterações nas branches e mostrar a sincronização automática
-2. **Detecção de Drift**: Usar o script `./demo-scripts/demo1-manual-change.sh`
-3. **Recuperação Automática**: Usar o script `./demo-scripts/demo2-vm-recovery.sh`
-4. **Interface do ArgoCD**: Mostrar a interface web com as aplicações sincronizadas
-5. **Verificações Contínuas**: Usar `./demo-scripts/check-status.sh` a qualquer momento
+1. **GitOps in Action**: Make changes in the branches and show automatic synchronization
+2. **Drift Detection**: Use the script `./demo-scripts/demo1-manual-change.sh`
+3. **Automatic Recovery**: Use the script `./demo-scripts/demo2-vm-recovery.sh`
+4. **ArgoCD Interface**: Show the web UI with synchronized applications
+5. **Continuous Checks**: Use `./demo-scripts/check-status.sh` at any time
