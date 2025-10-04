@@ -232,7 +232,7 @@ cd -
 
 2. Force ArgoCD to check for changes:
 ```bash
-oc patch applications.argoproj.io workshop-vms-dev -n openshift-gitops --type merge -p '{"operation":{"initiatedBy":{"username":"admin"},"sync":{"revision":"HEAD"}}}'
+oc patch applications.argoproj.io $app_name -n $namespace --type merge -p '{"operation":{"sync":{"syncStrategy":{"hook":{}}}}}
 ```
 
 3. Monitor application status until drift is detected:
