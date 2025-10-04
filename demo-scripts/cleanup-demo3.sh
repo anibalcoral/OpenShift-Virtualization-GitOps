@@ -15,5 +15,5 @@ cd "$(dirname "$0")/.."
 ansible-playbook -i inventory/localhost playbooks/cleanup-demo3.yaml
 
 echo ""
-echo "✅ Demo 3 cleanup completed successfully!"
+echo "Demo 3 cleanup completed successfully!"
 echo "📝 Development environment restored to baseline (2 VMs)."

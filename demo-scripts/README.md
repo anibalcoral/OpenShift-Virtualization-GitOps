@@ -2,14 +2,6 @@
 
 This directory contains interactive and helper scripts used in the workshop demos. The scripts use Ansible playbooks to automate common demo tasks during the OpenShift GitOps with OpenShift Virtualization workshop, providing a reproducible way to demonstrate ArgoCD behaviors (drift detection, recovery and Git-based provisioning).
 
-## Demo Status (Last Tested: 2025-10-04)
-
-✅ **Demo 1 - Manual Change Detection**: Working correctly  
-✅ **Demo 2 - VM Recovery from Data Loss**: Working correctly  
-✅ **Demo 3 - Adding New Development VM**: Working correctly with cleanup  
-
-All demos have been successfully tested with the current cluster configuration.
-
 ## Contents
 
 **Interactive Runners:**

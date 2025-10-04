@@ -157,7 +157,7 @@
 
     - name: Confirm VM file created
       ansible.builtin.debug:
-        msg: "✅ Created vm-web-09.yaml in base directory"
+        msg: "Created vm-web-09.yaml in base directory"
 
     - name: "Step 3: Updating kustomization.yaml to include new VM"
       ansible.builtin.debug:
@@ -195,7 +195,7 @@
 
     - name: Confirm kustomization updated
       ansible.builtin.debug:
-        msg: "✅ Added 'vm-web-09.yaml' to base/kustomization.yaml (backup saved as base/kustomization.yaml.bak)"
+        msg: "Added 'vm-web-09.yaml' to base/kustomization.yaml (backup saved as base/kustomization.yaml.bak)"
       when: not vm_already_in_kustomization
 
     - name: "Step 4: Committing changes to Git repository"
@@ -255,7 +255,7 @@
 
     - name: Confirm Git operations
       ansible.builtin.debug:
-        msg: "✅ Changes committed and pushed to vms-dev branch"
+        msg: "Changes committed and pushed to vms-dev branch"
       when: git_commit.rc == 0 and git_push.rc == 0
 
     - name: "Step 5: Triggering ArgoCD sync"
@@ -273,10 +273,6 @@
             namespace: openshift-gitops
             annotations:
               argocd.argoproj.io/refresh: "{{ ansible_date_time.iso8601 }}"
-
-    - name: Confirm sync triggered
-      ansible.builtin.debug:
-        msg: "✅ ArgoCD sync triggered"
 
     - name: "Step 6: Waiting for ArgoCD to detect Git changes"
       ansible.builtin.debug:
@@ -343,7 +339,7 @@
     - name: Display VM creation success
       ansible.builtin.debug:
         msg: |
-          ✅ VM '{{ vm_name }}' successfully created
+          VM '{{ vm_name }}' successfully created
           VM Status: {{ final_vm_status.resources[0].status.printableStatus | default('Unknown') }}
       when: final_vm_status.resources | length > 0
 
@@ -365,9 +361,9 @@
     - name: Demo 3 completion summary
       ansible.builtin.debug:
         msg: |
-          
-          ✅ Demo 3 completed! New development VM added via Git changes.
-          
+
+          Demo 3 completed! New development VM added via Git changes.
+
           Summary:
           =========
           ✓ New VM definition added to Git repository

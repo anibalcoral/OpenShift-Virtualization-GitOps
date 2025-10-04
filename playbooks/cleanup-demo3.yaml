@@ -65,7 +65,7 @@
 
     - name: Confirm file removal
       ansible.builtin.debug:
-        msg: "{{ '✅ Removed base/vm-web-09.yaml' if vm_file_removed is changed else '⚠️ base/vm-web-09.yaml not found' }}"
+        msg: "{{ 'Removed base/vm-web-09.yaml' if vm_file_removed is changed else '⚠️ base/vm-web-09.yaml not found' }}"
 
     - name: "Step 2: Updating kustomization.yaml to remove vm-web-09"
       ansible.builtin.debug:
@@ -107,7 +107,7 @@
       ansible.builtin.debug:
         msg: |
           {% if kustomization_updated is changed %}
-          ✅ Removed 'vm-web-09.yaml' entry from base/kustomization.yaml (backup created)
+          Removed 'vm-web-09.yaml' entry from base/kustomization.yaml (backup created)
           {% elif not kustomization_file_check.stat.exists %}
           ⚠️ base/kustomization.yaml not found
           {% else %}
@@ -164,7 +164,7 @@
       ansible.builtin.debug:
         msg: |
           {% if git_commit is changed and git_push is changed %}
-          ✅ Cleanup changes committed and pushed
+          Cleanup changes committed and pushed
           {% else %}
           ⚠️ No changes to commit - cleanup may have already been done
           {% endif %}
@@ -202,10 +202,6 @@
             namespace: openshift-gitops
             annotations:
               argocd.argoproj.io/refresh: "{{ ansible_date_time.iso8601 }}"
-
-    - name: Confirm sync triggered
-      ansible.builtin.debug:
-        msg: "✅ ArgoCD sync with prune triggered"
 
     - name: Wait for VM to be deleted (if it existed)
       kubernetes.core.k8s_info:
@@ -245,7 +241,7 @@
       ansible.builtin.debug:
         msg: |
           
-          ✅ Demo 3 cleanup completed successfully!
+          Demo 3 cleanup completed successfully!
           
           Summary:
           =========
