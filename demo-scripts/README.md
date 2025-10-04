@@ -1,4 +1,3 @@
-````markdown
 # Demo Scripts
 
 This directory contains interactive and helper scripts used in the workshop demos. The scripts automate the common demo tasks used during the OpenShift GitOps with OpenShift Virtualization workshop and provide a reproducible way to demonstrate ArgoCD behaviours (drift detection, recovery and Git-based provisioning).
