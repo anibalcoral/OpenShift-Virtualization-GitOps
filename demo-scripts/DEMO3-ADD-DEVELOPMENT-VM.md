@@ -199,7 +199,7 @@ git status
 
 2. Add the new files:
 ```bash
-git add base/vm-web-09.yaml base/kustomization.yaml
+git add .
 ```
 
 3. Commit the changes:
@@ -232,7 +232,7 @@ cd -
 
 2. Force ArgoCD to check for changes:
 ```bash
-oc patch applications.argoproj.io $app_name -n $namespace --type merge -p '{"operation":{"sync":{"syncStrategy":{"hook":{}}}}}
+oc patch applications.argoproj.io workshop-vms-dev -n openshift-gitops --type merge -p '{"operation":{"sync":{"syncStrategy":{"hook":{}}}}}
 ```
 
 3. Monitor application status until drift is detected:
