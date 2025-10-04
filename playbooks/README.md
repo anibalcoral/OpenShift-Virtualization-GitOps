@@ -84,4 +84,3 @@ oc get pods -n openshift-gitops || true
 - Top-level `README.md` — workshop overview and installation instructions: [../README.md](../README.md)
 - Manual installation manifests and ordering: [../manual-install/README.md](../manual-install/README.md)
 
-````
