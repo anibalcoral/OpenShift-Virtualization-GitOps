@@ -11,7 +11,7 @@ This directory contains interactive and helper scripts used in the workshop demo
 - `demo3-add-development-vm.sh` - Demo 3: Add a new VM by editing the Apps repo and show auto-deploy.
 - `cleanup-demo3.sh` - Helper to remove demo artifacts created by Demo 3 (if applicable).
 - `demo-functions.sh` - Shared helper functions used by the demo scripts.
-- `DEMO1-MANUAL-CHANGE.md`, `DEMO2-VM-RECOVERY.md`, `DEMO3-ADD-DEVELOPMENT-VM.md` - Detailed, step-by-step documentation for each demo.
+- `[DEMO1-MANUAL-CHANGE.md](DEMO1-MANUAL-CHANGE.md)`, `[DEMO2-VM-RECOVERY.md](DEMO2-VM-RECOVERY.md)`, `[DEMO3-ADD-DEVELOPMENT-VM.md](DEMO3-ADD-DEVELOPMENT-VM.md)` - Detailed, step-by-step documentation for each demo.
 
 ## Quick Start
 
@@ -39,13 +39,13 @@ Or run a single demo directly, for example:
 ## Demo Summaries
 
 Demo 1 — Manual Change Detection and Drift Correction
-- Demonstrates ArgoCD detecting manual changes to VM resources (e.g. setting `runStrategy: Halted`) and automatically restoring the Git-declared state.
+- Demonstrates ArgoCD detecting manual changes to VM resources (e.g. setting `runStrategy: Halted`) and automatically restoring the Git-declared state. See the full walkthrough: [DEMO1-MANUAL-CHANGE.md](DEMO1-MANUAL-CHANGE.md)
 
 Demo 2 — VM Recovery from Data Loss
-- Demonstrates deleting a VM and its DataVolume to simulate data loss, then shows ArgoCD recreating the VM and storage from Git.
+- Demonstrates deleting a VM and its DataVolume to simulate data loss, then shows ArgoCD recreating the VM and storage from Git. See the full walkthrough: [DEMO2-VM-RECOVERY.md](DEMO2-VM-RECOVERY.md)
 
 Demo 3 — Adding New Development VM via Git Change
-- Demonstrates the Git workflow to add a new VM to the `OpenShift-Virtualization-GitOps-Apps` repo and how ArgoCD applies the change automatically.
+- Demonstrates the Git workflow to add a new VM to the `OpenShift-Virtualization-GitOps-Apps` repo and how ArgoCD applies the change automatically. See the full walkthrough: [DEMO3-ADD-DEVELOPMENT-VM.md](DEMO3-ADD-DEVELOPMENT-VM.md)
 
 ## How the Scripts Work
 
