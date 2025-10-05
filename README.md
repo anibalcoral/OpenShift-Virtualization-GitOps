@@ -279,7 +279,6 @@ The workshop automatically detects and configures your OpenShift cluster's appli
 **Choose removal method:**
 ```bash
 ./remove.sh
-# Select option 1 (Ansible) or option 2 (Bash)
 ```
 
 **Or use Ansible playbooks directly:**
@@ -319,7 +318,6 @@ OpenShift-Virtualization-GitOps/          # Main workshop repository
 ├── remove.sh                            # Interactive cleanup script (Ansible/Bash)
 ├── validate-cluster-domain.sh           # Domain detection and validation (Bash)
 ├── validate-cluster-domain-ansible.sh   # Domain validation (Ansible wrapper)
-├── setup-ssh-key.sh                     # SSH key configuration (Bash)
 ├── setup-ssh-key-ansible.sh            # SSH key setup (Ansible wrapper)
 ├── ansible.cfg                          # Ansible configuration
 ├── requirements.yml                     # Ansible requirements

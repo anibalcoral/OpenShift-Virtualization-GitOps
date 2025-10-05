@@ -31,9 +31,9 @@
       ansible.builtin.include_tasks: tasks/validate-cluster-domain-tasks.yaml
       when: not skip_domain_validation
 
-#    - name: Setup SSH keys for VMs
-#      ansible.builtin.include_tasks: tasks/setup-ssh-key-tasks.yaml
-#      when: not skip_ssh_setup
+    - name: Setup SSH keys for VMs
+      ansible.builtin.include_tasks: tasks/setup-ssh-key-tasks.yaml
+      when: not skip_ssh_setup
 
     - name: Install GitOps operator and applications
       ansible.builtin.include_tasks: tasks/install-gitops-tasks.yaml
