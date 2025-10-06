@@ -1,20 +1,13 @@
 # Demo Scripts
 
-This directory contains interactive and helper scripts used in the workshop demos. The scripts use Ansible playbooks to automate common demo tasks during the OpenShift GitOps with OpenShift Virtualization workshop, providing a reproducible way to demonstrate ArgoCD behaviors (drift detection, recovery and Git-based provisioning).
+This directory contains interactive demo scripts for the OpenShift GitOps with OpenShift Virtualization workshop. The scripts use direct OpenShift commands to demonstrate ArgoCD behaviors (drift detection, recovery, and Git-based provisioning).
 
 ## Contents
 
 **Interactive Runners:**
 - `run-demos.sh` - Interactive runner that walks through the three workshop demos
-- `check-status.sh` - Workshop status checker
 
-**Demo Scripts:**
-- `demo1-manual-change.sh` - Demo 1 runner (calls Ansible playbook)
-- `demo2-vm-recovery.sh` - Demo 2 runner (calls Ansible playbook)
-- `demo3-add-development-vm.sh` - Demo 3 runner (calls Ansible playbook)
-
-**Utility Scripts:**
-- `cleanup-demo3.sh` - Demo 3 cleanup runner (calls Ansible playbook)
+**Utility Functions:**
 - `demo-functions.sh` - Shared helper functions used by the bash scripts
 
 **Documentation:**
@@ -30,24 +23,18 @@ This directory contains interactive and helper scripts used in the workshop demo
 ```
 This provides a menu to select and run demos.
 
-**Individual Demos:**
-```bash
-# Demo 1 - ArgoCD drift detection and self-healing
-./demo1-manual-change.sh
-
-# Demo 2 - VM recovery from data loss
-./demo2-vm-recovery.sh
-
-# Demo 3 - Add new VM via Git workflow
-./demo3-add-development-vm.sh
-```
+**Available Options:**
+- `1` - Demo 1: Manual Change Detection and Drift Correction
+- `2` - Demo 2: VM Recovery from Data Loss
+- `3` - Demo 3: Adding New Development VM via Git Change
+- `a` - Run all demos sequentially
+- `s` - Check workshop status
+- `q` - Quit
 
 **Status Checking:**
 ```bash
-./check-status.sh
-
-# Or use Ansible directly
-cd .. && ansible-playbook -i inventory/localhost playbooks/check-workshop-status.yaml
+./run-demos.sh
+# Select option 's' for status check
 ```
 
 ## Demo Summaries
