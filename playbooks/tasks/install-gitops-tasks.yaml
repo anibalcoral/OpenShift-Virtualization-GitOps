@@ -207,19 +207,19 @@
     - workshop-gitops-vms-hml
     - workshop-gitops-vms-prd
 
-- name: Wait for applications to reach Synced state
-  kubernetes.core.k8s_info:
-    api_version: argoproj.io/v1alpha1
-    kind: Application
-    name: "{{ item }}"
-    namespace: openshift-gitops
-  register: final_sync_check
-  until: >
-    final_sync_check.resources | length > 0 and
-    final_sync_check.resources[0].status.sync.status == "Synced"
-  retries: 30
-  delay: 2
-  loop:
-    - workshop-gitops-vms-dev
-    - workshop-gitops-vms-hml
-    - workshop-gitops-vms-prd
+#- name: Wait for applications to reach Synced state
+#  kubernetes.core.k8s_info:
+#    api_version: argoproj.io/v1alpha1
+#    kind: Application
+#    name: "{{ item }}"
+#    namespace: openshift-gitops
+#  register: final_sync_check
+#  until: >
+#    final_sync_check.resources | length > 0 and
+#    final_sync_check.resources[0].status.sync.status == "Synced"
+#  retries: 30
+#  delay: 2
+#  loop:
+#    - workshop-gitops-vms-dev
+#    - workshop-gitops-vms-hml
+#    - workshop-gitops-vms-prd
