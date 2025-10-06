@@ -66,9 +66,9 @@ case $choice in
         ansible-playbook -i inventory/localhost playbooks/demo2-vm-recovery.yaml
         echo ""
         log "Running Demo 3..."
-        ./demo-scripts/demo3-add-development-vm.sh
+        ansible-playbook -i inventory/localhost playbooks/demo3-add-development-vm.yaml
         echo ""
-        ./demo-scripts/cleanup-demo3.sh
+        ansible-playbook -i inventory/localhost playbooks/cleanup-demo3.yaml
         ;;
     *)
         log_error "Invalid choice. Please select 1-3, a, s, c, or q."

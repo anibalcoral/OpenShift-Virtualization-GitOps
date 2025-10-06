@@ -170,6 +170,8 @@
           automated:
             prune: true
             selfHeal: true
+          syncOptions:
+          - CreateNamespace=true
 
 - name: Sync ArgoCD applications
   kubernetes.core.k8s:

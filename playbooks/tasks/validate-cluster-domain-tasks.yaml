@@ -107,6 +107,14 @@
     - name: Commit and push domain configuration changes
       when: update_needed and auto_commit
       block:
+        - name: Check for git changes
+          ansible.builtin.shell:
+            cmd: git status --porcelain
+          args:
+            chdir: "{{ apps_repo_path }}"
+          register: git_changes
+          changed_when: false
+
         - name: Commit domain configuration changes
           ansible.builtin.shell:
             cmd: |
@@ -118,29 +126,35 @@
               - Update production domain to: {{ expected_prd_domain }}"
           args:
             chdir: "{{ apps_repo_path }}"
-          changed_when: true
-          ignore_errors: true
+          when: git_changes.stdout != ""
+          register: git_commit
+          changed_when: git_changes.stdout != ""
 
         - name: Push changes to vms-dev branch
           ansible.builtin.shell:
             cmd: git push origin vms-dev
           args:
             chdir: "{{ apps_repo_path }}"
+          when: git_changes.stdout != ""
+          register: git_push
+          changed_when: false
           ignore_errors: true
 
     - name: Merge and push changes through environment branches
-      when: update_needed and auto_commit
+      when: update_needed and auto_commit and git_changes is defined and git_changes.stdout != ""
       block:
         - name: Switch to vms-hml branch and merge from dev
           ansible.builtin.git:
             repo: "{{ apps_repo_url }}"
             dest: "{{ apps_repo_path }}"
             version: vms-hml
-            update: yes
+            update: true
+
         - name: Merge vms-dev into vms-hml
           ansible.builtin.shell:
             cmd: git merge vms-dev
             chdir: "{{ apps_repo_path }}"
+
         - name: Push changes to vms-hml branch
           ansible.builtin.shell:
             cmd: git push origin vms-hml
@@ -151,11 +165,13 @@
             repo: "{{ apps_repo_url }}"
             dest: "{{ apps_repo_path }}"
             version: main
-            update: yes
+            update: true
+
         - name: Merge vms-hml into main
           ansible.builtin.shell:
             cmd: git merge vms-hml
             chdir: "{{ apps_repo_path }}"
+            
         - name: Push changes to main branch
           ansible.builtin.shell:
             cmd: git push origin main

@@ -46,48 +46,55 @@
         label: "{{ item }}"
       failed_when: false
 
-    - name: Wait for VirtualMachines to be deleted
+    - name: Define workshop namespaces
+      ansible.builtin.set_fact:
+        workshop_namespaces:
+          - "{{ workshop_namespace_base }}-dev"
+          - "{{ workshop_namespace_base }}-hml"
+          - "{{ workshop_namespace_base }}-prd"
+
+    # TODO: Fix ME!
+    - name: Trigger deletion for all VirtualMachines
+      ansible.builtin.command: oc delete vms -A --all
+      register: delete_vms
+      changed_when: "'No resources found' not in delete_vms.stdout"
+      failed_when: false
+
+    - name: Wait until all VirtualMachines are actually removed
       kubernetes.core.k8s_info:
         api_version: kubevirt.io/v1
         kind: VirtualMachine
-        namespace: "{{ workshop_namespace_base }}-{{ item }}"
-      register: vm_info
-      until: "(vm_info.resources | default([]) | length) == 0"
+        namespace: ''
+      register: remaining_vms
+      until: remaining_vms.resources | length == 0
       retries: 30
       delay: 10
-      loop:
-        - dev
-        - hml
-        - prd
-      loop_control:
-        label: "{{ item }}"
-      failed_when: false
+
+    - name: Display VM deletion completion
+      ansible.builtin.debug:
+        msg: "All VMs have been removed from workshop namespaces"
 
     - name: Remove workshop namespaces
       kubernetes.core.k8s:
         state: absent
         api_version: v1
         kind: Namespace
-        name: "{{ workshop_namespace_base }}-{{ item }}"
-      loop:
-        - dev
-        - hml
-        - prd
+        name: "{{ item }}"
+        wait: true
+        wait_timeout: 600
+      loop: "{{ workshop_namespaces }}"
       failed_when: false
 
     - name: Wait for namespaces to be deleted
       kubernetes.core.k8s_info:
         api_version: v1
         kind: Namespace
-        name: "{{ workshop_namespace_base }}-{{ item }}"
+        name: "{{ item }}"
       register: ns_info
       until: "(ns_info.resources | default([]) | length) == 0"
-      retries: 30
-      delay: 10
-      loop:
-        - dev
-        - hml
-        - prd
+      retries: 120
+      delay: 5
+      loop: "{{ workshop_namespaces }}"
       loop_control:
         label: "{{ item }}"
       failed_when: false
@@ -109,36 +116,36 @@
         namespace: "{{ argocd_namespace }}"
       failed_when: false
 
-    - name: Remove GitOps operator (if requested)
-      kubernetes.core.k8s:
-        state: absent
-        api_version: operators.coreos.com/v1alpha1
-        kind: Subscription
-        name: openshift-gitops-operator
-        namespace: openshift-operators
-      when: remove_operator
-      failed_when: false
+#    - name: Remove GitOps operator (if requested)
+#      kubernetes.core.k8s:
+#        state: absent
+#        api_version: operators.coreos.com/v1alpha1
+#        kind: Subscription
+#        name: openshift-gitops-operator
+#        namespace: openshift-operators
+#      when: remove_operator
+#      failed_when: false
 
-    - name: Remove GitOps operator CSV (if requested)
-      kubernetes.core.k8s_info:
-        api_version: operators.coreos.com/v1alpha1
-        kind: ClusterServiceVersion
-        namespace: openshift-operators
-        label_selectors:
-          - "operators.coreos.com/openshift-gitops-operator.openshift-operators"
-      register: gitops_csv
-      when: remove_operator
+#   - name: Remove GitOps operator CSV (if requested)
+#     kubernetes.core.k8s_info:
+#       api_version: operators.coreos.com/v1alpha1
+#       kind: ClusterServiceVersion
+#       namespace: openshift-operators
+#       label_selectors:
+#         - "operators.coreos.com/openshift-gitops-operator.openshift-operators"
+#     register: gitops_csv
+#     when: remove_operator
 
-    - name: Delete GitOps operator CSV
-      kubernetes.core.k8s:
-        state: absent
-        api_version: operators.coreos.com/v1alpha1
-        kind: ClusterServiceVersion
-        name: "{{ item.metadata.name }}"
-        namespace: openshift-operators
-      loop: "{{ gitops_csv.resources | default([]) }}"
-      when: remove_operator
-      failed_when: false
+#   - name: Delete GitOps operator CSV
+#     kubernetes.core.k8s:
+#       state: absent
+#       api_version: operators.coreos.com/v1alpha1
+#       kind: ClusterServiceVersion
+#       name: "{{ item.metadata.name }}"
+#       namespace: openshift-operators
+#     loop: "{{ gitops_csv.resources | default([]) }}"
+#     when: remove_operator
+#     failed_when: false
 
     - name: Display removal completion
       ansible.builtin.debug:
