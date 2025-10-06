@@ -124,8 +124,8 @@
           namespace: workshop-gitops-vms-dev
         syncPolicy:
           automated:
-            prune: true
-            selfHeal: true
+            prune: false
+            selfHeal: false
 
 - name: Create ArgoCD application for homologation
   kubernetes.core.k8s:
@@ -146,8 +146,8 @@
           namespace: workshop-gitops-vms-hml
         syncPolicy:
           automated:
-            prune: true
-            selfHeal: true
+            prune: false
+            selfHeal: false
 
 - name: Create ArgoCD application for production
   kubernetes.core.k8s:
@@ -168,24 +168,23 @@
           namespace: workshop-gitops-vms-prd
         syncPolicy:
           automated:
-            prune: true
-            selfHeal: true
-          syncOptions:
-          - CreateNamespace=true
+            prune: false
+            selfHeal: false
 
-- name: Sync ArgoCD applications
+- name: Force sync with prune on ArgoCD applications
   kubernetes.core.k8s:
     api_version: argoproj.io/v1alpha1
     kind: Application
     name: "{{ item }}"
     namespace: openshift-gitops
-    state: present
+    state: patched
     definition:
       spec:
-        syncPolicy:
-          automated:
-            prune: true
-            selfHeal: true
+        operation:
+          sync:
+            revision: HEAD
+            syncOptions:
+              - Prune=true
   loop:
     - workshop-gitops-vms-dev
     - workshop-gitops-vms-hml

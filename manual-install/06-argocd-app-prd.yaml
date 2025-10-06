@@ -12,9 +12,3 @@ spec:
     path: overlays/prd
     repoURL: git@github.com:anibalcoral/OpenShift-Virtualization-GitOps-Apps.git
     targetRevision: main
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-    - CreateNamespace=true

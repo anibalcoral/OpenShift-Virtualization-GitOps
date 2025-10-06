@@ -38,7 +38,7 @@ case $choice in
     3)
         log "Running Demo 3: Adding New Development VM via Git Change"
         echo ""
-        ./demo-scripts/demo3-add-development-vm.sh
+        ansible-playbook -i inventory/localhost playbooks/demo3-add-development-vm.yaml
         ;;
     s|S)
         log "Checking workshop status..."
@@ -49,7 +49,7 @@ case $choice in
     c|C)
         log "Running Demo 3 cleanup..."
         echo ""
-        ./demo-scripts/cleanup-demo3.sh
+        ansible-playbook -i inventory/localhost playbooks/cleanup-demo3.yaml
         ;;
     q|Q)
         log "Exiting demo runner..."

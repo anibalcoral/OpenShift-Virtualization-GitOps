@@ -9,13 +9,14 @@ Before starting the workshop, ensure you have:
 - **OpenShift cluster** with OpenShift Virtualization operator installed and configured
 - **oc CLI tool** installed and configured with cluster-admin privileges
 - **Git access** to the companion Apps repository
-- Both repositories cloned locally:
+- Both repositories cloned locally on `/opt` directory:
   ```bash
+  cd /opt
   git clone git@github.com:anibalcoral/OpenShift-Virtualization-GitOps.git
   git clone git@github.com:anibalcoral/OpenShift-Virtualization-GitOps-Apps.git
   ```
 
-**Note**: The Apps repository must be cloned as a sibling directory (`../OpenShift-Virtualization-GitOps-Apps`) for proper operation.
+**Note**: The Apps repository must be cloned
 
 ## Workshop Architecture
 

@@ -12,9 +12,3 @@ spec:
     path: overlays/hml
     repoURL: git@github.com:anibalcoral/OpenShift-Virtualization-GitOps-Apps.git
     targetRevision: vms-hml
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-    - CreateNamespace=true

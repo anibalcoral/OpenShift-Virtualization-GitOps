@@ -4,7 +4,7 @@
   gather_facts: true
   vars:
     ssh_key_name: "ocpvirt-gitops"
-    apps_repo_path: "/home/lchiaret/git/OpenShift-Virtualization-GitOps-Apps"
+    apps_repo_path: "/opt/OpenShift-Virtualization-GitOps-Apps"
 
   tasks:
     - name: Check if SSH public key exists

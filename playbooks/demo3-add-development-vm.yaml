@@ -6,7 +6,7 @@
     namespace: "workshop-gitops-vms-dev"
     vm_name: "dev-vm-web-09"
     app_name: "workshop-gitops-vms-dev"
-    apps_repo_path: "/home/lchiaret/git/OpenShift-Virtualization-GitOps-Apps"
+    apps_repo_path: "/opt/OpenShift-Virtualization-GitOps-Apps"
 
   tasks:
     - name: "Demo 3: Adding New Development VM via Git Change"
@@ -273,7 +273,6 @@
             namespace: openshift-gitops
             annotations:
               argocd.argoproj.io/refresh: "{{ ansible_date_time.iso8601 }}"
-      # don't fail the playbook if ArgoCD doesn't accept the patch for some reason
       failed_when: false
 
     - name: "Step 6: Waiting for ArgoCD to detect Git changes"

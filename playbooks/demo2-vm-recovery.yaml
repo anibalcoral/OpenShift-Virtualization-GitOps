@@ -1,7 +1,7 @@
 ---
 - name: Demo 2 - VM Recovery from Data Loss
   hosts: local
-  gather_facts: false
+  gather_facts: true
   vars:
     demo_namespace: "workshop-gitops-vms-dev"
     vm_name: "dev-vm-web-01"
@@ -82,18 +82,22 @@
       ansible.builtin.debug:
         msg: "ArgoCD detected missing resources - Application is OutOfSync"
 
-    - name: Trigger manual sync to recover VM
+    - name: Trigger ArgoCD sync for the application
       kubernetes.core.k8s:
         state: patched
         api_version: argoproj.io/v1alpha1
         kind: Application
         name: "{{ app_name }}"
-        namespace: "{{ argocd_namespace }}"
+        namespace: "openshift-gitops"
         definition:
+          spec:
+            syncPolicy:
+              automated: null
           operation:
             sync:
               revision: "HEAD"
               prune: true
+              dryRun: false
 
     - name: Wait for application to sync
       kubernetes.core.k8s_info:
