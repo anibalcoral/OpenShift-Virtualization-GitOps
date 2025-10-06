@@ -86,6 +86,9 @@ echo "Password: $(oc get secret openshift-gitops-cluster -n openshift-gitops -o 
 
 ### Demo 1: Manual Change Detection and Drift Correction
 ```bash
+# Using Ansible playbook
+ansible-playbook -i inventory/localhost playbooks/demo1-manual-change.yaml
+
 # Using interactive runner
 ./demo-scripts/run-demos.sh
 # Select option '1'
