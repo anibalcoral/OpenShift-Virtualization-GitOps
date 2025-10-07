@@ -77,8 +77,7 @@
       type: Opaque
       stringData:
         type: git
-        url: git@github.com:anibalcoral/OpenShift-Virtualization-GitOps-Apps.git
-        sshPrivateKey: "{{ ssh_private_key_content.content | b64decode }}"
+        url: https://github.com/anibalcoral/OpenShift-Virtualization-GitOps.git
 
 - name: Apply workshop SSH secret to namespaces
   kubernetes.core.k8s:
@@ -116,7 +115,7 @@
       spec:
         project: default
         source:
-          repoURL: git@github.com:anibalcoral/OpenShift-Virtualization-GitOps-Apps.git
+          repoURL: https://github.com/anibalcoral/OpenShift-Virtualization-GitOps-Apps.git
           targetRevision: vms-dev
           path: overlays/dev
         destination:
@@ -138,7 +137,7 @@
       spec:
         project: default
         source:
-          repoURL: git@github.com:anibalcoral/OpenShift-Virtualization-GitOps-Apps.git
+          repoURL: https://github.com/anibalcoral/OpenShift-Virtualization-GitOps-Apps.git
           targetRevision: vms-hml
           path: overlays/hml
         destination:
@@ -160,7 +159,7 @@
       spec:
         project: default
         source:
-          repoURL: git@github.com:anibalcoral/OpenShift-Virtualization-GitOps-Apps.git
+          repoURL: https://github.com/anibalcoral/OpenShift-Virtualization-GitOps-Apps.git
           targetRevision: main
           path: overlays/prd
         destination:

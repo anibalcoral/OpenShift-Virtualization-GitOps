@@ -12,8 +12,8 @@ Before starting the workshop, ensure you have:
 - Both repositories cloned locally on `/opt` directory:
   ```bash
   cd /opt
-  git clone git@github.com:anibalcoral/OpenShift-Virtualization-GitOps.git
-  git clone git@github.com:anibalcoral/OpenShift-Virtualization-GitOps-Apps.git
+  git clone https://github.com/anibalcoral/OpenShift-Virtualization-GitOps.git
+  git clone https://github.com/anibalcoral/OpenShift-Virtualization-GitOps-Apps.git
   ```
 
 **Note**: The Apps repository must be cloned
@@ -32,6 +32,13 @@ This workshop uses a **dual-repository strategy** with **multi-branch environmen
 - **main branch**: Production VMs (workshop-gitops-vms-prd namespace)
 
 Each environment uses Kustomize overlays for environment-specific resource configurations (CPU, memory, disk, naming prefixes).
+
+## Security Considerations
+
+**SSH Key Management:**
+- The `setup-ssh-key.yaml` playbook automatically generates and configures SSH keys
+- SSH keys are generated locally and only the public key is used in VM configurations
+- The `ssh-secret.yaml` file contains only a placeholder - real keys are populated during setup
 
 ## Installation
 

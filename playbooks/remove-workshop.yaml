@@ -15,6 +15,30 @@
           ==========================================
           This will remove all workshop resources
 
+    - name: Change applications to automaticly sync and prune before deletion
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: argoproj.io/v1alpha1
+          kind: Application
+          metadata:
+            name: "{{ item }}"
+            namespace: "{{ argocd_namespace }}"
+          spec:
+            syncPolicy:
+              automated:
+                prune: true
+                selfHeal: true
+      loop:
+        - workshop-gitops-vms-dev
+        - workshop-gitops-vms-hml
+        - workshop-gitops-vms-prd
+      failed_when: false
+
+    - name: Sleep for 5 seconds to allow changes to propagate
+      ansible.builtin.pause:
+        seconds: 5
+
     - name: Remove ArgoCD Applications
       kubernetes.core.k8s:
         state: absent

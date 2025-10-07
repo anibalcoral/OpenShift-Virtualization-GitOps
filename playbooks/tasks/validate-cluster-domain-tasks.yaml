@@ -81,6 +81,13 @@
     - name: Update environment domains if necessary
       when: update_needed
       block:
+        - name: Update git vms-dev repo branch
+          ansible.builtin.git:
+            repo: "{{ apps_repo_url }}"
+            dest: "{{ apps_repo_path }}"
+            version: vms-dev
+            update: true
+
         - name: Update dev environment domain
           ansible.builtin.replace:
             path: "{{ apps_repo_path }}/overlays/dev/kustomization.yaml"
