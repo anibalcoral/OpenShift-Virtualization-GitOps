@@ -319,7 +319,7 @@ OpenShift-Virtualization-GitOps/          # Main workshop repository
 ├── README.md                            # This file
 ├── inventory/
 │   └── localhost                        # Ansible inventory for localhost
-├── /opt/OpenShift-Virtualization-GitOps/playbooks/                           # Ansible playbooks
+├── playbooks/                           # Ansible playbooks
 │   ├── install-workshop.yaml           # Complete workshop installation
 │   ├── remove-workshop.yaml            # Complete workshop removal
 │   ├── validate-cluster-domain.yaml    # Cluster domain validation

@@ -4,9 +4,6 @@ This directory contains interactive demo scripts for the OpenShift GitOps with O
 
 ## Contents
 
-**Interactive Runners:**
-- `run-demos.sh` - Interactive runner that walks through the three workshop demos
-
 **Utility Functions:**
 - `demo-functions.sh` - Shared helper functions used by the bash scripts
 
@@ -14,28 +11,6 @@ This directory contains interactive demo scripts for the OpenShift GitOps with O
 - `DEMO1-MANUAL-CHANGE.md` - Demo 1 detailed documentation
 - `DEMO2-VM-RECOVERY.md` - Demo 2 detailed documentation  
 - `DEMO3-ADD-DEVELOPMENT-VM.md` - Demo 3 detailed documentation
-
-## Quick Start
-
-**Interactive Demo Runner:**
-```bash
-./run-demos.sh
-```
-This provides a menu to select and run demos.
-
-**Available Options:**
-- `1` - Demo 1: Manual Change Detection and Drift Correction
-- `2` - Demo 2: VM Recovery from Data Loss
-- `3` - Demo 3: Adding New Development VM via Git Change
-- `a` - Run all demos sequentially
-- `s` - Check workshop status
-- `q` - Quit
-
-**Status Checking:**
-```bash
-./run-demos.sh
-# Select option 's' for status check
-```
 
 ## Demo Summaries
 
@@ -78,13 +53,6 @@ ansible-playbook -i ..//opt/OpenShift-Virtualization-GitOps/inventory/localhost 
 ansible-playbook -i ..//opt/OpenShift-Virtualization-GitOps/inventory/localhost ..//opt/OpenShift-Virtualization-GitOps/playbooks/cleanup-demo3.yaml
 ```
 
-## How the Scripts Work
-
-- The scripts call Ansible playbooks for Demos 1 and 2, providing structured automation
-- Demo 3 still uses bash script with direct `oc` commands and Git operations
-- `demo-functions.sh` contains common helpers used by the bash scripts
-- The demos are intentionally interactive and verbose to make them suitable for live workshops and training
-
 ## Features
 
 - **Automated demos**: Each demo runs automatically with clear status output
@@ -98,11 +66,7 @@ ansible-playbook -i ..//opt/OpenShift-Virtualization-GitOps/inventory/localhost 
 Demo 3 creates Git changes and cluster resources. Clean up using:
 
 ```bash
-# Use cleanup script
-./cleanup-demo3.sh
-
-# Or call Ansible directly
-cd .. && ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/cleanup-demo3.yaml
+ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/cleanup-demo3.yaml
 ```
 
 The cleanup process:
