@@ -298,11 +298,6 @@ ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /op
 ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/check-workshop-status.yaml
 ```
 
-**Bash method:**
-```bash
-./demo-scripts/check-status.sh
-```
-
 **ArgoCD UI monitoring:**
 ```bash
 oc get applications.argoproj.io -n openshift-gitops
@@ -317,6 +312,7 @@ This repository contains the workshop configuration and automation:
 OpenShift-Virtualization-GitOps/          # Main workshop repository
 ├── install.sh                           # Installation script
 ├── remove.sh                            # Cleanup script
+├── run-demos.sh                         # Interactive demo runner
 ├── ansible.cfg                          # Ansible configuration
 ├── requirements.yml                     # Ansible requirements
 ├── WORKSHOP_GUIDE.md                    # Detailed workshop instructions
@@ -326,12 +322,12 @@ OpenShift-Virtualization-GitOps/          # Main workshop repository
 ├── /opt/OpenShift-Virtualization-GitOps/playbooks/                           # Ansible playbooks
 │   ├── install-workshop.yaml           # Complete workshop installation
 │   ├── remove-workshop.yaml            # Complete workshop removal
-│   ├── remove-gitops.yaml              # GitOps operator removal (legacy)
 │   ├── validate-cluster-domain.yaml    # Cluster domain validation
 │   ├── setup-ssh-key.yaml              # SSH key configuration
 │   ├── check-workshop-status.yaml      # Workshop status checker
 │   ├── demo1-manual-change.yaml        # Demo 1: Manual change detection
 │   ├── demo2-vm-recovery.yaml          # Demo 2: VM recovery
+│   ├── demo3-add-development-vm.yaml   # Demo 3: Add Virtual Machine
 │   └── templates/                      # Ansible templates
 │       └── ssh-secret.yaml.j2         # SSH secret template
 ├── manual-install/                      # Manual installation manifests
@@ -343,7 +339,6 @@ OpenShift-Virtualization-GitOps/          # Main workshop repository
 │   ├── 06-argocd-app-prd.yaml
 │   └── README.md
 └── demo-scripts/                        # Workshop demonstration scripts
-    ├── run-demos.sh                     # Interactive demo runner
     ├── demo-functions.sh                # Common demo functions
     ├── DEMO1-MANUAL-CHANGE.md           # Demo 1 documentation
     ├── DEMO2-VM-RECOVERY.md             # Demo 2 documentation
