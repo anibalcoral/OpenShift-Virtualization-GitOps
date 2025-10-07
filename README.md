@@ -333,7 +333,6 @@ OpenShift-Virtualization-GitOps/          # Main workshop repository
 │   ├── check-workshop-status.yaml      # Workshop status checker
 │   ├── demo1-manual-change.yaml        # Demo 1: Manual change detection
 │   ├── demo2-vm-recovery.yaml          # Demo 2: VM recovery
-│   ├── demo-utilities.yaml             # Demo utility functions
 │   └── templates/                      # Ansible templates
 │       └── ssh-secret.yaml.j2         # SSH secret template
 ├── manual-install/                      # Manual installation manifests
