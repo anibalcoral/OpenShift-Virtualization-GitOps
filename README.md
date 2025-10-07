@@ -102,8 +102,12 @@ ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /op
 
 # Direct using run-demos.sh with parameter
 ./run-demos.sh 1
-
 ```
+
+**Step By Step to run Demo 1**
+
+Using the doc [DEMO1-MANUAL-CHANGE.md](demo-scripts/DEMO1-MANUAL-CHANGE.md)
+
 - Manual modifications to VM resources
 - ArgoCD detecting "OutOfSync" status
 - Automatic drift correction and resource recreation
@@ -126,6 +130,11 @@ ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /op
 # Direct using run-demos.sh with parameter
 ./run-demos.sh 2
 ```
+
+**Step By Step to run Demo 2**
+
+Using the doc [DEMO2-VM-RECOVERY.md](demo-scripts/DEMO2-VM-RECOVERY.md)
+
 **Demonstrates:**
 - Complete VM deletion (simulating data loss)
 - ArgoCD detecting missing resources
@@ -143,7 +152,12 @@ ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /op
 
 # Direct using run-demos.sh with parameter
 ./run-demos.sh 3
+
 ```
+**Step By Step to run Demo 3**
+
+Using the doc [DEMO3-ADD-DEVELOPMENT-VM.md](demo-scripts/DEMO3-ADD-DEVELOPMENT-VM.md)
+
 **Demonstrates:**
 - Git-based workflow for infrastructure changes
 - Adding new VM definitions via Git commits
@@ -156,14 +170,14 @@ ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /op
 ```
 Provides a menu-driven interface to run all demos and utilities.
 
-### Demo Cleanup
+### Demo 3 Cleanup
 ```bash
 ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/cleanup-demo3.yaml
 ```
 
 ## Cleanup
 
-### Complete Workshop Removal
+**Complete Workshop Removal**
 ```bash
 ./remove.sh
 ```
@@ -188,7 +202,7 @@ oc get applications.argoproj.io -n openshift-gitops
 oc get vm -A | grep workshop-gitops
 ```
 
-### Run All Demos Interactively
+### Run All Demos
 ```bash
 ./run-demos.sh a
 ```
@@ -204,8 +218,7 @@ The workshop creates three ArgoCD applications:
 Each application:
 - Points to a specific branch in the Apps repository
 - Uses **Kustomize overlays** for environment-specific configurations
-- Has **automated sync** enabled with prune and self-heal
-- **Auto-creates** target namespaces if they don't exist
+- Has **automated sync** disabled
 
 ## Environment Details
 
@@ -261,24 +274,6 @@ Each environment deploys identical VMs with environment-specific resource alloca
    virtctl ssh cloud-user@<vm-name> -n <namespace>
    ```
 4. **Via Web Routes**: Access the web application through the configured routes
-
-## Automatic Domain Configuration
-
-The workshop automatically detects and configures your OpenShift cluster's application domain, eliminating manual configuration.
-
-### How Domain Detection Works
-
-1. **Cluster Query**: The installation queries the cluster's ingress configuration
-2. **Automatic Updates**: Detected domains are automatically configured in route definitions within the Apps repository
-3. **Support for Any Domain**: Works with any valid OpenShift application domain pattern:
-   - `apps.cluster-name.domain.com`
-   - `apps.sandbox.x8y9.p1.openshiftapps.com`
-   - Custom enterprise domains
-
-### Domain Validation Tools
-
-- **Automatic during installation**: `./install.sh` (detects and configures automatically)
-- **Manual validation**: `./validate-cluster-domain.sh` (validates and updates domains)
 
 ## Cleanup and Maintenance
 

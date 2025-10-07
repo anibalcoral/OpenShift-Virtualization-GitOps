@@ -38,19 +38,19 @@ The demo scripts call these Ansible playbooks:
 
 ```bash
 # Workshop status checking
-ansible-playbook -i ..//opt/OpenShift-Virtualization-GitOps/inventory/localhost ..//opt/OpenShift-Virtualization-GitOps/playbooks/check-workshop-status.yaml
+ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/check-workshop-status.yaml
 
 # Demo 1: Manual change detection
-ansible-playbook -i ..//opt/OpenShift-Virtualization-GitOps/inventory/localhost ..//opt/OpenShift-Virtualization-GitOps/playbooks/demo1-manual-change.yaml
+ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo1-manual-change.yaml
 
 # Demo 2: VM recovery
-ansible-playbook -i ..//opt/OpenShift-Virtualization-GitOps/inventory/localhost ..//opt/OpenShift-Virtualization-GitOps/playbooks/demo2-vm-recovery.yaml
+ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo2-vm-recovery.yaml
 
 # Demo 3: Add development VM
-ansible-playbook -i ..//opt/OpenShift-Virtualization-GitOps/inventory/localhost ..//opt/OpenShift-Virtualization-GitOps/playbooks/demo3-add-development-vm.yaml
+ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo3-add-development-vm.yaml
 
 # Demo 3 cleanup: Remove development VM
-ansible-playbook -i ..//opt/OpenShift-Virtualization-GitOps/inventory/localhost ..//opt/OpenShift-Virtualization-GitOps/playbooks/cleanup-demo3.yaml
+ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/cleanup-demo3.yaml
 ```
 
 ## Features
