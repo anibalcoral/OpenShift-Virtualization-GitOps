@@ -68,9 +68,6 @@ oc get applications -n openshift-gitops
 
 # Check VMs
 oc get vm -A | grep workshop
-
-# Run complete status check
-../demo-scripts/check-status.sh
 ```
 
 ## Cleanup

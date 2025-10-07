@@ -565,8 +565,6 @@ oc get vm -A | grep workshop
 # Check services
 oc get svc -A | grep workshop
 
-# Run the full verification script
-./demo-scripts/check-status.sh
 ```
 
 ### Expected Results
@@ -609,4 +607,3 @@ With the workshop installed manually, you can demonstrate:
 3. **Automatic Recovery**: Use `ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo2-vm-recovery.yaml`
 4. **Git-based Provisioning**: Use `ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo3-add-development-vm.yaml`
 5. **ArgoCD Interface**: Show the web UI with synchronized applications
-6. **Continuous Checks**: Use `./demo-scripts/check-status.sh` at any time
