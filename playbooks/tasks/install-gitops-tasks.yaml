@@ -214,7 +214,11 @@
   register: final_sync_check
   until: >
     final_sync_check.resources | length > 0 and
-    final_sync_check.resources[0].status.sync.status == "Synced"
+    (
+      final_sync_check.resources[0].status is defined and
+      final_sync_check.resources[0].status.sync is defined and
+      final_sync_check.resources[0].status.sync.status == "Synced"
+    )
   retries: 30
   delay: 2
   loop:

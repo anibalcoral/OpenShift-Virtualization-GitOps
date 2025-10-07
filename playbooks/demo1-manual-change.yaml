@@ -70,7 +70,11 @@
       register: app_sync_check
       until: >
         app_sync_check.resources | length > 0 and
-        app_sync_check.resources[0].status.sync.status == "OutOfSync"
+        (
+          app_sync_check.resources[0].status is defined and
+          app_sync_check.resources[0].status.sync is defined and
+          app_sync_check.resources[0].status.sync.status == "OutOfSync"
+        )
       retries: 30
       delay: 2
       ignore_errors: true
@@ -115,7 +119,12 @@
         name: "{{ vm_name }}"
         namespace: "{{ demo_namespace }}"
       register: final_vm_status
-      until: final_vm_status.resources[0].status.printableStatus == "Running"
+      until: >
+        final_vm_status.resources | length > 0 and
+        (
+          final_vm_status.resources[0].status is defined and
+          final_vm_status.resources[0].status.printableStatus == "Running"
+        )
       retries: 30
       delay: 10
 
