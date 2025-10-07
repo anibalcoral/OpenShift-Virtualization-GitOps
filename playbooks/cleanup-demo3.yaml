@@ -171,7 +171,7 @@
 
     - name: Merge DEV into HML
       ansible.builtin.shell:
-        cmd: git merge --no-ff vms-dev
+        cmd: git merge vms-dev
         chdir: "{{ apps_repo_path }}"
       when: git_commit is changed
       register: merge_hml
@@ -194,7 +194,7 @@
 
     - name: Merge HML into MAIN
       ansible.builtin.shell:
-        cmd: git merge --no-ff vms-hml
+        cmd: git merge vms-hml
         chdir: "{{ apps_repo_path }}"
       when: git_commit is changed
       register: merge_main
@@ -221,7 +221,7 @@
           {% if git_commit is changed and git_push is changed %}
           Cleanup changes committed and pushed
           {% else %}
-          ⚠️ No changes to commit - cleanup may have already been done
+          No changes to commit - cleanup may have already been done
           {% endif %}
 
     - name: "Step 4: Wait for ArgoCD to detect and apply cleanup"
@@ -306,5 +306,5 @@
           ✓ ArgoCD detected and applied cleanup
           ✓ VM dev-vm-web-09 removed from cluster
           ✓ Development environment restored to 2-VM baseline
-          
+
           Remaining VMs: {{ remaining_vms.resources | map(attribute='metadata.name') | list | join(', ') }}

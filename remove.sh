@@ -39,4 +39,4 @@ fi
 echo ""
 
 log "Running Ansible playbook removal..."
-ansible-playbook -i inventory/localhost playbooks/remove-workshop.yaml
+ansible-playbook -i inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/remove-workshop.yaml

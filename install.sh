@@ -37,4 +37,4 @@ if ! command -v oc &> /dev/null; then
 fi
 
 log "Running Ansible playbook installation..."
-ansible-playbook -i inventory/localhost playbooks/install-workshop.yaml
+ansible-playbook -i inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/install-workshop.yaml

@@ -45,12 +45,12 @@ Each environment uses Kustomize overlays for environment-specific resource confi
 **Individual Ansible playbooks:**
 ```bash
 # Install complete workshop
-ansible-playbook -i inventory/localhost playbooks/install-workshop.yaml
+ansible-playbook -i inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/install-workshop.yaml
 
 # Or run individual components
-ansible-playbook -i inventory/localhost playbooks/validate-cluster-domain.yaml
-ansible-playbook -i inventory/localhost playbooks/setup-ssh-key.yaml
-ansible-playbook -i inventory/localhost playbooks/install-gitops.yaml
+ansible-playbook -i inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/validate-cluster-domain.yaml
+ansible-playbook -i inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/setup-ssh-key.yaml
+ansible-playbook -i inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/install-gitops.yaml
 ```
 
 ### Manual Installation (for Learning)
@@ -79,7 +79,7 @@ echo "Password: $(oc get secret openshift-gitops-cluster -n openshift-gitops -o 
 **Check workshop status:**
 ```bash
 # Using interactive demo runner
-./demo-scripts/run-demos.sh
+./run-demos.sh
 # Select option 's' to check status
 ```
 
@@ -88,10 +88,10 @@ echo "Password: $(oc get secret openshift-gitops-cluster -n openshift-gitops -o 
 ### Demo 1: Manual Change Detection and Drift Correction
 ```bash
 # Using Ansible playbook
-ansible-playbook -i inventory/localhost playbooks/demo1-manual-change.yaml
+ansible-playbook -i inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo1-manual-change.yaml
 
 # Using interactive runner
-./demo-scripts/run-demos.sh
+./run-demos.sh
 # Select option '1'
 ```
 - Manual modifications to VM resources
@@ -107,10 +107,10 @@ ansible-playbook -i inventory/localhost playbooks/demo1-manual-change.yaml
 ### Demo 2: VM Recovery from Data Loss
 ```bash
 # Using Ansible playbook
-ansible-playbook -i inventory/localhost playbooks/demo2-vm-recovery.yaml
+ansible-playbook -i inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo2-vm-recovery.yaml
 
 # Or using interactive runner
-./demo-scripts/run-demos.sh
+./run-demos.sh
 # Select option '2'
 ```
 **Demonstrates:**
@@ -122,13 +122,13 @@ ansible-playbook -i inventory/localhost playbooks/demo2-vm-recovery.yaml
 ### Demo 3: Adding New Development VM via Git Change
 ```bash
 # Using Ansible playbook
-ansible-playbook -i inventory/localhost playbooks/demo3-add-development-vm.yaml
+ansible-playbook -i inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo3-add-development-vm.yaml
 
 # Or using script wrapper
 ./demo-scripts/demo3-add-development-vm.sh
 
 # Or using interactive runner
-./demo-scripts/run-demos.sh
+./run-demos.sh
 # Select option '3'
 ```
 **Demonstrates:**
@@ -139,7 +139,7 @@ ansible-playbook -i inventory/localhost playbooks/demo3-add-development-vm.yaml
 
 ### Interactive Demo Runner
 ```bash
-./demo-scripts/run-demos.sh
+./run-demos.sh
 ```
 Provides a menu-driven interface to run all demos and utilities.
 
@@ -149,7 +149,7 @@ Provides a menu-driven interface to run all demos and utilities.
 ./demo-scripts/cleanup-demo3.sh
 
 # Or use Ansible directly
-ansible-playbook -i inventory/localhost playbooks/cleanup-demo3.yaml
+ansible-playbook -i inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/cleanup-demo3.yaml
 ```
 
 ## Cleanup
@@ -162,20 +162,20 @@ ansible-playbook -i inventory/localhost playbooks/cleanup-demo3.yaml
 **Or use Ansible playbooks directly:**
 ```bash
 # Remove workshop resources only
-ansible-playbook -i inventory/localhost playbooks/remove-workshop.yaml
+ansible-playbook -i inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/remove-workshop.yaml
 
 # Remove workshop resources and GitOps operator
-ansible-playbook -i inventory/localhost playbooks/remove-workshop.yaml -e remove_operator=true
+ansible-playbook -i inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/remove-workshop.yaml -e remove_operator=true
 ```
 
 ### Status Monitoring
 ```bash
 # Using interactive demo runner
-./demo-scripts/run-demos.sh
+./run-demos.sh
 # Select option 's' to check status
 
 # Direct Ansible playbook
-ansible-playbook -i inventory/localhost playbooks/check-workshop-status
+ansible-playbook -i inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/check-workshop-status
 
 # OpenShift CLI monitoring
 oc get applications.argoproj.io -n openshift-gitops
@@ -184,7 +184,7 @@ oc get vm -A | grep workshop-gitops
 
 ### Run All Demos Interactively
 ```bash
-./demo-scripts/run-demos.sh
+./run-demos.sh
 ```
 
 ## ArgoCD Applications
@@ -286,17 +286,17 @@ The workshop automatically detects and configures your OpenShift cluster's appli
 **Or use Ansible playbooks directly:**
 ```bash
 # Remove workshop resources only
-ansible-playbook -i inventory/localhost playbooks/remove-workshop.yaml
+ansible-playbook -i inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/remove-workshop.yaml
 
 # Remove workshop resources and GitOps operator
-ansible-playbook -i inventory/localhost playbooks/remove-workshop.yaml -e remove_operator=true
+ansible-playbook -i inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/remove-workshop.yaml -e remove_operator=true
 ```
 
 ### Status Monitoring
 
 **Ansible method:**
 ```bash
-ansible-playbook -i inventory/localhost playbooks/check-workshop-status.yaml
+ansible-playbook -i inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/check-workshop-status.yaml
 ```
 
 **Bash method:**
@@ -324,7 +324,7 @@ OpenShift-Virtualization-GitOps/          # Main workshop repository
 ├── README.md                            # This file
 ├── inventory/
 │   └── localhost                        # Ansible inventory for localhost
-├── playbooks/                           # Ansible playbooks
+├── /opt/OpenShift-Virtualization-GitOps/playbooks/                           # Ansible playbooks
 │   ├── install-workshop.yaml           # Complete workshop installation
 │   ├── remove-workshop.yaml            # Complete workshop removal
 │   ├── remove-gitops.yaml              # GitOps operator removal (legacy)
@@ -466,7 +466,7 @@ patches:
 
 ```bash
 # Comprehensive status check
-./demo-scripts/run-demos.sh
+./run-demos.sh
 # Select option 's' for status check
 
 # Verify all workshop components

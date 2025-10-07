@@ -152,4 +152,3 @@
           Applications: {{ apps_synced }}/{{ total_apps }} synced, {{ apps_healthy }}/{{ total_apps }} healthy
           Namespaces: {{ namespaces_exist }}/3 exist
           Status: {{ 'HEALTHY' if (apps_healthy | int == total_apps | int and apps_synced | int == total_apps | int and namespaces_exist | int == 3) else 'ISSUES DETECTED' }}
-

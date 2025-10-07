@@ -90,5 +90,5 @@
 
           Next steps:
           1. Access ArgoCD UI using the credentials above
-          2. Check workshop status: ansible-playbook -i inventory/localhost playbooks/check-workshop-status.yaml
-          3. Run demo playbooks in playbooks/ directory
+          2. Check workshop status: ansible-playbook -i inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/check-workshop-status.yaml
+          3. Run demo playbooks in /opt/OpenShift-Virtualization-GitOps/playbooks/ directory

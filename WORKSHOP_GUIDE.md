@@ -120,8 +120,7 @@ oc get vms -n workshop-gitops-vms-prd
 oc get vmi -A
 
 # Run complete verification using the demo script
-./demo-scripts/run-demos.sh
-# Select option 's' for status check
+./run-demos.sh s
 ```
 
 ### SSH Access to VMs
@@ -209,7 +208,7 @@ The workshop includes three main demonstrations that show GitOps capabilities in
 **Steps**:
 1. Use the interactive demo runner:
    ```bash
-   ./demo-scripts/run-demos.sh
+   ./run-demos.sh
    # Select option '1'
    ```
 
@@ -230,7 +229,7 @@ The workshop includes three main demonstrations that show GitOps capabilities in
 **Steps**:
 1. Use the interactive demo runner:
    ```bash
-   ./demo-scripts/run-demos.sh
+   ./run-demos.sh
    # Select option '2'
    ```
 
@@ -251,7 +250,7 @@ The workshop includes three main demonstrations that show GitOps capabilities in
 **Steps**:
 1. Use the interactive demo runner:
    ```bash
-   ./demo-scripts/run-demos.sh
+   ./run-demos.sh
    # Select option '3'
    ```
 
@@ -270,7 +269,7 @@ The workshop includes three main demonstrations that show GitOps capabilities in
 The main demo script provides a menu-driven interface:
 
 ```bash
-./demo-scripts/run-demos.sh
+./run-demos.sh
 ```
 
 **Available options**:
@@ -284,7 +283,7 @@ The main demo script provides a menu-driven interface:
 Check the current state of all workshop components:
 
 ```bash
-./demo-scripts/run-demos.sh
+./run-demos.sh
 # Select option 's'
 ```
 
@@ -408,7 +407,7 @@ Demonstrates live infrastructure updates through Git workflow.
 Use the interactive demo runner to easily run any demo:
 
 ```bash
-./demo-scripts/run-demos.sh
+./run-demos.sh
 ```
 
 This script provides a menu-driven interface to run any demo or check workshop status.
@@ -606,8 +605,8 @@ workshop-gitops-vms-prd     prd-vm-web-03   Running
 With the workshop installed manually, you can demonstrate:
 
 1. **GitOps in Action**: Make changes in the branches and show automatic synchronization
-2. **Drift Detection**: Use `ansible-playbook -i inventory/localhost playbooks/demo1-manual-change.yaml`
-3. **Automatic Recovery**: Use `ansible-playbook -i inventory/localhost playbooks/demo2-vm-recovery.yaml`
-4. **Git-based Provisioning**: Use `ansible-playbook -i inventory/localhost playbooks/demo3-add-development-vm.yaml`
+2. **Drift Detection**: Use `ansible-playbook -i inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo1-manual-change.yaml`
+3. **Automatic Recovery**: Use `ansible-playbook -i inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo2-vm-recovery.yaml`
+4. **Git-based Provisioning**: Use `ansible-playbook -i inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo3-add-development-vm.yaml`
 5. **ArgoCD Interface**: Show the web UI with synchronized applications
 6. **Continuous Checks**: Use `./demo-scripts/check-status.sh` at any time

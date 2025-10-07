@@ -35,13 +35,13 @@ ansible-galaxy install -r requirements.yml
 Run the install playbook:
 
 ```bash
-ansible-playbook -i inventory/localhost playbooks/install-gitops.yaml
+ansible-playbook -i inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/install-gitops.yaml
 ```
 
 Run the removal playbook:
 
 ```bash
-ansible-playbook -i inventory/localhost playbooks/remove-gitops.yaml
+ansible-playbook -i inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/remove-gitops.yaml
 ```
 
 Notes:
