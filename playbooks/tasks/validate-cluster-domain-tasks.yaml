@@ -26,37 +26,32 @@
       ansible.builtin.debug:
         msg: "Detected cluster domain: {{ cluster_domain }}"
 
-    - name: Switch to vms-dev branch and ensure it is up-to-date
-      ansible.builtin.git:
-        repo: "{{ apps_repo_url }}"
-        dest: "{{ apps_repo_path }}"
-        version: vms-dev
-        update: true
+    - name: Read dev kustomization file
+      ansible.builtin.slurp:
+        path: "{{ apps_repo_path }}/overlays/dev/kustomization.yaml"
       delegate_to: localhost
+      register: kustomization_dev_raw
 
-    - name: Extract current dev domain
-      ansible.builtin.shell:
-        cmd: |
-          set -o pipefail
-          grep -o "value: dev-workshop-gitops-vms\.[^\"]*" "{{ apps_repo_path }}/overlays/dev/kustomization.yaml" | sed 's/value: //' || echo ""
-      register: current_dev_domain
-      changed_when: false
+    - name: Read hml kustomization file
+      ansible.builtin.slurp:
+        path: "{{ apps_repo_path }}/overlays/hml/kustomization.yaml"
+      delegate_to: localhost
+      register: kustomization_hml_raw
 
-    - name: Extract current hml domain
-      ansible.builtin.shell:
-        cmd: |
-          set -o pipefail
-          grep -o "value: hml-workshop-gitops-vms\.[^\"]*" "{{ apps_repo_path }}/overlays/hml/kustomization.yaml" | sed 's/value: //' || echo ""
-      register: current_hml_domain
-      changed_when: false
+    - name: Read prd kustomization file
+      ansible.builtin.slurp:
+        path: "{{ apps_repo_path }}/overlays/prd/kustomization.yaml"
+      delegate_to: localhost
+      register: kustomization_prd_raw
 
-    - name: Extract current prd domain
-      ansible.builtin.shell:
-        cmd: |
-          set -o pipefail
-          grep -o "value: workshop-gitops-vms\.[^\"]*" "{{ apps_repo_path }}/overlays/prd/kustomization.yaml" | sed 's/value: //' || echo ""
-      register: current_prd_domain
-      changed_when: false
+    - name: Extract current domains using simple regex
+      ansible.builtin.set_fact:
+        current_dev_domain: >-
+          {{ (kustomization_dev_raw.content | b64decode) | regex_search('value:\s+(dev-workshop-gitops-vms\.[^\s]+)', '\1') | first | default('') }}
+        current_hml_domain: >-
+          {{ (kustomization_hml_raw.content | b64decode) | regex_search('value:\s+(hml-workshop-gitops-vms\.[^\s]+)', '\1') | first | default('') }}
+        current_prd_domain: >-
+          {{ (kustomization_prd_raw.content | b64decode) | regex_search('value:\s+(workshop-gitops-vms\.[^\s]+)', '\1') | first | default('') }}
 
     - name: Set expected domain variables
       ansible.builtin.set_fact:
@@ -67,20 +62,20 @@
     - name: Display current and expected domain configurations
       ansible.builtin.debug:
         msg:
-          - "Current dev domain: {{ current_dev_domain.stdout }}"
+          - "Current dev domain: {{ current_dev_domain }}"
           - "Expected dev domain: {{ expected_dev_domain }}"
-          - "Current hml domain: {{ current_hml_domain.stdout }}"
+          - "Current hml domain: {{ current_hml_domain }}"
           - "Expected hml domain: {{ expected_hml_domain }}"
-          - "Current prd domain: {{ current_prd_domain.stdout }}"
+          - "Current prd domain: {{ current_prd_domain }}"
           - "Expected prd domain: {{ expected_prd_domain }}"
 
     - name: Check if an update is needed
       ansible.builtin.set_fact:
         update_needed: >-
           {{
-            (current_dev_domain.stdout != expected_dev_domain) or
-            (current_hml_domain.stdout != expected_hml_domain) or
-            (current_prd_domain.stdout != expected_prd_domain)
+            (current_dev_domain != expected_dev_domain) or
+            (current_hml_domain != expected_hml_domain) or
+            (current_prd_domain != expected_prd_domain)
           }}
 
     - name: Update environment domains if necessary
@@ -89,20 +84,20 @@
         - name: Update dev environment domain
           ansible.builtin.replace:
             path: "{{ apps_repo_path }}/overlays/dev/kustomization.yaml"
-            regexp: 'value: dev-workshop-gitops-vms\.[^"]*'
-            replace: "value: {{ expected_dev_domain }}"
+            regexp: '(\s+value:\s+)dev-workshop-gitops-vms\.[^\s]*'
+            replace: '\1{{ expected_dev_domain }}'
 
         - name: Update hml environment domain
           ansible.builtin.replace:
             path: "{{ apps_repo_path }}/overlays/hml/kustomization.yaml"
-            regexp: 'value: hml-workshop-gitops-vms\.[^"]*'
-            replace: "value: {{ expected_hml_domain }}"
+            regexp: '(\s+value:\s+)hml-workshop-gitops-vms\.[^\s]*'
+            replace: '\1{{ expected_hml_domain }}'
 
         - name: Update prd environment domain
           ansible.builtin.replace:
             path: "{{ apps_repo_path }}/overlays/prd/kustomization.yaml"
-            regexp: 'value: workshop-gitops-vms\.[^"]*'
-            replace: "value: {{ expected_prd_domain }}"
+            regexp: '(\s+value:\s+)workshop-gitops-vms\.[^\s]*'
+            replace: '\1{{ expected_prd_domain }}'
 
     - name: Commit and push domain configuration changes
       when: update_needed and auto_commit

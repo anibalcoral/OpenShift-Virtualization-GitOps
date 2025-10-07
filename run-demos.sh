@@ -33,29 +33,29 @@ case $choice in
         log "Running Demo 1: Manual Change Detection and Drift Correction"
         echo ""
         cd "$(dirname "$0")/.."
-        ansible-playbook -i inventory/localhost /opt/OpenShift-Virtualization-GitOps//opt/OpenShift-Virtualization-GitOps/playbooks/demo1-manual-change.yaml
+        ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps//opt/OpenShift-Virtualization-GitOps/playbooks/demo1-manual-change.yaml
         ;;
     2)
         log "Running Demo 2: VM Recovery from Data Loss"
         echo ""
         cd "$(dirname "$0")/.."
-        ansible-playbook -i inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo2-vm-recovery.yaml
+        ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo2-vm-recovery.yaml
         ;;
     3)
         log "Running Demo 3: Adding New Development VM via Git Change"
         echo ""
-        ansible-playbook -i inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo3-add-development-vm.yaml
+        ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo3-add-development-vm.yaml
         ;;
     s|S)
         log "Checking workshop status..."
         echo ""
         cd "$(dirname "$0")/.."
-        ansible-playbook -i inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/check-workshop-status.yaml
+        ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/check-workshop-status.yaml
         ;;
     c|C)
         log "Running Demo 3 cleanup..."
         echo ""
-        ansible-playbook -i inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/cleanup-demo3.yaml
+        ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/cleanup-demo3.yaml
         ;;
     q|Q)
         log "Exiting demo runner..."
@@ -66,15 +66,15 @@ case $choice in
         echo ""
         cd "$(dirname "$0")/.."
         log "Running Demo 1..."
-        ansible-playbook -i inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo1-manual-change.yaml
+        ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo1-manual-change.yaml
         echo ""
         log "Running Demo 2..."
-        ansible-playbook -i inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo2-vm-recovery.yaml
+        ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo2-vm-recovery.yaml
         echo ""
         log "Running Demo 3..."
-        ansible-playbook -i inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo3-add-development-vm.yaml
+        ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo3-add-development-vm.yaml
         echo ""
-        ansible-playbook -i inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/cleanup-demo3.yaml
+        ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/cleanup-demo3.yaml
         ;;
     *)
         log_error "Invalid choice. Please select 1-3, a, s, c, or q."

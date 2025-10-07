@@ -605,8 +605,8 @@ workshop-gitops-vms-prd     prd-vm-web-03   Running
 With the workshop installed manually, you can demonstrate:
 
 1. **GitOps in Action**: Make changes in the branches and show automatic synchronization
-2. **Drift Detection**: Use `ansible-playbook -i inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo1-manual-change.yaml`
-3. **Automatic Recovery**: Use `ansible-playbook -i inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo2-vm-recovery.yaml`
-4. **Git-based Provisioning**: Use `ansible-playbook -i inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo3-add-development-vm.yaml`
+2. **Drift Detection**: Use `ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo1-manual-change.yaml`
+3. **Automatic Recovery**: Use `ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo2-vm-recovery.yaml`
+4. **Git-based Provisioning**: Use `ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo3-add-development-vm.yaml`
 5. **ArgoCD Interface**: Show the web UI with synchronized applications
 6. **Continuous Checks**: Use `./demo-scripts/check-status.sh` at any time

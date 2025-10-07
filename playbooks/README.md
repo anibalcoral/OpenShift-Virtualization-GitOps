@@ -6,7 +6,7 @@ This directory contains the Ansible playbooks used to install and remove the Ope
 
 - Ansible and `ansible-playbook` installed on the host running the playbooks
 - `oc` CLI installed and configured with cluster-admin privileges
-- The inventory file located at `../inventory/localhost` (included in this repository)
+- The inventory file located at `..//opt/OpenShift-Virtualization-GitOps/inventory/localhost` (included in this repository)
 - Optional: install Ansible requirements (collections/roles) listed in `../requirements.yml`
 
 Install any required collections/roles before running the playbooks:
@@ -35,13 +35,13 @@ ansible-galaxy install -r requirements.yml
 Run the install playbook:
 
 ```bash
-ansible-playbook -i inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/install-gitops.yaml
+ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/install-gitops.yaml
 ```
 
 Run the removal playbook:
 
 ```bash
-ansible-playbook -i inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/remove-gitops.yaml
+ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/remove-gitops.yaml
 ```
 
 Notes:
