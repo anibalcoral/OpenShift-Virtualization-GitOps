@@ -12,8 +12,8 @@ Before starting the workshop, ensure you have:
 - Both repositories cloned locally on `/opt` directory:
   ```bash
   cd /opt
-  git clone https://github.com/anibalcoral/OpenShift-Virtualization-GitOps.git
-  git clone https://github.com/anibalcoral/OpenShift-Virtualization-GitOps-Apps.git
+  git clone git@github.com:anibalcoral/OpenShift-Virtualization-GitOps.git
+  git clone git@github.com:anibalcoral/OpenShift-Virtualization-GitOps-Apps.git
   ```
 
 **Note**: The Apps repository must be cloned

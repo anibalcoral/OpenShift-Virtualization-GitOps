@@ -4,7 +4,7 @@
   gather_facts: true
   vars:
     apps_repo_path: "/opt/OpenShift-Virtualization-GitOps-Apps"
-    apps_repo_url: "https://github.com/anibalcoral/OpenShift-Virtualization-GitOps-Apps.git"
+    apps_repo_url: "git@github.com:anibalcoral/OpenShift-Virtualization-GitOps-Apps.git"
     skip_ssh_setup: false
     auto_commit: true
 

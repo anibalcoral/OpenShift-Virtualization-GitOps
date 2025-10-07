@@ -10,5 +10,5 @@ spec:
   project: default
   source:
     path: overlays/prd
-    repoURL: https://github.com/anibalcoral/OpenShift-Virtualization-GitOps-Apps.git
+    repoURL: git@github.com:anibalcoral/OpenShift-Virtualization-GitOps-Apps.git
     targetRevision: main
