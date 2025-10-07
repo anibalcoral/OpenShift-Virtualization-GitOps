@@ -79,8 +79,7 @@ echo "Password: $(oc get secret openshift-gitops-cluster -n openshift-gitops -o 
 **Check workshop status:**
 ```bash
 # Using interactive demo runner
-./run-demos.sh
-# Select option 's' to check status
+./run-demos.sh s
 ```
 
 ## Workshop Demonstrations
@@ -93,6 +92,10 @@ ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /op
 # Using interactive runner
 ./run-demos.sh
 # Select option '1'
+
+# Direct using run-demos.sh with parameter
+./run-demos.sh 1
+
 ```
 - Manual modifications to VM resources
 - ArgoCD detecting "OutOfSync" status
@@ -112,6 +115,9 @@ ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /op
 # Or using interactive runner
 ./run-demos.sh
 # Select option '2'
+
+# Direct using run-demos.sh with parameter
+./run-demos.sh 2
 ```
 **Demonstrates:**
 - Complete VM deletion (simulating data loss)
@@ -124,12 +130,12 @@ ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /op
 # Using Ansible playbook
 ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo3-add-development-vm.yaml
 
-# Or using script wrapper
-./demo-scripts/demo3-add-development-vm.sh
-
 # Or using interactive runner
 ./run-demos.sh
 # Select option '3'
+
+# Direct using run-demos.sh with parameter
+./run-demos.sh 3
 ```
 **Demonstrates:**
 - Git-based workflow for infrastructure changes
@@ -145,10 +151,6 @@ Provides a menu-driven interface to run all demos and utilities.
 
 ### Demo Cleanup
 ```bash
-# Clean up Demo 3 artifacts
-./demo-scripts/cleanup-demo3.sh
-
-# Or use Ansible directly
 ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/cleanup-demo3.yaml
 ```
 
@@ -163,9 +165,6 @@ ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /op
 ```bash
 # Remove workshop resources only
 ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/remove-workshop.yaml
-
-# Remove workshop resources and GitOps operator
-ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/remove-workshop.yaml -e remove_operator=true
 ```
 
 ### Status Monitoring
@@ -175,7 +174,7 @@ ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /op
 # Select option 's' to check status
 
 # Direct Ansible playbook
-ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/check-workshop-status
+ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/check-workshop-status.yaml
 
 # OpenShift CLI monitoring
 oc get applications.argoproj.io -n openshift-gitops
@@ -184,7 +183,7 @@ oc get vm -A | grep workshop-gitops
 
 ### Run All Demos Interactively
 ```bash
-./run-demos.sh
+./run-demos.sh a
 ```
 
 ## ArgoCD Applications
