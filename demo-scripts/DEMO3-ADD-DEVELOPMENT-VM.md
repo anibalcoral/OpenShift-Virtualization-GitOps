@@ -152,7 +152,7 @@ spec:
       - sshPublicKey:
           source:
             secret:
-              secretName: workshop-ssh-key
+              secretName: workshop-ssh-public-key
           propagationMethod:
             noCloud: {}
 EOF
