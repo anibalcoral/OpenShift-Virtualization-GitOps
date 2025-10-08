@@ -1,5 +1,11 @@
 ---
 # Tasks for installing GitOps operator and applications
+
+- name: Read SSH private key
+  ansible.builtin.slurp:
+    src: "{{ ansible_env.HOME }}/.ssh/ocpvirt-gitops"
+  register: ssh_private_key_content
+
 - name: Apply GitOps operator subscription
   kubernetes.core.k8s:
     definition:
@@ -43,11 +49,6 @@
         kind: ClusterRole
         name: cluster-admin
 
-- name: Read SSH private key
-  ansible.builtin.slurp:
-    src: "{{ ansible_env.HOME }}/.ssh/ocpvirt-gitops"
-  register: ssh_private_key_content
-
 - name: Create workshop namespaces for all environments
   kubernetes.core.k8s:
     state: present
@@ -64,7 +65,7 @@
     - hml
     - prd
 
-- name: Create SSH secret for repository access
+- name: Create SSH secret for Apps repository access
   kubernetes.core.k8s:
     definition:
       apiVersion: v1
@@ -77,7 +78,8 @@
       type: Opaque
       stringData:
         type: git
-        url: git@github.com:anibalcoral/OpenShift-Virtualization-GitOps.git
+        url: git@github.com:anibalcoral/OpenShift-Virtualization-GitOps-Apps.git
+        sshPrivateKey: "{{ ssh_private_key_content.content | b64decode }}"
 
 - name: Apply workshop SSH secret to namespaces
   kubernetes.core.k8s:
