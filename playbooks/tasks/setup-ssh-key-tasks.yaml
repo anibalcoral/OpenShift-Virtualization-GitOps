@@ -33,13 +33,13 @@
       Please clone the Apps repository first
   when: not apps_repo.stat.exists
 
-- name: Create SSH secret YAML file
-  ansible.builtin.template:
-    src: ssh-secret.yaml.j2
-    dest: "{{ apps_repo_path }}/base/ssh-secret.yaml"
-    mode: '0644'
-  vars:
-    ssh_key: "{{ ssh_public_key }}"
+#- name: Create SSH secret YAML file
+#  ansible.builtin.template:
+#    src: ssh-secret.yaml.j2
+#    dest: "{{ apps_repo_path }}/base/ssh-secret.yaml"
+#    mode: '0644'
+#  vars:
+#    ssh_key: "{{ ssh_public_key }}"
 
 - name: Display success message
   ansible.builtin.debug:
