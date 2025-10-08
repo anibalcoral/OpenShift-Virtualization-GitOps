@@ -83,18 +83,13 @@
 
 - name: Apply workshop SSH secret to namespaces
   kubernetes.core.k8s:
-    src: "{{ apps_repo_path }}/base/ssh-secret.yaml"
+    template: "ssh-secret-vms.yaml.j2"
     namespace: "{{ item }}"
     state: present
   loop:
     - workshop-gitops-vms-dev
     - workshop-gitops-vms-hml
     - workshop-gitops-vms-prd
-
-- name: Execute checkout on base/ssh-secret.yaml
-  ansible.builtin.command:
-    cmd: git checkout base/ssh-secret.yaml
-    chdir: "{{ apps_repo_path }}"
 
 - name: Create workshop namespaces
   kubernetes.core.k8s:
