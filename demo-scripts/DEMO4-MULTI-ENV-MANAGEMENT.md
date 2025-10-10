@@ -196,14 +196,14 @@ oc get vm dev-vm-web-09 -n workshop-gitops-vms-dev -o yaml | grep -A 3 -B 3 "dem
 1. Promote the base change to homologation:
 ```bash
 git checkout vms-hml
-git merge vms-dev --no-ff -m "Promote base template changes from development to homologation"
+git merge vms-dev -m "Promote base template changes from development to homologation"
 git push origin vms-hml
 ```
 
 2. Promote to production:
 ```bash
 git checkout main
-git merge vms-hml --no-ff -m "Promote base template changes from homologation to production"
+git merge vms-hml -m "Promote base template changes from homologation to production"
 git push origin main
 ```
 
@@ -305,11 +305,11 @@ git push origin vms-dev
 
 # Promote removal through environments
 git checkout vms-hml
-git merge vms-dev --no-ff -m "Remove vm-web-09 from homologation"
+git merge vms-dev -m "Remove vm-web-09 from homologation"
 git push origin vms-hml
 
 git checkout main
-git merge vms-hml --no-ff -m "Remove vm-web-09 from production"
+git merge vms-hml -m "Remove vm-web-09 from production"
 git push origin main
 ```
 

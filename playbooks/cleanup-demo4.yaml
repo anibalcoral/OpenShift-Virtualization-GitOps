@@ -58,9 +58,6 @@
       ansible.builtin.file:
         path: "{{ apps_repo_path }}"
         state: directory
-        owner: "{{ ansible_user }}"
-        group: "{{ ansible_user }}"
-        mode: '0755'
 
     - name: Get current Git branch
       ansible.builtin.shell:
@@ -163,7 +160,7 @@
 
     - name: Merge development cleanup to homologation
       ansible.builtin.shell:
-        cmd: git merge vms-dev --no-ff -m "Remove vm-web-09 from homologation environment - Demo 4 cleanup"
+        cmd: git merge vms-dev -m "Remove vm-web-09 from homologation environment - Demo 4 cleanup"
         chdir: "{{ apps_repo_path }}"
       register: merge_hml_cleanup
       when: commit_dev_cleanup.changed
@@ -200,7 +197,7 @@
 
     - name: Merge homologation cleanup to production
       ansible.builtin.shell:
-        cmd: git merge vms-hml --no-ff -m "Remove vm-web-09 from production environment - Demo 4 cleanup"
+        cmd: git merge vms-hml -m "Remove vm-web-09 from production environment - Demo 4 cleanup"
         chdir: "{{ apps_repo_path }}"
       register: merge_prd_cleanup
       when: merge_hml_cleanup.changed
