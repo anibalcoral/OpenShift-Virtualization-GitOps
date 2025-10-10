@@ -169,10 +169,6 @@
         namespace: openshift-gitops
       register: argocd_secret
 
-    - name: Debug argocd secret
-      ansible.builtin.debug:
-        var: argocd_secret
-
     - name: Display ArgoCD access information
       ansible.builtin.debug:
         msg: |
