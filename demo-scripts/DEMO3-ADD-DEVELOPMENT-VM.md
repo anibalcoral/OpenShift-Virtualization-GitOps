@@ -41,7 +41,7 @@ oc get vm dev-vm-web-09 -n workshop-gitops-vms-dev
 
 1. Change to your Git repository directory:
 ```bash
-cd /path/to/OpenShift-Virtualization-GitOps-Apps
+cd /opt/OpenShift-Virtualization-GitOps-Apps
 ```
 
 2. Ensure you're on the correct branch:
@@ -176,7 +176,6 @@ kind: Kustomization
 
 resources:
   - vm-web-09.yaml
-  - ssh-secret.yaml
   - vm-web-01.yaml
   - vm-web-02.yaml
   - vm-web-service.yaml
@@ -366,7 +365,7 @@ To remove the new VM after the demo:
 
 1. Remove from kustomization:
 ```bash
-cd /path/to/OpenShift-Virtualization-GitOps-Apps
+cd /opt/OpenShift-Virtualization-GitOps-Apps
 ```
 
 2. Delete the VM file:

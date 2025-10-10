@@ -264,6 +264,29 @@ The workshop includes three main demonstrations that show GitOps capabilities in
 - Code review workflows for infrastructure
 - Environment-specific configurations
 
+### Demo 4: Multi-Environment VM Management with Kustomize
+
+**Purpose**: Demonstrate advanced GitOps practices for managing VMs across multiple environments using Kustomize overlays and Git branch promotion.
+
+**Steps**:
+1. Use the interactive demo runner:
+   ```bash
+   ./run-demos.sh
+   # Select option '4'
+   ```
+
+2. This demonstrates:
+   - Promoting VM changes from development → homologation → production
+   - Environment-specific configurations using Kustomize overlays
+   - Centralized base template management
+   - Branch-based promotion strategies
+
+**Learning Objectives**:
+- Multi-environment GitOps workflows
+- Kustomize for environment-specific configurations
+- Safe promotion pipelines using Git branches
+- DRY principle in infrastructure management
+
 ### Interactive Demo Runner
 
 The main demo script provides a menu-driven interface:
@@ -273,9 +296,11 @@ The main demo script provides a menu-driven interface:
 ```
 
 **Available options**:
-- `1-3`: Individual demos
+- `1-4`: Individual demos
 - `a`: Run all demos sequentially  
 - `s`: Check workshop status
+- `c`: Cleanup Demo 3 resources
+- `d`: Cleanup Demo 4 resources
 - `q`: Quit
 
 ### Status Checking

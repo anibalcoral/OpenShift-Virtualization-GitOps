@@ -164,6 +164,29 @@ Using the doc [DEMO3-ADD-DEVELOPMENT-VM.md](demo-scripts/DEMO3-ADD-DEVELOPMENT-V
 - Automatic deployment through ArgoCD
 - Environment-specific customizations
 
+### Demo 4: Multi-Environment VM Management with Kustomize
+```bash
+# Using Ansible playbook
+ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo4-multi-env-management.yaml
+
+# Or using interactive runner
+./run-demos.sh
+# Select option '4'
+
+# Direct using run-demos.sh with parameter
+./run-demos.sh 4
+
+```
+**Step By Step to run Demo 4**
+
+Using the doc [DEMO4-MULTI-ENV-MANAGEMENT.md](demo-scripts/DEMO4-MULTI-ENV-MANAGEMENT.md)
+
+**Demonstrates:**
+- Branch-based environment promotion (dev → hml → prod)
+- Kustomize overlays for environment-specific configurations
+- Centralized base template management across environments
+- GitOps promotion strategies and multi-environment consistency
+
 ### Interactive Demo Runner
 ```bash
 ./run-demos.sh
@@ -173,6 +196,11 @@ Provides a menu-driven interface to run all demos and utilities.
 ### Demo 3 Cleanup
 ```bash
 ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/cleanup-demo3.yaml
+```
+
+### Demo 4 Cleanup
+```bash
+ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/cleanup-demo4.yaml
 ```
 
 ## Cleanup
@@ -330,6 +358,9 @@ OpenShift-Virtualization-GitOps/          # Main workshop repository
 │   ├── demo1-manual-change.yaml        # Demo 1: Manual change detection
 │   ├── demo2-vm-recovery.yaml          # Demo 2: VM recovery
 │   ├── demo3-add-development-vm.yaml   # Demo 3: Add Virtual Machine
+│   ├── demo4-multi-env-management.yaml # Demo 4: Multi-environment management
+│   ├── cleanup-demo3.yaml              # Demo 3 cleanup
+│   ├── cleanup-demo4.yaml              # Demo 4 cleanup
 │   └── templates/                      # Ansible templates
 │       └── ssh-secret.yaml.j2         # SSH secret template
 ├── manual-install/                      # Manual installation manifests
@@ -344,7 +375,8 @@ OpenShift-Virtualization-GitOps/          # Main workshop repository
     ├── demo-functions.sh                # Common demo functions
     ├── DEMO1-MANUAL-CHANGE.md           # Demo 1 documentation
     ├── DEMO2-VM-RECOVERY.md             # Demo 2 documentation
-    └── DEMO3-ADD-DEVELOPMENT-VM.md      # Demo 3 documentation
+    ├── DEMO3-ADD-DEVELOPMENT-VM.md      # Demo 3 documentation
+    └── DEMO4-MULTI-ENV-MANAGEMENT.md    # Demo 4 documentation
 
 OpenShift-Virtualization-GitOps-Apps/    # Companion Apps repository
 ├── base/                                # Base VM templates and resources

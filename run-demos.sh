@@ -12,17 +12,19 @@ echo "Available demos:"
 echo "1. Manual Change Detection and Drift Correction"
 echo "2. VM Recovery from Data Loss (Removing and Recreating VM)"
 echo "3. Adding New Development VM via Git Change"
+echo "4. Multi-Environment VM Management with Kustomize"
 echo ""
 echo "Utility options:"
 echo "a. Run all demos sequentially"
 echo "s. Check workshop status"
 echo "c. Cleanup Demo 3 resources"
+echo "d. Cleanup Demo 4 resources"
 echo "q. Quit"
 echo ""
 
 # if no parameter has been passed, show menu
 if [ $# -eq 0 ]; then
-    read -p "Select demo to run (1-3, a, s, c, q): " choice
+    read -p "Select demo to run (1-4, a, s, c, d, q): " choice
 else
     choice=$1
 fi
@@ -46,6 +48,11 @@ case $choice in
         echo ""
         ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo3-add-development-vm.yaml
         ;;
+    4)
+        log "Running Demo 4: Multi-Environment VM Management with Kustomize"
+        echo ""
+        ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo4-multi-env-management.yaml
+        ;;
     s|S)
         log "Checking workshop status..."
         echo ""
@@ -56,6 +63,11 @@ case $choice in
         log "Running Demo 3 cleanup..."
         echo ""
         ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/cleanup-demo3.yaml
+        ;;
+    d|D)
+        log "Running Demo 4 cleanup..."
+        echo ""
+        ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/cleanup-demo4.yaml
         ;;
     q|Q)
         log "Exiting demo runner..."
@@ -74,10 +86,15 @@ case $choice in
         log "Running Demo 3..."
         ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo3-add-development-vm.yaml
         echo ""
+        log "Running Demo 4..."
+        ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo4-multi-env-management.yaml
+        echo ""
         ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/cleanup-demo3.yaml
+        echo ""
+        ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/cleanup-demo4.yaml
         ;;
     *)
-        log_error "Invalid choice. Please select 1-3, a, s, c, or q."
+        log_error "Invalid choice. Please select 1-4, a, s, c, d, or q."
         ;;
 esac
 

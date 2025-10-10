@@ -11,6 +11,7 @@ This directory contains interactive demo scripts for the OpenShift GitOps with O
 - `DEMO1-MANUAL-CHANGE.md` - Demo 1 detailed documentation
 - `DEMO2-VM-RECOVERY.md` - Demo 2 detailed documentation  
 - `DEMO3-ADD-DEVELOPMENT-VM.md` - Demo 3 detailed documentation
+- `DEMO4-MULTI-ENV-MANAGEMENT.md` - Demo 4 detailed documentation
 
 ## Demo Summaries
 
@@ -32,6 +33,12 @@ This directory contains interactive demo scripts for the OpenShift GitOps with O
 - Demonstrates automatic deployment through ArgoCD
 - Includes cleanup utilities for demo repeatability
 
+**Demo 4: Multi-Environment VM Management with Kustomize**
+- Promotes VM changes through development → homologation → production environments
+- Demonstrates Kustomize overlays for environment-specific configurations
+- Shows centralized base template management across environments
+- Illustrates branch-based promotion strategies in GitOps workflows
+
 ## Ansible Playbook Equivalents
 
 The demo scripts call these Ansible playbooks:
@@ -49,8 +56,14 @@ ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /op
 # Demo 3: Add development VM
 ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo3-add-development-vm.yaml
 
+# Demo 4: Multi-environment management
+ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo4-multi-env-management.yaml
+
 # Demo 3 cleanup: Remove development VM
 ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/cleanup-demo3.yaml
+
+# Demo 4 cleanup: Remove multi-environment VMs
+ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/cleanup-demo4.yaml
 ```
 
 ## Features
@@ -63,18 +76,30 @@ ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /op
 
 ## Cleanup
 
-Demo 3 creates Git changes and cluster resources. Clean up using:
+Demo 3 and Demo 4 create Git changes and cluster resources. Clean up using:
 
 ```bash
+# Clean up Demo 3
 ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/cleanup-demo3.yaml
+
+# Clean up Demo 4  
+ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/cleanup-demo4.yaml
 ```
 
-The cleanup process:
+The cleanup processes:
+
+**Demo 3 Cleanup:**
 - Removes vm-web-09.yaml from Git repository
 - Updates kustomization.yaml to exclude the VM
 - Commits and pushes cleanup changes
 - Triggers ArgoCD sync with prune to remove cluster resources
 - Restores development environment to baseline (2 VMs)
+
+**Demo 4 Cleanup:**
+- Removes vm-web-09 from all environments through Git branch promotion
+- Uses the same promotion flow (dev → hml → prod) for consistent cleanup
+- ArgoCD automatically removes VMs from all namespaces
+- Maintains GitOps principles during cleanup process
 
 ## See also
 

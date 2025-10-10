@@ -84,8 +84,6 @@ oc patch applications.argoproj.io workshop-gitops-vms-dev -n openshift-gitops --
 oc get applications.argoproj.io workshop-gitops-vms-dev -n openshift-gitops -o jsonpath='{.status.sync.status}'
 ```
 
-
-
 **Expected Result**: Sync status should return to "Synced"
 
 ### Step 5: Verify Configuration Restoration
