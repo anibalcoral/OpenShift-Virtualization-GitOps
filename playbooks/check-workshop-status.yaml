@@ -168,7 +168,11 @@
         name: openshift-gitops-cluster
         namespace: openshift-gitops
       register: argocd_secret
-  
+
+    - name: Debug argocd secret
+      ansible.builtin.debug:
+        var: argocd_secret
+
     - name: Display ArgoCD access information
       ansible.builtin.debug:
         msg: |
@@ -176,4 +180,4 @@
           ========================
           URL: https://{{ argocd_route.resources[0].spec.host }}
           Username: admin
-          Password: {{ argocd_secret.resources[0].data.password | b64decode }}
+          Password: {{ argocd_secret.resources[0].data['admin.password'] | b64decode }}
