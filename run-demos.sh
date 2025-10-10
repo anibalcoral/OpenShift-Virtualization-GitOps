@@ -17,6 +17,7 @@ echo ""
 echo "Utility options:"
 echo "a. Run all demos sequentially"
 echo "s. Check workshop status"
+echo "h. Clean up SSH known_hosts (resolves SSH host key conflicts)"
 echo "c. Cleanup Demo 3 resources"
 echo "d. Cleanup Demo 4 resources"
 echo "q. Quit"
@@ -24,7 +25,7 @@ echo ""
 
 # if no parameter has been passed, show menu
 if [ $# -eq 0 ]; then
-    read -p "Select demo to run (1-4, a, s, c, d, q): " choice
+    read -p "Select demo to run (1-4, a, s, h, c, d, q): " choice
 else
     choice=$1
 fi
@@ -58,6 +59,11 @@ case $choice in
         echo ""
         cd "$(dirname "$0")/.."
         ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/check-workshop-status.yaml
+        ;;
+    h|H)
+        log "Cleaning up SSH known_hosts for workshop VMs..."
+        echo ""
+        ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/cleanup-ssh-known-hosts.yaml
         ;;
     c|C)
         log "Running Demo 3 cleanup..."
@@ -94,7 +100,7 @@ case $choice in
         ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/cleanup-demo4.yaml
         ;;
     *)
-        log_error "Invalid choice. Please select 1-4, a, s, c, d, or q."
+        log_error "Invalid choice. Please select 1-4, a, s, h, c, d, or q."
         ;;
 esac
 

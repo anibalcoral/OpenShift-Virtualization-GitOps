@@ -486,6 +486,9 @@ patches:
    # Test VM console access first
    virtctl console <vm-name> -n <namespace>
 
+   # Clean up SSH known_hosts conflicts (common issue)
+   ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/cleanup-ssh-known-hosts.yaml
+
    # Test SSH to Virtual Machine
    virtctl ssh cloud-user@<vm-name>
    ```

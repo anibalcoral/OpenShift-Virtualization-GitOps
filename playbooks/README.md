@@ -38,6 +38,13 @@ ansible-galaxy install -r requirements.yml
     - Verifies ArgoCD applications sync status
     - Reports on VM deployment status across all environments
 
+- `cleanup-ssh-known-hosts.yaml`
+  - Purpose: Cleans up SSH known_hosts entries for workshop VMs
+  - Main actions:
+    - Removes conflicting SSH host keys from ~/.ssh/known_hosts
+    - Cleans up entries created by virtctl ssh connections
+    - Resolves SSH host key verification issues
+
 ## Demo Playbooks
 
 - `demo1-manual-change.yaml`
@@ -153,6 +160,14 @@ Check workshop status:
 
 ```bash
 ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/check-workshop-status.yaml
+```
+
+### SSH Known Hosts Cleanup
+
+Clean up SSH known_hosts for VM connections (resolves SSH host key conflicts):
+
+```bash
+ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/cleanup-ssh-known-hosts.yaml
 ```
 
 ## Verification

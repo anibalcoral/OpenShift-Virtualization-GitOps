@@ -140,6 +140,9 @@
         namespace: "{{ argocd_namespace }}"
       failed_when: false
 
+    - name: Cleanup SSH known_hosts for workshop VMs
+      ansible.builtin.include_tasks: tasks/cleanup-ssh-known-hosts-tasks.yaml
+
 #    - name: Remove GitOps operator (if requested)
 #      kubernetes.core.k8s:
 #        state: absent

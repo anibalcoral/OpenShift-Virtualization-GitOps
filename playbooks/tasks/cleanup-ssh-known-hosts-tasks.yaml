@@ -1,0 +1,58 @@
+---
+# Tasks for cleaning up SSH known_hosts entries for workshop VMs
+- name: Check if known_hosts file exists
+  ansible.builtin.stat:
+    path: "{{ ansible_env.HOME }}/.ssh/known_hosts"
+  register: known_hosts_file
+
+- name: Get cluster domain for VM hostname pattern
+  kubernetes.core.k8s_info:
+    api_version: config.openshift.io/v1
+    kind: Ingress
+    name: cluster
+  register: cluster_ingress
+  when: known_hosts_file.stat.exists
+
+- name: Set cluster domain fact
+  ansible.builtin.set_fact:
+    cluster_domain: "{{ cluster_ingress.resources[0].spec.domain }}"
+  when: known_hosts_file.stat.exists and cluster_ingress.resources | length > 0
+
+- name: Remove known_hosts entries for workshop VMs
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_env.HOME }}/.ssh/known_hosts"
+    regexp: "^.*{{ item }}.*$"
+    state: absent
+  loop:
+    - "dev-vm-web-01"
+    - "dev-vm-web-02"
+    - "hml-vm-web-01"
+    - "hml-vm-web-02"
+    - "vm-web-01"
+    - "vm-web-02"
+  when: known_hosts_file.stat.exists
+  failed_when: false
+
+- name: Remove known_hosts entries for workshop VM IPs (virtctl ssh pattern)
+  ansible.builtin.shell: |
+    if [ -f "{{ ansible_env.HOME }}/.ssh/known_hosts" ]; then
+      # Remove entries that might be created by virtctl ssh (typically localhost with different ports)
+      sed -i '/^\[localhost\]:[0-9]*.*$/d' "{{ ansible_env.HOME }}/.ssh/known_hosts"
+      # Remove any entries with workshop VM patterns
+      sed -i '/.*workshop-gitops-vms.*/d' "{{ ansible_env.HOME }}/.ssh/known_hosts"
+    fi
+  args:
+    executable: /bin/bash
+  failed_when: false
+
+- name: Display SSH cleanup completion
+  ansible.builtin.debug:
+    msg: |
+      SSH known_hosts cleanup completed
+      =================================
+      Removed potentially conflicting SSH host keys for:
+      - Workshop VM hostnames (dev-vm-web-*, hml-vm-web-*, vm-web-*)
+      - localhost entries from virtctl ssh connections
+      - Workshop route patterns
+
+      This should resolve SSH host key verification issues when connecting to VMs.

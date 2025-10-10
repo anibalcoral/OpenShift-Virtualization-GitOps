@@ -1,0 +1,18 @@
+---
+- name: OpenShift GitOps Workshop - SSH Known Hosts Cleanup
+  hosts: localhost
+  gather_facts: true
+  vars:
+    ssh_key_name: "ocpvirt-gitops"
+
+  tasks:
+    - name: Display cleanup start
+      ansible.builtin.debug:
+        msg: |
+          Starting SSH Known Hosts Cleanup
+          ================================
+          This playbook will clean up SSH known_hosts entries
+          that may conflict with workshop VMs
+
+    - name: Cleanup SSH known_hosts for workshop VMs
+      ansible.builtin.include_tasks: tasks/cleanup-ssh-known-hosts-tasks.yaml

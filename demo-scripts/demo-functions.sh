@@ -24,6 +24,24 @@ log_warning() {
     echo -e "${YELLOW}[$(date '+%Y-%m-%d %H:%M:%S')] WARNING:${NC} $1"
 }
 
+# Function to clean up SSH known_hosts for workshop VMs
+cleanup_ssh_known_hosts() {
+    log "Cleaning up SSH known_hosts entries for workshop VMs..."
+    
+    if [ -f "$HOME/.ssh/known_hosts" ]; then
+        # Remove known workshop VM patterns
+        sed -i '/dev-vm-web-/d' "$HOME/.ssh/known_hosts" 2>/dev/null || true
+        sed -i '/hml-vm-web-/d' "$HOME/.ssh/known_hosts" 2>/dev/null || true
+        sed -i '/vm-web-/d' "$HOME/.ssh/known_hosts" 2>/dev/null || true
+        sed -i '/workshop-gitops-vms/d' "$HOME/.ssh/known_hosts" 2>/dev/null || true
+        sed -i '/^\[localhost\]:[0-9]*.*$/d' "$HOME/.ssh/known_hosts" 2>/dev/null || true
+        
+        log_success "SSH known_hosts cleaned up"
+    else
+        log "No known_hosts file found, skipping cleanup"
+    fi
+}
+
 # Function to wait for a specific sync status
 wait_for_sync_status() {
     local app_name="$1"
