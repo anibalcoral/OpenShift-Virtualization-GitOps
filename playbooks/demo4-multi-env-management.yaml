@@ -1,0 +1,459 @@
+---
+- name: "Demo 4: Multi-Environment VM Management with Kustomize"
+  hosts: localhost
+  gather_facts: true
+  vars:
+    namespace_dev: "workshop-gitops-vms-dev"
+    namespace_hml: "workshop-gitops-vms-hml"
+    namespace_prd: "workshop-gitops-vms-prd"
+    vm_name: "vm-web-09"
+    app_name_dev: "workshop-gitops-vms-dev"
+    app_name_hml: "workshop-gitops-vms-hml"
+    app_name_prd: "workshop-gitops-vms-prd"
+    apps_repo_path: "/opt/OpenShift-Virtualization-GitOps-Apps"
+
+  tasks:
+    - name: "Demo 4: Multi-Environment VM Management with Kustomize"
+      ansible.builtin.debug:
+        msg: |
+          =================================================================
+          Demo 4: Multi-Environment VM Management with Kustomize
+          =================================================================
+          This demo demonstrates GitOps promotion across multiple environments
+          using Kustomize overlays and Git branch strategies.
+
+    - name: "Step 1: Verify current state across all environments"
+      ansible.builtin.debug:
+        msg: |
+          ============================================
+          Step 1: Verifying current state
+          ============================================
+
+    - name: Check ArgoCD applications status
+      kubernetes.core.k8s_info:
+        api_version: argoproj.io/v1alpha1
+        kind: Application
+        namespace: openshift-gitops
+        label_selectors:
+          - "app.kubernetes.io/name=workshop-gitops-vms"
+      register: argocd_apps
+
+    - name: Display ArgoCD applications status
+      ansible.builtin.debug:
+        msg: |
+          Application: {{ item.metadata.name }}
+          Sync Status: {{ item.status.sync.status | default('Unknown') }}
+          Health Status: {{ item.status.health.status | default('Unknown') }}
+          Target Branch: {{ item.spec.source.targetRevision | default('HEAD') }}
+      loop: "{{ argocd_apps.resources }}"
+
+    - name: Get VMs in development environment
+      kubernetes.core.k8s_info:
+        api_version: kubevirt.io/v1
+        kind: VirtualMachine
+        namespace: "{{ namespace_dev }}"
+        name: "dev-{{ vm_name }}"
+      register: dev_vm
+      failed_when: false
+
+    - name: Get VMs in homologation environment
+      kubernetes.core.k8s_info:
+        api_version: kubevirt.io/v1
+        kind: VirtualMachine
+        namespace: "{{ namespace_hml }}"
+        name: "hml-{{ vm_name }}"
+      register: hml_vm
+      failed_when: false
+
+    - name: Get VMs in production environment
+      kubernetes.core.k8s_info:
+        api_version: kubevirt.io/v1
+        kind: VirtualMachine
+        namespace: "{{ namespace_prd }}"
+        name: "prd-{{ vm_name }}"
+      register: prd_vm
+      failed_when: false
+
+    - name: Display current VM status across environments
+      ansible.builtin.debug:
+        msg: |
+          VM Status Across Environments:
+          Development (dev-{{ vm_name }}): {{ 'EXISTS' if dev_vm.resources else 'NOT FOUND' }}
+          Homologation (hml-{{ vm_name }}): {{ 'EXISTS' if hml_vm.resources else 'NOT FOUND' }}
+          Production (prd-{{ vm_name }}): {{ 'EXISTS' if prd_vm.resources else 'NOT FOUND' }}
+
+    - name: Verify Demo 3 prerequisite
+      ansible.builtin.fail:
+        msg: |
+          Demo 3 prerequisite not met: dev-vm-web-09 must exist in development environment.
+          Please run Demo 3 first to create the development VM.
+      when: not dev_vm.resources
+
+    - name: "Step 2: Navigate to Git repository and check branches"
+      ansible.builtin.debug:
+        msg: |
+          ============================================
+          Step 2: Checking Git repository state
+          ============================================
+
+    - name: Ensure we're in the correct directory
+      ansible.builtin.file:
+        path: "{{ apps_repo_path }}"
+        state: directory
+      register: repo_dir
+
+    - name: Get current Git branch
+      ansible.builtin.shell:
+        cmd: git branch --show-current
+        chdir: "{{ apps_repo_path }}"
+      register: current_branch
+      changed_when: false
+
+    - name: Get Git status
+      ansible.builtin.shell:
+        cmd: git status --porcelain
+        chdir: "{{ apps_repo_path }}"
+      register: git_status
+      changed_when: false
+
+    - name: Display Git repository status
+      ansible.builtin.debug:
+        msg: |
+          Current branch: {{ current_branch.stdout }}
+          Git status: {{ 'Clean working directory' if not git_status.stdout else 'Uncommitted changes detected' }}
+
+    - name: Ensure we're on vms-dev branch
+      ansible.builtin.shell:
+        cmd: git checkout vms-dev
+        chdir: "{{ apps_repo_path }}"
+      register: checkout_result
+      changed_when: "'Switched to branch' in checkout_result.stdout or 'Already on' in checkout_result.stdout"
+
+    - name: "Step 3: Promote changes from development to homologation"
+      ansible.builtin.debug:
+        msg: |
+          ============================================
+          Step 3: Promoting to homologation environment
+          ============================================
+
+    - name: Checkout homologation branch
+      ansible.builtin.shell:
+        cmd: git checkout vms-hml
+        chdir: "{{ apps_repo_path }}"
+      register: checkout_hml
+      changed_when: "'Switched to branch' in checkout_hml.stdout or 'Already on' in checkout_hml.stdout"
+
+    - name: Merge development changes to homologation
+      ansible.builtin.shell:
+        cmd: git merge vms-dev --no-ff -m "Promote vm-web-09 from development to homologation - Demo 4"
+        chdir: "{{ apps_repo_path }}"
+      register: merge_hml
+      changed_when: "'Fast-forward' in merge_hml.stdout or 'Merge made' in merge_hml.stdout"
+      failed_when: merge_hml.rc != 0 and 'Already up to date' not in merge_hml.stdout
+
+    - name: Push changes to homologation branch
+      ansible.builtin.shell:
+        cmd: git push origin vms-hml
+        chdir: "{{ apps_repo_path }}"
+      register: push_hml
+      changed_when: "'[new branch]' in push_hml.stderr or 'To' in push_hml.stderr"
+
+    - name: Display merge result for homologation
+      ansible.builtin.debug:
+        msg: |
+          Merge result: {{ merge_hml.stdout if merge_hml.stdout else 'Already up to date' }}
+          Push result: {{ 'Changes pushed successfully' if push_hml.changed else 'No changes to push' }}
+
+    - name: Wait for ArgoCD to sync homologation environment
+      kubernetes.core.k8s_info:
+        api_version: argoproj.io/v1alpha1
+        kind: Application
+        name: "{{ app_name_hml }}"
+        namespace: openshift-gitops
+        wait: true
+        wait_condition:
+          type: "SyncStatusCode"
+          status: "Synced"
+        wait_timeout: 300
+      register: hml_sync
+      failed_when: false
+
+    - name: Check homologation VM creation
+      kubernetes.core.k8s_info:
+        api_version: kubevirt.io/v1
+        kind: VirtualMachine
+        namespace: "{{ namespace_hml }}"
+        name: "hml-{{ vm_name }}"
+        wait: true
+        wait_condition:
+          type: "Created"
+        wait_timeout: 180
+      register: hml_vm_created
+      failed_when: false
+
+    - name: Display homologation deployment result
+      ansible.builtin.debug:
+        msg: |
+          Homologation Environment Status:
+          ArgoCD Sync: {{ 'SUCCESS' if hml_sync.resources else 'PENDING' }}
+          VM Creation: {{ 'SUCCESS' if hml_vm_created.resources else 'PENDING' }}
+
+    - name: "Step 4: Promote changes from homologation to production"
+      ansible.builtin.debug:
+        msg: |
+          ============================================
+          Step 4: Promoting to production environment
+          ============================================
+
+    - name: Checkout production branch (main)
+      ansible.builtin.shell:
+        cmd: git checkout main
+        chdir: "{{ apps_repo_path }}"
+      register: checkout_main
+      changed_when: "'Switched to branch' in checkout_main.stdout or 'Already on' in checkout_main.stdout"
+
+    - name: Merge homologation changes to production
+      ansible.builtin.shell:
+        cmd: git merge vms-hml --no-ff -m "Promote vm-web-09 from homologation to production - Demo 4"
+        chdir: "{{ apps_repo_path }}"
+      register: merge_prd
+      changed_when: "'Fast-forward' in merge_prd.stdout or 'Merge made' in merge_prd.stdout"
+      failed_when: merge_prd.rc != 0 and 'Already up to date' not in merge_prd.stdout
+
+    - name: Push changes to production branch
+      ansible.builtin.shell:
+        cmd: git push origin main
+        chdir: "{{ apps_repo_path }}"
+      register: push_prd
+      changed_when: "'[new branch]' in push_prd.stderr or 'To' in push_prd.stderr"
+
+    - name: Display merge result for production
+      ansible.builtin.debug:
+        msg: |
+          Merge result: {{ merge_prd.stdout if merge_prd.stdout else 'Already up to date' }}
+          Push result: {{ 'Changes pushed successfully' if push_prd.changed else 'No changes to push' }}
+
+    - name: Wait for ArgoCD to sync production environment
+      kubernetes.core.k8s_info:
+        api_version: argoproj.io/v1alpha1
+        kind: Application
+        name: "{{ app_name_prd }}"
+        namespace: openshift-gitops
+        wait: true
+        wait_condition:
+          type: "SyncStatusCode"
+          status: "Synced"
+        wait_timeout: 300
+      register: prd_sync
+      failed_when: false
+
+    - name: Check production VM creation
+      kubernetes.core.k8s_info:
+        api_version: kubevirt.io/v1
+        kind: VirtualMachine
+        namespace: "{{ namespace_prd }}"
+        name: "prd-{{ vm_name }}"
+        wait: true
+        wait_condition:
+          type: "Created"
+        wait_timeout: 180
+      register: prd_vm_created
+      failed_when: false
+
+    - name: Display production deployment result
+      ansible.builtin.debug:
+        msg: |
+          Production Environment Status:
+          ArgoCD Sync: {{ 'SUCCESS' if prd_sync.resources else 'PENDING' }}
+          VM Creation: {{ 'SUCCESS' if prd_vm_created.resources else 'PENDING' }}
+
+    - name: "Step 5: Verify multi-environment deployment"
+      ansible.builtin.debug:
+        msg: |
+          ============================================
+          Step 5: Verifying multi-environment deployment
+          ============================================
+
+    - name: Get final VM status across all environments
+      kubernetes.core.k8s_info:
+        api_version: kubevirt.io/v1
+        kind: VirtualMachine
+        namespace: "{{ item.namespace }}"
+        name: "{{ item.name }}"
+      register: final_vm_status
+      failed_when: false
+      loop:
+        - { namespace: "{{ namespace_dev }}", name: "dev-{{ vm_name }}" }
+        - { namespace: "{{ namespace_hml }}", name: "hml-{{ vm_name }}" }
+        - { namespace: "{{ namespace_prd }}", name: "prd-{{ vm_name }}" }
+
+    - name: Display final VM deployment status
+      ansible.builtin.debug:
+        msg: |
+          Final VM Deployment Status:
+          {% for result in final_vm_status.results %}
+          {{ result.item.name }} in {{ result.item.namespace }}: {{ 'DEPLOYED' if result.resources else 'NOT FOUND' }}
+          {% endfor %}
+
+    - name: "Step 6: Demonstrate centralized base management"
+      ansible.builtin.debug:
+        msg: |
+          ============================================
+          Step 6: Demonstrating centralized base management
+          ============================================
+
+    - name: Switch back to development branch for base changes
+      ansible.builtin.shell:
+        cmd: git checkout vms-dev
+        chdir: "{{ apps_repo_path }}"
+      register: checkout_dev_final
+      changed_when: "'Switched to branch' in checkout_dev_final.stdout or 'Already on' in checkout_dev_final.stdout"
+
+    - name: Add timestamp annotation to base VM template
+      ansible.builtin.lineinfile:
+        path: "{{ apps_repo_path }}/base/vm-web-09.yaml"
+        insertafter: "workshop.gitops/config-version"
+        line: '    workshop.gitops/demo4-timestamp: "{{ ansible_date_time.iso8601 }}"'
+        regexp: '^\s*workshop\.gitops/demo4-timestamp:'
+      register: annotation_added
+
+    - name: Commit base template changes
+      ansible.builtin.shell:
+        cmd: |
+          git add base/vm-web-09.yaml
+          git commit -m "Add demo4 timestamp annotation to vm-web-09 base template - {{ ansible_date_time.iso8601 }}"
+        chdir: "{{ apps_repo_path }}"
+      register: commit_base_change
+      when: annotation_added.changed
+      changed_when: "'nothing to commit' not in commit_base_change.stdout"
+
+    - name: Push base changes to development
+      ansible.builtin.shell:
+        cmd: git push origin vms-dev
+        chdir: "{{ apps_repo_path }}"
+      when: commit_base_change.changed
+      register: push_base_changes
+
+    - name: Display base change results
+      ansible.builtin.debug:
+        msg: |
+          Base Template Changes:
+          Annotation added: {{ 'YES' if annotation_added.changed else 'NO (already exists)' }}
+          Commit created: {{ 'YES' if commit_base_change.changed else 'NO (no changes)' }}
+          Changes pushed: {{ 'YES' if push_base_changes.changed else 'NO' }}
+
+    - name: Wait for development environment to sync with base changes
+      kubernetes.core.k8s_info:
+        api_version: argoproj.io/v1alpha1
+        kind: Application
+        name: "{{ app_name_dev }}"
+        namespace: openshift-gitops
+        wait: true
+        wait_condition:
+          type: "SyncStatusCode"
+          status: "Synced"
+        wait_timeout: 300
+      register: dev_sync_final
+      failed_when: false
+
+    - name: "Step 7: Promote base changes through all environments"
+      ansible.builtin.debug:
+        msg: |
+          ============================================
+          Step 7: Promoting base changes through environments
+          ============================================
+
+    - name: Promote base changes to homologation
+      ansible.builtin.shell:
+        cmd: |
+          git checkout vms-hml
+          git merge vms-dev --no-ff -m "Promote base template changes from development to homologation - Demo 4"
+          git push origin vms-hml
+        chdir: "{{ apps_repo_path }}"
+      register: promote_base_hml
+      when: commit_base_change.changed
+      changed_when: "'Already up to date' not in promote_base_hml.stdout"
+
+    - name: Promote base changes to production
+      ansible.builtin.shell:
+        cmd: |
+          git checkout main
+          git merge vms-hml --no-ff -m "Promote base template changes from homologation to production - Demo 4"
+          git push origin main
+        chdir: "{{ apps_repo_path }}"
+      register: promote_base_prd
+      when: commit_base_change.changed
+      changed_when: "'Already up to date' not in promote_base_prd.stdout"
+
+    - name: Display base promotion results
+      ansible.builtin.debug:
+        msg: |
+          Base Changes Promotion:
+          To Homologation: {{ 'SUCCESS' if promote_base_hml.changed else 'NO CHANGES' }}
+          To Production: {{ 'SUCCESS' if promote_base_prd.changed else 'NO CHANGES' }}
+
+    - name: "Demo 4 completion summary"
+      ansible.builtin.debug:
+        msg: |
+          =================================================================
+          Demo 4: Multi-Environment VM Management - COMPLETED
+          =================================================================
+          
+          Summary of what was demonstrated:
+          
+          1. ✅ Branch-based Environment Promotion
+             - Promoted vm-web-09 from vms-dev → vms-hml → main branches
+          
+          2. ✅ Kustomize Overlays
+             - Same base template deployed with environment-specific configurations
+             - Automatic naming prefixes (dev-, hml-, prd-)
+             - Environment-specific namespaces
+          
+          3. ✅ Centralized Base Management
+             - Added timestamp annotation to base template
+             - Change automatically propagated to all environments
+          
+          4. ✅ GitOps Automation
+             - ArgoCD automatically synced changes across all environments
+             - No manual OpenShift intervention required
+          
+          5. ✅ Multi-Environment Consistency
+             - Same VM configuration deployed consistently across environments
+             - Environment-specific customizations applied automatically
+          
+          Key GitOps Benefits Demonstrated:
+          - DRY principle: Don't Repeat Yourself
+          - Safe promotion pipeline using Git branches
+          - Automated synchronization across environments
+          - Centralized configuration management
+          - Environment isolation with namespace separation
+          
+          Next Steps:
+          - Verify VMs are running in all environments
+          - Access applications via environment-specific routes
+          - Explore Kustomize configurations in overlays/
+          
+          =================================================================
+
+    - name: Provide verification commands
+      ansible.builtin.debug:
+        msg: |
+          
+          Verification Commands:
+          
+          # Check all VMs across environments
+          oc get vm -n workshop-gitops-vms-dev | grep vm-web-09
+          oc get vm -n workshop-gitops-vms-hml | grep vm-web-09
+          oc get vm -n workshop-gitops-vms-prd | grep vm-web-09
+          
+          # Check ArgoCD application status
+          oc get applications.argoproj.io -n openshift-gitops | grep workshop-gitops-vms
+          
+          # Verify annotations across environments
+          oc get vm dev-vm-web-09 -n workshop-gitops-vms-dev -o yaml | grep demo4-timestamp
+          oc get vm hml-vm-web-09 -n workshop-gitops-vms-hml -o yaml | grep demo4-timestamp
+          oc get vm prd-vm-web-09 -n workshop-gitops-vms-prd -o yaml | grep demo4-timestamp
+          
+          # Check Git branch history
+          cd {{ apps_repo_path }}
+          git log --oneline --graph --branches

@@ -1,0 +1,340 @@
+---
+- name: "Cleanup Demo 4: Multi-Environment VM Management"
+  hosts: localhost
+  gather_facts: true
+  vars:
+    namespace_dev: "workshop-gitops-vms-dev"
+    namespace_hml: "workshop-gitops-vms-hml"
+    namespace_prd: "workshop-gitops-vms-prd"
+    vm_name: "vm-web-09"
+    apps_repo_path: "/opt/OpenShift-Virtualization-GitOps-Apps"
+
+  tasks:
+    - name: "Cleanup Demo 4: Multi-Environment VM Management"
+      ansible.builtin.debug:
+        msg: |
+          =================================================================
+          Cleanup Demo 4: Multi-Environment VM Management
+          =================================================================
+          This cleanup will remove vm-web-09 from all environments by
+          removing it from the Git repository and letting ArgoCD sync.
+
+    - name: "Step 1: Check current state before cleanup"
+      ansible.builtin.debug:
+        msg: |
+          ============================================
+          Step 1: Checking current state
+          ============================================
+
+    - name: Get VMs in all environments before cleanup
+      kubernetes.core.k8s_info:
+        api_version: kubevirt.io/v1
+        kind: VirtualMachine
+        namespace: "{{ item.namespace }}"
+        name: "{{ item.name }}"
+      register: vms_before_cleanup
+      failed_when: false
+      loop:
+        - { namespace: "{{ namespace_dev }}", name: "dev-{{ vm_name }}" }
+        - { namespace: "{{ namespace_hml }}", name: "hml-{{ vm_name }}" }
+        - { namespace: "{{ namespace_prd }}", name: "prd-{{ vm_name }}" }
+
+    - name: Display VMs status before cleanup
+      ansible.builtin.debug:
+        msg: |
+          VMs Before Cleanup:
+          {% for result in vms_before_cleanup.results %}
+          {{ result.item.name }} in {{ result.item.namespace }}: {{ 'EXISTS' if result.resources else 'NOT FOUND' }}
+          {% endfor %}
+
+    - name: "Step 2: Navigate to Git repository"
+      ansible.builtin.debug:
+        msg: |
+          ============================================
+          Step 2: Preparing Git repository cleanup
+          ============================================
+
+    - name: Ensure we're in the correct directory
+      ansible.builtin.file:
+        path: "{{ apps_repo_path }}"
+        state: directory
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: '0755'
+
+    - name: Get current Git branch
+      ansible.builtin.shell:
+        cmd: git branch --show-current
+        chdir: "{{ apps_repo_path }}"
+      register: current_branch
+      changed_when: false
+
+    - name: Display current branch
+      ansible.builtin.debug:
+        msg: "Current branch: {{ current_branch.stdout }}"
+
+    - name: "Step 3: Remove VM from development branch"
+      ansible.builtin.debug:
+        msg: |
+          ============================================
+          Step 3: Removing VM from development
+          ============================================
+
+    - name: Checkout development branch
+      ansible.builtin.shell:
+        cmd: git checkout vms-dev
+        chdir: "{{ apps_repo_path }}"
+      register: checkout_dev
+      changed_when: "'Switched to branch' in checkout_dev.stdout or 'Already on' in checkout_dev.stdout"
+
+    - name: Check if vm-web-09.yaml exists in base directory
+      ansible.builtin.stat:
+        path: "{{ apps_repo_path }}/base/vm-web-09.yaml"
+      register: vm_file_exists
+
+    - name: Remove vm-web-09.yaml from base directory
+      ansible.builtin.file:
+        path: "{{ apps_repo_path }}/base/vm-web-09.yaml"
+        state: absent
+      register: vm_file_removed
+      when: vm_file_exists.stat.exists
+
+    - name: Check if vm-web-09.yaml is referenced in base kustomization
+      ansible.builtin.shell:
+        cmd: grep -n "vm-web-09.yaml" base/kustomization.yaml || true
+        chdir: "{{ apps_repo_path }}"
+      register: kustomization_check
+      changed_when: false
+
+    - name: Remove vm-web-09.yaml reference from base kustomization
+      ansible.builtin.lineinfile:
+        path: "{{ apps_repo_path }}/base/kustomization.yaml"
+        regexp: '.*vm-web-09\.yaml.*'
+        state: absent
+      register: kustomization_updated
+      when: kustomization_check.stdout != ""
+
+    - name: Display file removal status
+      ansible.builtin.debug:
+        msg: |
+          File Removal Status:
+          VM file exists: {{ 'YES' if vm_file_exists.stat.exists else 'NO' }}
+          VM file removed: {{ 'YES' if vm_file_removed.changed else 'NO' }}
+          Kustomization updated: {{ 'YES' if kustomization_updated.changed else 'NO' }}
+
+    - name: Commit changes to development branch
+      ansible.builtin.shell:
+        cmd: |
+          git add .
+          git commit -m "Remove vm-web-09 from development environment - Demo 4 cleanup"
+        chdir: "{{ apps_repo_path }}"
+      register: commit_dev_cleanup
+      when: vm_file_removed.changed or kustomization_updated.changed
+      failed_when: commit_dev_cleanup.rc != 0 and 'nothing to commit' not in commit_dev_cleanup.stdout
+      changed_when: "'nothing to commit' not in commit_dev_cleanup.stdout"
+
+    - name: Push development changes
+      ansible.builtin.shell:
+        cmd: git push origin vms-dev
+        chdir: "{{ apps_repo_path }}"
+      when: commit_dev_cleanup.changed
+      register: push_dev_cleanup
+
+    - name: Display development cleanup result
+      ansible.builtin.debug:
+        msg: |
+          Development Cleanup:
+          Commit created: {{ 'YES' if commit_dev_cleanup.changed else 'NO (no changes)' }}
+          Changes pushed: {{ 'YES' if push_dev_cleanup.changed else 'NO' }}
+
+    - name: "Step 4: Promote removal to homologation"
+      ansible.builtin.debug:
+        msg: |
+          ============================================
+          Step 4: Promoting removal to homologation
+          ============================================
+
+    - name: Checkout homologation branch
+      ansible.builtin.shell:
+        cmd: git checkout vms-hml
+        chdir: "{{ apps_repo_path }}"
+      register: checkout_hml
+      changed_when: "'Switched to branch' in checkout_hml.stdout or 'Already on' in checkout_hml.stdout"
+
+    - name: Merge development cleanup to homologation
+      ansible.builtin.shell:
+        cmd: git merge vms-dev --no-ff -m "Remove vm-web-09 from homologation environment - Demo 4 cleanup"
+        chdir: "{{ apps_repo_path }}"
+      register: merge_hml_cleanup
+      when: commit_dev_cleanup.changed
+      changed_when: "'Fast-forward' in merge_hml_cleanup.stdout or 'Merge made' in merge_hml_cleanup.stdout"
+      failed_when: merge_hml_cleanup.rc != 0 and 'Already up to date' not in merge_hml_cleanup.stdout
+
+    - name: Push homologation cleanup
+      ansible.builtin.shell:
+        cmd: git push origin vms-hml
+        chdir: "{{ apps_repo_path }}"
+      when: merge_hml_cleanup.changed
+      register: push_hml_cleanup
+
+    - name: Display homologation cleanup result
+      ansible.builtin.debug:
+        msg: |
+          Homologation Cleanup:
+          Merge result: {{ merge_hml_cleanup.stdout if merge_hml_cleanup.changed else 'Already up to date' }}
+          Changes pushed: {{ 'YES' if push_hml_cleanup.changed else 'NO' }}
+
+    - name: "Step 5: Promote removal to production"
+      ansible.builtin.debug:
+        msg: |
+          ============================================
+          Step 5: Promoting removal to production
+          ============================================
+
+    - name: Checkout production branch (main)
+      ansible.builtin.shell:
+        cmd: git checkout main
+        chdir: "{{ apps_repo_path }}"
+      register: checkout_main
+      changed_when: "'Switched to branch' in checkout_main.stdout or 'Already on' in checkout_main.stdout"
+
+    - name: Merge homologation cleanup to production
+      ansible.builtin.shell:
+        cmd: git merge vms-hml --no-ff -m "Remove vm-web-09 from production environment - Demo 4 cleanup"
+        chdir: "{{ apps_repo_path }}"
+      register: merge_prd_cleanup
+      when: merge_hml_cleanup.changed
+      changed_when: "'Fast-forward' in merge_prd_cleanup.stdout or 'Merge made' in merge_prd_cleanup.stdout"
+      failed_when: merge_prd_cleanup.rc != 0 and 'Already up to date' not in merge_prd_cleanup.stdout
+
+    - name: Push production cleanup
+      ansible.builtin.shell:
+        cmd: git push origin main
+        chdir: "{{ apps_repo_path }}"
+      when: merge_prd_cleanup.changed
+      register: push_prd_cleanup
+
+    - name: Display production cleanup result
+      ansible.builtin.debug:
+        msg: |
+          Production Cleanup:
+          Merge result: {{ merge_prd_cleanup.stdout if merge_prd_cleanup.changed else 'Already up to date' }}
+          Changes pushed: {{ 'YES' if push_prd_cleanup.changed else 'NO' }}
+
+    - name: "Step 6: Wait for ArgoCD to sync and remove VMs"
+      ansible.builtin.debug:
+        msg: |
+          ============================================
+          Step 6: Waiting for ArgoCD synchronization
+          ============================================
+
+    - name: Wait for ArgoCD applications to sync the removal
+      kubernetes.core.k8s_info:
+        api_version: argoproj.io/v1alpha1
+        kind: Application
+        name: "{{ item }}"
+        namespace: openshift-gitops
+        wait: true
+        wait_condition:
+          type: "SyncStatusCode"
+          status: "Synced"
+        wait_timeout: 300
+      register: argocd_sync_cleanup
+      failed_when: false
+      loop:
+        - "workshop-gitops-vms-dev"
+        - "workshop-gitops-vms-hml"
+        - "workshop-gitops-vms-prd"
+
+    - name: Wait additional time for VM deletion to complete
+      ansible.builtin.pause:
+        seconds: 30
+        prompt: "Waiting for VMs to be deleted by ArgoCD..."
+
+    - name: "Step 7: Verify cleanup completion"
+      ansible.builtin.debug:
+        msg: |
+          ============================================
+          Step 7: Verifying cleanup completion
+          ============================================
+
+    - name: Get VMs in all environments after cleanup
+      kubernetes.core.k8s_info:
+        api_version: kubevirt.io/v1
+        kind: VirtualMachine
+        namespace: "{{ item.namespace }}"
+        name: "{{ item.name }}"
+      register: vms_after_cleanup
+      failed_when: false
+      loop:
+        - { namespace: "{{ namespace_dev }}", name: "dev-{{ vm_name }}" }
+        - { namespace: "{{ namespace_hml }}", name: "hml-{{ vm_name }}" }
+        - { namespace: "{{ namespace_prd }}", name: "prd-{{ vm_name }}" }
+
+    - name: Display VMs status after cleanup
+      ansible.builtin.debug:
+        msg: |
+          VMs After Cleanup:
+          {% for result in vms_after_cleanup.results %}
+          {{ result.item.name }} in {{ result.item.namespace }}: {{ 'EXISTS' if result.resources else 'REMOVED' }}
+          {% endfor %}
+
+    - name: Check if any VMs still exist
+      ansible.builtin.set_fact:
+        cleanup_success: "{{ vms_after_cleanup.results | selectattr('resources') | list | length == 0 }}"
+
+    - name: "Demo 4 cleanup completion summary"
+      ansible.builtin.debug:
+        msg: |
+          =================================================================
+          Demo 4 Cleanup: Multi-Environment VM Management - COMPLETED
+          =================================================================
+          
+          Cleanup Summary:
+          
+          {% if cleanup_success %}
+          ✅ SUCCESS: All vm-web-09 instances removed from all environments
+          {% else %}
+          ⚠️  WARNING: Some VMs may still exist - check manually
+          {% endif %}
+          
+          Actions Performed:
+          1. ✅ Removed vm-web-09.yaml from base directory
+          2. ✅ Updated base/kustomization.yaml to remove reference
+          3. ✅ Committed changes to vms-dev branch
+          4. ✅ Promoted removal through vms-hml to main branches
+          5. ✅ ArgoCD automatically removed VMs from all environments
+          
+          GitOps Benefits Demonstrated in Cleanup:
+          - Centralized removal: One change removes from all environments
+          - Safe promotion: Changes flow through the same pipeline
+          - Automated cleanup: ArgoCD handles VM deletion automatically
+          - Consistent state: All environments maintain consistency
+          
+          Environment Status:
+          {% for result in vms_after_cleanup.results %}
+          - {{ result.item.name }} in {{ result.item.namespace }}: {{ 'REMOVED' if not result.resources else 'STILL EXISTS' }}
+          {% endfor %}
+          
+          =================================================================
+
+    - name: Provide verification commands
+      ansible.builtin.debug:
+        msg: |
+          
+          Verification Commands:
+          
+          # Verify VMs are removed from all environments
+          oc get vm -n workshop-gitops-vms-dev | grep vm-web-09 || echo "Not found (expected)"
+          oc get vm -n workshop-gitops-vms-hml | grep vm-web-09 || echo "Not found (expected)"
+          oc get vm -n workshop-gitops-vms-prd | grep vm-web-09 || echo "Not found (expected)"
+          
+          # Check ArgoCD application status
+          oc get applications.argoproj.io -n openshift-gitops | grep workshop-gitops-vms
+          
+          # Verify Git repository state
+          cd {{ apps_repo_path }}
+          git log --oneline --graph --branches -10
+          
+          # Check base directory
+          ls -la base/ | grep vm-web-09 || echo "File removed (expected)"
