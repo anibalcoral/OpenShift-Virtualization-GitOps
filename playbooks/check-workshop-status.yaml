@@ -152,3 +152,28 @@
           Applications: {{ apps_synced }}/{{ total_apps }} synced, {{ apps_healthy }}/{{ total_apps }} healthy
           Namespaces: {{ namespaces_exist }}/3 exist
           Status: {{ 'HEALTHY' if (apps_healthy | int == total_apps | int and apps_synced | int == total_apps | int and namespaces_exist | int == 3) else 'ISSUES DETECTED' }}
+
+    - name: Get ArgoCD server route
+      kubernetes.core.k8s_info:
+        api_version: route.openshift.io/v1
+        kind: Route
+        name: openshift-gitops-server
+        namespace: openshift-gitops
+      register: argocd_route
+
+    - name: Get ArgoCD admin password
+      kubernetes.core.k8s_info:
+        api_version: v1
+        kind: Secret
+        name: openshift-gitops-cluster
+        namespace: openshift-gitops
+      register: argocd_secret
+  
+    - name: Display ArgoCD access information
+      ansible.builtin.debug:
+        msg: |
+          ArgoCD Access Information:
+          ========================
+          URL: https://{{ argocd_route.resources[0].spec.host }}
+          Username: admin
+          Password: {{ argocd_secret.resources[0].data.password | b64decode }}
