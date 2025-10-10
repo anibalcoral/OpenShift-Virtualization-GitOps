@@ -1,7 +1,7 @@
 ---
 - name: OpenShift GitOps Workshop - Complete Removal
   hosts: local
-  gather_facts: false
+  gather_facts: true
   vars:
     workshop_namespace_base: "workshop-gitops-vms"
     argocd_namespace: "openshift-gitops"
