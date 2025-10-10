@@ -275,23 +275,23 @@
               argocd.argoproj.io/refresh: "{{ ansible_date_time.iso8601 }}"
       failed_when: false
 
-    - name: "Step 6: Waiting for ArgoCD to detect Git changes"
-      ansible.builtin.debug:
-        msg: "Waiting for ArgoCD to detect Git changes..."
-
-    - name: Wait for application to become OutOfSync (detecting changes)
-      kubernetes.core.k8s_info:
-        api_version: argoproj.io/v1alpha1
-        kind: Application
-        name: "{{ app_name }}"
-        namespace: openshift-gitops
-      register: app_sync_check
-      until: >
-        app_sync_check.resources | length > 0 and
-        app_sync_check.resources[0].status.sync.status == "OutOfSync"
-      retries: 30
-      delay: 2
-      ignore_errors: true
+ #   - name: "Step 6: Waiting for ArgoCD to detect Git changes"
+ #     ansible.builtin.debug:
+ #       msg: "Waiting for ArgoCD to detect Git changes..."
+ #
+ #   - name: Wait for application to become OutOfSync (detecting changes)
+ #     kubernetes.core.k8s_info:
+ #       api_version: argoproj.io/v1alpha1
+ #       kind: Application
+ #       name: "{{ app_name }}"
+ #       namespace: openshift-gitops
+ #     register: app_sync_check
+ #     until: >
+ #       app_sync_check.resources | length > 0 and
+ #       app_sync_check.resources[0].status.sync.status == "OutOfSync"
+ #     retries: 30
+ #     delay: 2
+ #     ignore_errors: true
 
     - name: "Step 7: Waiting for new VM to be created"
       ansible.builtin.debug:
