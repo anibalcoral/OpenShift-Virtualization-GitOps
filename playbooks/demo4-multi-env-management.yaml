@@ -164,32 +164,55 @@
           Merge result: {{ merge_hml.stdout if merge_hml.stdout else 'Already up to date' }}
           Push result: {{ 'Changes pushed successfully' if push_hml.changed else 'No changes to push' }}
 
-    - name: Wait for ArgoCD to sync homologation environment
+    - name: Trigger ArgoCD sync for the application on homologation
+      kubernetes.core.k8s:
+        state: patched
+        api_version: argoproj.io/v1alpha1
+        kind: Application
+        name: "{{ app_name_hml }}"
+        namespace: "openshift-gitops"
+        definition:
+          spec:
+            syncPolicy:
+              automated: null
+          operation:
+            sync:
+              revision: "HEAD"
+              prune: true
+              dryRun: false
+
+    - name: Wait for application to return to Synced state
       kubernetes.core.k8s_info:
         api_version: argoproj.io/v1alpha1
         kind: Application
         name: "{{ app_name_hml }}"
         namespace: openshift-gitops
-        wait: true
-        wait_condition:
-          type: "SyncStatusCode"
-          status: "Synced"
-        wait_timeout: 300
-      register: hml_sync
-      failed_when: false
+      register: final_sync_check
+      until: >
+        final_sync_check.resources | length > 0 and
+        (
+          final_sync_check.resources[0].status is defined and
+          final_sync_check.resources[0].status.sync is defined and
+          final_sync_check.resources[0].status.sync.status == "Synced"
+        )
+      retries: 30
+      delay: 2
 
     - name: Check homologation VM creation
       kubernetes.core.k8s_info:
         api_version: kubevirt.io/v1
         kind: VirtualMachine
+        name: "{{ vm_name }}"
         namespace: "{{ namespace_hml }}"
-        name: "hml-{{ vm_name }}"
-        wait: true
-        wait_condition:
-          type: "Created"
-        wait_timeout: 180
-      register: hml_vm_created
-      failed_when: false
+      register: final_vm_status
+      until: >
+        final_vm_status.resources | length > 0 and
+        (
+          final_vm_status.resources[0].status is defined and
+          final_vm_status.resources[0].status.printableStatus == "Running"
+        )
+      retries: 30
+      delay: 10
 
     - name: Display homologation deployment result
       ansible.builtin.debug:
@@ -233,32 +256,55 @@
           Merge result: {{ merge_prd.stdout if merge_prd.stdout else 'Already up to date' }}
           Push result: {{ 'Changes pushed successfully' if push_prd.changed else 'No changes to push' }}
 
-    - name: Wait for ArgoCD to sync production environment
+    - name: Trigger ArgoCD sync for the application on production
+      kubernetes.core.k8s:
+        state: patched
+        api_version: argoproj.io/v1alpha1
+        kind: Application
+        name: "{{ app_name_prd }}"
+        namespace: "openshift-gitops"
+        definition:
+          spec:
+            syncPolicy:
+              automated: null
+          operation:
+            sync:
+              revision: "HEAD"
+              prune: true
+              dryRun: false
+
+    - name: Wait for application to return to Synced state
       kubernetes.core.k8s_info:
         api_version: argoproj.io/v1alpha1
         kind: Application
         name: "{{ app_name_prd }}"
         namespace: openshift-gitops
-        wait: true
-        wait_condition:
-          type: "SyncStatusCode"
-          status: "Synced"
-        wait_timeout: 300
-      register: prd_sync
-      failed_when: false
+      register: final_sync_check
+      until: >
+        final_sync_check.resources | length > 0 and
+        (
+          final_sync_check.resources[0].status is defined and
+          final_sync_check.resources[0].status.sync is defined and
+          final_sync_check.resources[0].status.sync.status == "Synced"
+        )
+      retries: 30
+      delay: 2
 
     - name: Check production VM creation
       kubernetes.core.k8s_info:
         api_version: kubevirt.io/v1
         kind: VirtualMachine
+        name: "{{ vm_name }}"
         namespace: "{{ namespace_prd }}"
-        name: "prd-{{ vm_name }}"
-        wait: true
-        wait_condition:
-          type: "Created"
-        wait_timeout: 180
-      register: prd_vm_created
-      failed_when: false
+      register: final_vm_status
+      until: >
+        final_vm_status.resources | length > 0 and
+        (
+          final_vm_status.resources[0].status is defined and
+          final_vm_status.resources[0].status.printableStatus == "Running"
+        )
+      retries: 30
+      delay: 10
 
     - name: Display production deployment result
       ansible.builtin.debug:
@@ -342,19 +388,22 @@
           Commit created: {{ 'YES' if commit_base_change.changed else 'NO (no changes)' }}
           Changes pushed: {{ 'YES' if push_base_changes.changed else 'NO' }}
 
-    - name: Wait for development environment to sync with base changes
+    - name: Wait for application to return to Synced state
       kubernetes.core.k8s_info:
         api_version: argoproj.io/v1alpha1
         kind: Application
-        name: "{{ app_name_dev }}"
+        name: "{{ app_name_hml }}"
         namespace: openshift-gitops
-        wait: true
-        wait_condition:
-          type: "SyncStatusCode"
-          status: "Synced"
-        wait_timeout: 300
-      register: dev_sync_final
-      failed_when: false
+      register: final_sync_check
+      until: >
+        final_sync_check.resources | length > 0 and
+        (
+          final_sync_check.resources[0].status is defined and
+          final_sync_check.resources[0].status.sync is defined and
+          final_sync_check.resources[0].status.sync.status == "Synced"
+        )
+      retries: 30
+      delay: 2
 
     - name: "Step 7: Promote base changes through all environments"
       ansible.builtin.debug:
@@ -367,7 +416,7 @@
       ansible.builtin.shell:
         cmd: |
           git checkout vms-hml
-          git merge vms-dev -m "Promote base template changes from development to homologation - Demo 4"
+          git merge vms-dev
           git push origin vms-hml
         chdir: "{{ apps_repo_path }}"
       register: promote_base_hml
@@ -378,7 +427,7 @@
       ansible.builtin.shell:
         cmd: |
           git checkout main
-          git merge vms-hml -m "Promote base template changes from homologation to production - Demo 4"
+          git merge vms-hml
           git push origin main
         chdir: "{{ apps_repo_path }}"
       register: promote_base_prd
@@ -398,7 +447,7 @@
           =================================================================
           Demo 4: Multi-Environment VM Management - COMPLETED
           =================================================================
-          
+
           Summary of what was demonstrated:
           
           1. ✅ Branch-based Environment Promotion
@@ -456,4 +505,5 @@
           
           # Check Git branch history
           cd {{ apps_repo_path }}
+          git checkout vms-dev
           git log --oneline --graph --branches
