@@ -130,7 +130,7 @@ ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /op
 export GUID=user01  # Not necessary if you are running at bastion lab
 ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo1-manual-change.yaml -e "guid=$GUID"
 
-# Direct using run-demos.sh with parameter
+# Use the demo runner:
 ./run-demos.sh 1
 ```
 
@@ -153,7 +153,7 @@ Using the doc [DEMO1-MANUAL-CHANGE.md](demo-scripts/DEMO1-MANUAL-CHANGE.md)
 # Using Ansible playbook
 ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo2-vm-recovery.yaml
 
-# Direct using run-demos.sh with parameter
+# Use the demo runner:
 ./run-demos.sh 2
 ```
 
@@ -172,7 +172,7 @@ Using the doc [DEMO2-VM-RECOVERY.md](demo-scripts/DEMO2-VM-RECOVERY.md)
 # Using Ansible playbook
 ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo3-add-development-vm.yaml
 
-# Direct using run-demos.sh with parameter
+# Use the demo runner:
 ./run-demos.sh 3
 
 ```
@@ -191,7 +191,7 @@ Using the doc [DEMO3-ADD-DEVELOPMENT-VM.md](demo-scripts/DEMO3-ADD-DEVELOPMENT-V
 # Using Ansible playbook
 ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo4-multi-env-management.yaml
 
-# Direct using run-demos.sh with parameter
+# Use the demo runner:
 ./run-demos.sh 4
 
 ```
