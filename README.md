@@ -17,7 +17,7 @@ Before starting the workshop, ensure you have:
 
 **Before you Begin**
 
-- To run this lab you will need to a playbook called `setup-workshop-repos.yaml` that is not in this repository. If you would like to run this lab please contact @anibalcoral or @lgchiaretto
+- To run this lab you will need a playbook called `setup-workshop-repos.yaml` that is not included in this repository. If you would like to run this lab, please contact [@anibalcoral](https://github.com/anibalcoral) or [@lgchiaretto](https://github.com/lgchiaretto).
 
 
 **Note**: The Apps repository is cloned and the install cluster will change the branches to `-$GUID` to be unique to prevent conflicts with other workshops participants.
