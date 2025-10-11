@@ -85,7 +85,7 @@
           ansible.builtin.git:
             repo: "{{ apps_repo_url }}"
             dest: "{{ apps_repo_path }}"
-            version: vms-dev
+            version: vms-dev-{{ guid }}
             update: true
 
         - name: Update dev environment domain
@@ -149,7 +149,7 @@
           ansible.builtin.git:
             repo: "{{ apps_repo_url }}"
             dest: "{{ apps_repo_path }}"
-            version: vms-hml
+            version: vms-hml-{{ guid }}
             update: true
 
         - name: Merge vms-dev into vms-hml
@@ -166,15 +166,15 @@
           ansible.builtin.git:
             repo: "{{ apps_repo_url }}"
             dest: "{{ apps_repo_path }}"
-            version: main
+            version: vms-prd-{{ guid }}
             update: true
 
-        - name: Merge vms-hml into main
+        - name: Merge vms-hml into production
           ansible.builtin.shell:
             cmd: git merge vms-hml-{{ guid }}
             chdir: "{{ apps_repo_path }}"
             
-        - name: Push changes to main branch
+        - name: Push changes to production branch
           ansible.builtin.shell:
             cmd: git push origin vms-prd-{{ guid }}
             chdir: "{{ apps_repo_path }}"
@@ -183,7 +183,7 @@
           ansible.builtin.git:
             repo: "{{ apps_repo_url }}"
             dest: "{{ apps_repo_path }}"
-            version: vms-dev
+            version: vms-dev-{{ guid }}
 
     - name: Display final configuration and status
       ansible.builtin.debug:
