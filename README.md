@@ -411,7 +411,6 @@ OpenShift-Virtualization-GitOps/          # Main workshop repository
 OpenShift-Virtualization-GitOps-Apps/    # Companion Apps repository
 ├── base/                                # Base VM templates and resources
 │   ├── kustomization.yaml              # Base Kustomize configuration
-│   ├── ssh-secret.yaml                 # SSH secret template
 │   ├── vm-web-01.yaml                  # Web server VM 01 definition
 │   ├── vm-web-02.yaml                  # Web server VM 02 definition
 │   └── vm-web-service.yaml             # Service and route definitions
