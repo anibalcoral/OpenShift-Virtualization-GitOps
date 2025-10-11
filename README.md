@@ -43,7 +43,6 @@ Each environment uses Kustomize overlays for environment-specific resource confi
 **SSH Key Management:**
 - The `setup-ssh-key.yaml` playbook automatically generates and configures SSH keys
 - SSH keys are generated locally and only the public key is used in VM configurations
-- The `ssh-secret.yaml` file contains only a placeholder - real keys are populated during setup
 
 ## Installation
 
