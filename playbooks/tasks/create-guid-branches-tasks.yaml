@@ -1,0 +1,99 @@
+---
+# Tasks for creating GUID-specific branches in Apps repository
+
+- name: Check if Apps repository exists
+  ansible.builtin.stat:
+    path: "{{ apps_repo_path }}"
+  register: apps_repo_stat
+
+- name: Fail if Apps repository does not exist
+  ansible.builtin.fail:
+    msg: "Apps repository not found at {{ apps_repo_path }}. Please clone it first."
+  when: not apps_repo_stat.stat.exists
+
+- name: Check current branch in Apps repository
+  ansible.builtin.command:
+    cmd: git branch --show-current
+    chdir: "{{ apps_repo_path }}"
+  register: current_branch
+  changed_when: false
+
+- name: Display current branch
+  ansible.builtin.debug:
+    msg: "Current branch in Apps repository: {{ current_branch.stdout }}"
+
+- name: Fetch all branches from remote
+  ansible.builtin.command:
+    cmd: git fetch --all
+    chdir: "{{ apps_repo_path }}"
+  register: git_fetch
+  changed_when: git_fetch.rc == 0
+
+- name: Check if source branches exist
+  ansible.builtin.command:
+    cmd: "git rev-parse --verify origin/{{ item }}"
+    chdir: "{{ apps_repo_path }}"
+  register: source_branch_check
+  failed_when: false
+  changed_when: false
+  loop:
+    - vms-dev
+    - vms-hml
+    - main
+
+- name: Fail if required source branches do not exist
+  ansible.builtin.fail:
+    msg: "Source branch {{ item.item }} does not exist in the Apps repository"
+  when: item.rc != 0
+  loop: "{{ source_branch_check.results }}"
+
+- name: Create GUID-specific development branch
+  ansible.builtin.command:
+    cmd: "git checkout -b {{ dev_branch }} origin/vms-dev"
+    chdir: "{{ apps_repo_path }}"
+  register: create_dev_branch
+  failed_when: create_dev_branch.rc != 0 and "already exists" not in create_dev_branch.stderr
+  changed_when: create_dev_branch.rc == 0
+
+- name: Create GUID-specific homologation branch
+  ansible.builtin.command:
+    cmd: "git checkout -b {{ hml_branch }} origin/vms-hml"
+    chdir: "{{ apps_repo_path }}"
+  register: create_hml_branch
+  failed_when: create_hml_branch.rc != 0 and "already exists" not in create_hml_branch.stderr
+  changed_when: create_hml_branch.rc == 0
+
+- name: Create GUID-specific production branch
+  ansible.builtin.command:
+    cmd: "git checkout -b {{ prd_branch }} origin/main"
+    chdir: "{{ apps_repo_path }}"
+  register: create_prd_branch
+  failed_when: create_prd_branch.rc != 0 and "already exists" not in create_prd_branch.stderr
+  changed_when: create_prd_branch.rc == 0
+
+- name: Switch to development branch
+  ansible.builtin.command:
+    cmd: "git checkout {{ dev_branch }}"
+    chdir: "{{ apps_repo_path }}"
+  register: switch_to_dev
+  changed_when: switch_to_dev.rc == 0
+
+- name: Push GUID-specific branches to remote
+  ansible.builtin.command:
+    cmd: "git push origin {{ item }}"
+    chdir: "{{ apps_repo_path }}"
+  register: push_branches
+  failed_when: push_branches.rc != 0 and "already exists" not in push_branches.stderr
+  changed_when: push_branches.rc == 0
+  loop:
+    - "{{ dev_branch }}"
+    - "{{ hml_branch }}"
+    - "{{ prd_branch }}"
+
+- name: Display branch creation summary
+  ansible.builtin.debug:
+    msg: |
+      GUID-specific branches created successfully:
+      - Development: {{ dev_branch }}
+      - Homologation: {{ hml_branch }}
+      - Production: {{ prd_branch }}

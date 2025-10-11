@@ -13,36 +13,15 @@ Before starting the workshop, ensure you have:
   ```bash
   export GUID=user01
   ```
-- Both repositories cloned locally on `/opt` directory:
-  ```bash
-  cd /opt
-  git clone git@github.com:anibalcoral/OpenShift-Virtualization-GitOps.git
-  git clone git@github.com:anibalcoral/OpenShift-Virtualization-GitOps-Apps.git
-  ```
 
-**Note**: The Apps repository must be cloned and the GUID must be unique to prevent conflicts with other workshop participants.
+**Before you Begin**
 
-## Multi-User Isolation with GUID
+- To run this lab you will need to a playbook called `setup-workshop-repos.yaml` that is not in this repository. If you would like to run this lab please contact @anibalcoral or @lgchiaretto
 
-This workshop supports multiple users working simultaneously on the same of different cluster using GUID-based branch isolation:
 
-### GUID-Based Architecture
-- **Shared Namespaces**: All users share the same namespaces (`workshop-gitops-vms-dev`, `workshop-gitops-vms-hml`, `workshop-gitops-vms-prd`)
-- **Isolated Branches**: Each user gets unique branches in the Apps repository:
-  - `vms-dev-{GUID}`: User-specific development branch
-  - `vms-hml-{GUID}`: User-specific homologation branch  
-  - `vms-prd-{GUID}`: User-specific production branch
-- **Isolated Applications**: Each user gets unique ArgoCD applications:
-  - `workshop-gitops-vms-dev-{GUID}`
-  - `workshop-gitops-vms-hml-{GUID}`
-  - `workshop-gitops-vms-prd-{GUID}`
+**Note**: The Apps repository is cloned and the install cluster will change the branches to `-$GUID` to be unique to prevent conflicts with other workshops participants.
 
-### Benefits
-- Multiple participants can run the workshop simultaneously without conflicts
-- Each user has their own Git branches for experimentation
-- Easy cleanup per user with GUID-based resource identification
-
-## Workshop Architecture
+# Workshop Architecture
 
 This workshop uses a **dual-repository strategy** with **multi-branch environments**:
 
@@ -71,18 +50,25 @@ Each environment uses Kustomize overlays for environment-specific resource confi
 
 **Complete installation:**
 ```bash
-export GUID=user01  # Set your unique identifier
+export GUID=user01  # Not necessary if you are running at bastion lab
+```
+```
 ./install.sh
 ```
 
 **Individual Ansible playbooks:**
 ```bash
 # Install complete workshop
-export GUID=user01  # Set your unique identifier
+export GUID=user01  # Not necessary if you are running at bastion lab
+```
+```
 ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/install-workshop.yaml -e "guid=$GUID"
-
+```
+```
 # Or run individual components
 ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/validate-cluster-domain.yaml -e "guid=$GUID"
+```
+```
 ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/setup-ssh-key.yaml -e "guid=$GUID"
 ```
 
@@ -90,15 +76,27 @@ ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /op
 
 For step-by-step installation or troubleshooting:
 
+
+- Replace {GUID} with your actual GUID in manual install files
+- Apply manual manifests in order
+- Before applying you have to edit and replace {GUID} on all playbooks
 ```bash
-# Replace {GUID} with your actual GUID in manual install files
-# Apply manual manifests in order
 oc apply -f manual-install/01-gitops-operator-subscription.yaml
+```
+```
 oc apply -f manual-install/02-cluster-role-binding.yaml
-oc apply -f manual-install/03-namespaces.yaml  # Edit to replace {GUID}
-oc apply -f manual-install/04-argocd-app-dev.yaml  # Edit to replace {GUID}
-oc apply -f manual-install/05-argocd-app-hml.yaml  # Edit to replace {GUID}
-oc apply -f manual-install/06-argocd-app-prd.yaml  # Edit to replace {GUID}
+```
+```
+oc apply -f manual-install/03-namespaces.yaml
+```
+```
+oc apply -f manual-install/04-argocd-app-dev.yaml
+```
+```
+oc apply -f manual-install/05-argocd-app-hml.yaml
+```
+```
+oc apply -f manual-install/06-argocd-app-prd.yaml
 ```
 
 ## Verification
@@ -113,9 +111,12 @@ echo "Password: $(oc get secret openshift-gitops-cluster -n openshift-gitops -o 
 **Check workshop status:**
 ```bash
 # Using interactive demo runner
-export GUID=user01  # Set your unique identifier
+export GUID=user01  # Not necessary if you are running at bastion lab
+```
+```
 ./run-demos.sh s
-
+```
+```
 # Or directly with Ansible
 ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/check-workshop-status.yaml -e "guid=$GUID"
 ```
@@ -125,7 +126,7 @@ ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /op
 ### Demo 1: Manual Change Detection and Drift Correction
 ```bash
 # Using Ansible playbook
-export GUID=user01  # Set your unique identifier
+export GUID=user01  # Not necessary if you are running at bastion lab
 ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo1-manual-change.yaml -e "guid=$GUID"
 
 # Using interactive runner (requires GUID environment variable)
@@ -240,18 +241,19 @@ ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /op
 
 **Complete Workshop Removal**
 ```bash
-export GUID=user01  # Set your unique identifier
+export GUID=user01  # Not necessary if you are running at bastion lab
+```
+```
 ./remove.sh
 ```
 
 **Or use Ansible playbooks directly:**
 ```bash
 # Remove workshop resources only
-export GUID=user01  # Set your unique identifier
+export GUID=user01  # Not necessary if you are running at bastion lab
+```
+```
 ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/remove-workshop.yaml -e "guid=$GUID"
-
-# Remove workshop resources and GitOps operator
-ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/remove-workshop.yaml -e "guid=$GUID" -e remove_operator=true
 ```
 
 ### Status Monitoring
@@ -261,7 +263,7 @@ ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /op
 # Select option 's' to check status
 
 # Direct Ansible playbook
-ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/check-workshop-status.yaml
+ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/check-workshop-status.yaml -e "guid=$GUID"
 
 # OpenShift CLI monitoring
 oc get applications.argoproj.io -n openshift-gitops
@@ -353,17 +355,14 @@ Each environment deploys identical VMs with environment-specific resource alloca
 **Or use Ansible playbooks directly:**
 ```bash
 # Remove workshop resources only
-ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/remove-workshop.yaml
-
-# Remove workshop resources and GitOps operator
-ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/remove-workshop.yaml -e remove_operator=true
+ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/remove-workshop.yaml -e "guid=$GUID"
 ```
 
 ### Status Monitoring
 
 **Ansible method:**
 ```bash
-ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/check-workshop-status.yaml
+ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/check-workshop-status.yaml -e "guid=$GUID"
 ```
 
 **ArgoCD UI monitoring:**

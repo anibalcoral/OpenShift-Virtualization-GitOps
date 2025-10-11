@@ -1,0 +1,84 @@
+---
+# Tasks for removing GUID-specific branches from Apps repository
+
+- name: Check if Apps repository exists
+  ansible.builtin.stat:
+    path: "{{ apps_repo_path }}"
+  register: apps_repo_stat
+
+- name: Skip branch removal if Apps repository does not exist
+  ansible.builtin.debug:
+    msg: "Apps repository not found at {{ apps_repo_path }}. Skipping branch removal."
+  when: not apps_repo_stat.stat.exists
+
+- name: Remove GUID-specific branches
+  block:
+    - name: Switch to main branch
+      ansible.builtin.command:
+        cmd: git checkout main
+        chdir: "{{ apps_repo_path }}"
+      register: switch_to_main
+      changed_when: switch_to_main.rc == 0
+      failed_when: false
+
+    - name: Fetch all branches from remote
+      ansible.builtin.command:
+        cmd: git fetch --all --prune
+        chdir: "{{ apps_repo_path }}"
+      register: git_fetch
+      changed_when: git_fetch.rc == 0
+      failed_when: false
+
+    - name: Check if GUID-specific branches exist locally
+      ansible.builtin.command:
+        cmd: "git rev-parse --verify {{ item }}"
+        chdir: "{{ apps_repo_path }}"
+      register: local_branch_check
+      failed_when: false
+      changed_when: false
+      loop:
+        - "{{ dev_branch }}"
+        - "{{ hml_branch }}"
+        - "{{ prd_branch }}"
+
+    - name: Delete local GUID-specific branches
+      ansible.builtin.command:
+        cmd: "git branch -D {{ item.item }}"
+        chdir: "{{ apps_repo_path }}"
+      register: delete_local_branches
+      failed_when: false
+      changed_when: delete_local_branches.rc == 0
+      when: item.rc == 0
+      loop: "{{ local_branch_check.results }}"
+
+    - name: Check if GUID-specific branches exist on remote
+      ansible.builtin.command:
+        cmd: "git rev-parse --verify origin/{{ item }}"
+        chdir: "{{ apps_repo_path }}"
+      register: remote_branch_check
+      failed_when: false
+      changed_when: false
+      loop:
+        - "{{ dev_branch }}"
+        - "{{ hml_branch }}"
+        - "{{ prd_branch }}"
+
+    - name: Delete remote GUID-specific branches
+      ansible.builtin.command:
+        cmd: "git push origin --delete {{ item.item }}"
+        chdir: "{{ apps_repo_path }}"
+      register: delete_remote_branches
+      failed_when: false
+      changed_when: delete_remote_branches.rc == 0
+      when: item.rc == 0
+      loop: "{{ remote_branch_check.results }}"
+
+    - name: Display branch removal summary
+      ansible.builtin.debug:
+        msg: |
+          GUID-specific branches removal completed:
+          - Development: {{ dev_branch }}
+          - Homologation: {{ hml_branch }}
+          - Production: {{ prd_branch }}
+
+  when: apps_repo_stat.stat.exists
