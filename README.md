@@ -126,12 +126,14 @@ ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /op
 
 ### Demo 1: Manual Change Detection and Drift Correction
 ```bash
-# Using Ansible playbook
 export GUID=user01  # Not necessary if you are running at bastion lab
-ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo1-manual-change.yaml -e "guid=$GUID"
-
-# Use the demo runner:
+```
+```
 /opt/OpenShift-Virtualization-GitOps/run-demos.sh 1
+```
+```
+# Or directly with Ansible
+ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo1-manual-change.yaml
 ```
 
 **Step By Step to run Demo 1**
@@ -150,11 +152,14 @@ Using the doc [DEMO1-MANUAL-CHANGE.md](demo-scripts/DEMO1-MANUAL-CHANGE.md)
 
 ### Demo 2: VM Recovery from Data Loss
 ```bash
+export GUID=user01  # Not necessary if you are running at bastion lab
+```
+```
+/opt/OpenShift-Virtualization-GitOps/run-demos.sh 2
+```
+```
 # Using Ansible playbook
 ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo2-vm-recovery.yaml
-
-# Use the demo runner:
-/opt/OpenShift-Virtualization-GitOps/run-demos.sh 2
 ```
 
 **Step By Step to run Demo 2**
@@ -169,12 +174,15 @@ Using the doc [DEMO2-VM-RECOVERY.md](demo-scripts/DEMO2-VM-RECOVERY.md)
 
 ### Demo 3: Adding New Development VM via Git Change
 ```bash
+export GUID=user01  # Not necessary if you are running at bastion lab
+```
+```
+/opt/OpenShift-Virtualization-GitOps/run-demos.sh 3
+```
+
+```
 # Using Ansible playbook
 ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo3-add-development-vm.yaml
-
-# Use the demo runner:
-/opt/OpenShift-Virtualization-GitOps/run-demos.sh 3
-
 ```
 **Step By Step to run Demo 3**
 
@@ -207,9 +215,15 @@ Using the doc [DEMO4-MULTI-ENV-MANAGEMENT.md](demo-scripts/DEMO4-MULTI-ENV-MANAG
 
 ### Interactive Demo Runner
 ```bash
-/opt/OpenShift-Virtualization-GitOps/run-demos.sh
+export GUID=user01  # Not necessary if you are running at bastion lab
 ```
-Provides a menu-driven interface to run all demos and utilities.
+```
+/opt/OpenShift-Virtualization-GitOps/run-demos.sh 4
+```
+```
+# Using Ansible playbook
+ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo4-multi-env-management.yam
+```
 
 ### Demo 3 Cleanup
 ```bash
@@ -253,7 +267,7 @@ oc get applications.argoproj.io -n openshift-gitops
 oc get vm -A | grep workshop-gitops
 ```
 
-### Run All Demos
+### Run All Demos (TODO: Fix demo3 and demo4)
 ```bash
 /opt/OpenShift-Virtualization-GitOps/run-demos.sh a
 ```
