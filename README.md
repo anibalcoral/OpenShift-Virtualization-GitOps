@@ -11,6 +11,7 @@ Before starting the workshop, ensure you have:
 - **Git access** to the companion Apps repository
 - **GUID environment variable** set to a unique identifier (e.g., your username)
   ```bash
+  # Ignore this step if you are running at the bastion lab node
   export GUID=user01
   ```
 
