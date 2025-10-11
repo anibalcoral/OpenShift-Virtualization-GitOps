@@ -199,5 +199,3 @@
           =======================================
           GUID: {{ guid }}
           All workshop resources for GUID {{ guid }} have been removed
-          GUID-specific branches have been deleted
-          {{ 'GitOps operator was also removed' if remove_operator else 'GitOps operator was preserved (use -e remove_operator=true to remove it)' }}
