@@ -262,18 +262,7 @@
       ansible.builtin.debug:
         msg: "Triggering an ArgoCD sync to correct the drift..."
 
-    - name: Force refresh on ArgoCD app to detect new files
-      ansible.builtin.command: >
-        oc patch application {{ app_name }}
-        -n openshift-gitops
-        --type merge
-        -p '{"metadata":{"annotations":{"argocd.argoproj.io/refresh":"hard"}}}'
-
-    - name: Wait a few seconds for ArgoCD to refresh
-      ansible.builtin.pause:
-        seconds: 5
-
-    - name: Trigger sync after refresh
+    - name: Force ArgoCD sync operation with patch command
       kubernetes.core.k8s:
         state: present
         definition:
@@ -309,12 +298,18 @@
       delay: 2
       ignore_errors: true
 
-    - name: Refresh ArgoCD application to detect Git changes
-      ansible.builtin.shell:
-        cmd: oc patch application {{ app_name }} -n openshift-gitops --type merge -p '{"metadata":{"annotations":{"refresh":"{{ ansible_date_time.iso8601_basic_short }}"}}}'
-      failed_when: false
+    - name: Force refresh on ArgoCD app to detect new files
+      ansible.builtin.command: >
+        oc patch application {{ app_name }}
+        -n openshift-gitops
+        --type merge
+        -p '{"metadata":{"annotations":{"argocd.argoproj.io/refresh":"hard"}}}'
 
-    - name: Force ArgoCD sync operation with patch command
+    - name: Wait a few seconds for ArgoCD to refresh
+      ansible.builtin.pause:
+        seconds: 5
+
+    - name: Trigger sync after refresh
       kubernetes.core.k8s:
         state: present
         definition:
