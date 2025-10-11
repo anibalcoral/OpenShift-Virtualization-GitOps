@@ -35,7 +35,7 @@ This workshop uses a **dual-repository strategy** with **multi-branch environmen
 - **vms-hml-{GUID} branch**: Homologation/Staging VMs (workshop-gitops-vms-hml namespace)  
 - **vms-prd-{GUID} branch**: Production VMs (workshop-gitops-vms-prd namespace)
 
-Each GUID gets its own set of branches while sharing common namespaces to ensure isolation between workshop participants.
+Each GUID gets its own set of branches to ensure isolation between workshops participants.
 Each environment uses Kustomize overlays for environment-specific resource configurations (CPU, memory, disk, naming prefixes).
 
 ## Security Considerations
@@ -294,11 +294,7 @@ Each application:
   - `dev-vm-web-02` (1 CPU, 2GB RAM, 30GB disk)
 - **Route**: `https://dev-workshop-gitops-vms.<cluster-domain>`
 
-### Homologation Environment (vms-hml branch)
-- **Namespace**: `workshop-gitops-vms-hml`
-- **VMs**: 
-  - `hml-vm-web-01` (2 CPU, 3GB RAM, 40GB disk)
-  - `hml-vm-web-02` (2 CPU, 3GB RAM, 40GB disk)
+### Homologation Environment (vms-hml branch)Each environment uses Kustomize overlays for environment-specific resource configurations (CPU, memory, disk, naming prefixes).sk)
 - **Route**: `https://hml-workshop-gitops-vms.<cluster-domain>`
 
 ### Production Environment (main branch)
