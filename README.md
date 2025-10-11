@@ -431,7 +431,7 @@ patches:
         path: /spec/template/spec/domain/resources/requests/memory
         value: 2Gi
       - op: replace  
-        path: /spec/template/spec/domain/cpu/cores
+        path: /spec/template/spec/domain/cpu/sockets
         value: 1
     target:
       kind: VirtualMachine
@@ -445,7 +445,7 @@ patches:
         path: /spec/template/spec/domain/resources/requests/memory
         value: 4Gi
       - op: replace
-        path: /spec/template/spec/domain/cpu/cores  
+        path: /spec/template/spec/domain/cpu/sockets  
         value: 2
     target:
       kind: VirtualMachine
