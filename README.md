@@ -297,7 +297,7 @@ Each application:
   - `dev-vm-web-02` (1 CPU, 2GB RAM, 30GB disk)
 - **Route**: `https://dev-workshop-gitops-vms.<cluster-domain>`
 
-### Homologation Environment (vms-hml branch)Each environment uses Kustomize overlays for environment-specific resource configurations (CPU, memory, disk, naming prefixes).sk)
+### Homologation Environment (vms-hml branch)
 - **Route**: `https://hml-workshop-gitops-vms.<cluster-domain>`
 
 ### Production Environment (main branch)
