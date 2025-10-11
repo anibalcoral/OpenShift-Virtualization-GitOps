@@ -262,7 +262,7 @@
       ansible.builtin.debug:
         msg: "Triggering an ArgoCD sync to correct the drift..."
 
-    - name: Refresh ArgoCD application to detect Git changes (homologation)
+    - name: Refresh ArgoCD application to detect Git changes
       ansible.builtin.shell:
         cmd: oc patch application {{ app_name }} -n openshift-gitops --type merge -p '{"metadata":{"annotations":{"refresh":"{{ ansible_date_time.iso8601_basic_short }}"}}}'
       failed_when: false
@@ -288,7 +288,7 @@
     - name: "Step 6: Waiting for ArgoCD to detect Git changes"
       ansible.builtin.debug:
         msg: "Waiting for ArgoCD to detect Git changes..."
- 
+
     - name: Wait for application to become OutOfSync (detecting changes)
       kubernetes.core.k8s_info:
         api_version: argoproj.io/v1alpha1
@@ -303,28 +303,10 @@
       delay: 2
       ignore_errors: true
 
-    - name: Refresh ArgoCD application to detect Git changes (homologation)
-      ansible.builtin.shell:
-        cmd: oc patch application {{ app_name }} -n openshift-gitops --type merge -p '{"metadata":{"annotations":{"refresh":"{{ ansible_date_time.iso8601_basic_short }}"}}}'
-      failed_when: false
-
-    - name: Force ArgoCD sync operation with patch command
-      kubernetes.core.k8s:
-        state: present
-        definition:
-          apiVersion: argoproj.io/v1alpha1
-          kind: Application
-          metadata:
-            name: "{{ app_name }}"
-            namespace: openshift-gitops
-          operation:
-            sync:
-              revision: "HEAD"
-              prune: true
-              dryRun: false
-        merge_type: merge
-      register: sync_result
-      failed_when: false
+    - name: Wait additional time for ArgoCD sync to complete
+      ansible.builtin.pause:
+        seconds: 15
+        prompt: "Waiting for ArgoCD to process sync operation..."
 
     - name: "Step 7: Waiting for new VM to be created"
       ansible.builtin.debug:
@@ -339,7 +321,7 @@
       register: vm_check
       until: vm_check.resources | length > 0
       retries: 60
-      delay: 2
+      delay: 5
 
     - name: "Step 8: Waiting for application to return to Synced state"
       ansible.builtin.debug:
@@ -380,7 +362,7 @@
           final_vm_status.resources[0].status.printableStatus == "Running"
         )
       retries: 30
-      delay: 10
+      delay: 15
 
     - name: Display VM creation success
       ansible.builtin.debug:

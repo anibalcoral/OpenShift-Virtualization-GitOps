@@ -226,7 +226,7 @@
           Step 6: Waiting for ArgoCD synchronization
           ============================================
 
-    - name: Refresh ArgoCD application to detect Git changes (homologation)
+    - name: Refresh ArgoCD application to detect Git changes
       ansible.builtin.shell:
         cmd: oc patch application {{ item }} -n openshift-gitops --type merge -p '{"metadata":{"annotations":{"refresh":"{{ ansible_date_time.iso8601_basic_short }}"}}}'
       failed_when: false
