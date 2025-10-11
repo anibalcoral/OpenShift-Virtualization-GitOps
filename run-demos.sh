@@ -76,11 +76,6 @@ case $choice in
         ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/cleanup-ssh-known-hosts.yaml
         ;;
     c|C)
-        log "Running Demo 3 cleanup..."
-        echo ""
-        ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/cleanup-demo3.yaml
-        ;;
-    d|D)
         log "Running Demo 4 cleanup..."
         echo ""
         ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/cleanup-demo4.yaml

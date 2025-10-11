@@ -165,7 +165,12 @@
           Merge result: {{ merge_hml.stdout if merge_hml.stdout else 'Already up to date' }}
           Push result: {{ 'Changes pushed successfully' if push_hml.changed else 'No changes to push' }}
 
-    - name: Force ArgoCD sync operation again to ensure deployment
+    - name: Refresh ArgoCD application to detect Git changes (homologation)
+      ansible.builtin.shell:
+        cmd: oc patch application {{ app_name_hml }} -n openshift-gitops --type merge -p '{"metadata":{"annotations":{"refresh":"{{ ansible_date_time.iso8601_basic_short }}"}}}'
+      failed_when: false
+
+    - name: Force ArgoCD sync operation with patch command
       kubernetes.core.k8s:
         state: present
         definition:
@@ -174,14 +179,13 @@
           metadata:
             name: "{{ app_name_hml }}"
             namespace: openshift-gitops
-            annotations:
-              ansible.argocd.force.sync/timestamp: "{{ ansible_date_time.iso8601_basic_short }}"
-          spec:
           operation:
             sync:
               revision: "HEAD"
               prune: true
               dryRun: false
+        merge_type: merge
+      register: sync_result_hml
       failed_when: false
 
     - name: Wait for application to return to Synced state
@@ -267,7 +271,12 @@
           Merge result: {{ merge_prd.stdout if merge_prd.stdout else 'Already up to date' }}
           Push result: {{ 'Changes pushed successfully' if push_prd.changed else 'No changes to push' }}
 
-    - name: Force ArgoCD sync operation again to ensure deployment
+    - name: Refresh ArgoCD application to detect Git changes (production)
+      ansible.builtin.shell:
+        cmd: oc patch application {{ app_name_prd }} -n openshift-gitops --type merge -p '{"metadata":{"annotations":{"refresh":"{{ ansible_date_time.iso8601_basic_short }}"}}}'
+      failed_when: false
+
+    - name: Force ArgoCD sync operation with patch command
       kubernetes.core.k8s:
         state: present
         definition:
@@ -276,14 +285,13 @@
           metadata:
             name: "{{ app_name_prd }}"
             namespace: openshift-gitops
-            annotations:
-              ansible.argocd.force.sync/timestamp: "{{ ansible_date_time.iso8601_basic_short }}"
-          spec:
           operation:
             sync:
               revision: "HEAD"
               prune: true
               dryRun: false
+        merge_type: merge
+      register: sync_result_prd
       failed_when: false
 
     - name: Wait for application to return to Synced state

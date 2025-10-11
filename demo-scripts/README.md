@@ -59,9 +59,6 @@ ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /op
 # Demo 4: Multi-environment management
 ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo4-multi-env-management.yaml
 
-# Demo 3 cleanup: Remove development VM
-ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/cleanup-demo3.yaml
-
 # Demo 4 cleanup: Remove multi-environment VMs
 ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/cleanup-demo4.yaml
 ```
@@ -76,24 +73,14 @@ ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /op
 
 ## Cleanup
 
-Demo 3 and Demo 4 create Git changes and cluster resources. Clean up using:
+Demo 4 create Git changes and cluster resources. Clean up using:
 
 ```bash
-# Clean up Demo 3
-ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/cleanup-demo3.yaml
-
 # Clean up Demo 4  
 ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/cleanup-demo4.yaml
 ```
 
 The cleanup processes:
-
-**Demo 3 Cleanup:**
-- Removes vm-web-09.yaml from Git repository
-- Updates kustomization.yaml to exclude the VM
-- Commits and pushes cleanup changes
-- Triggers ArgoCD sync with prune to remove cluster resources
-- Restores development environment to baseline (2 VMs)
 
 **Demo 4 Cleanup:**
 - Removes vm-web-09 from all environments through Git branch promotion

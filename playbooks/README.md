@@ -80,14 +80,6 @@ ansible-galaxy install -r requirements.yml
 
 ## Cleanup Playbooks
 
-- `cleanup-demo3.yaml`
-  - Purpose: Cleanup Demo 3 resources
-  - Actions:
-    - Removes vm-web-09 from Git repository
-    - Updates kustomization.yaml to exclude the VM
-    - Commits and pushes cleanup changes
-    - Triggers ArgoCD sync to remove cluster resources
-
 - `cleanup-demo4.yaml`
   - Purpose: Cleanup Demo 4 resources
   - Actions:
@@ -139,9 +131,6 @@ ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /op
 Clean up demo resources:
 
 ```bash
-# Clean up Demo 3
-ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/cleanup-demo3.yaml
-
 # Clean up Demo 4
 ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/cleanup-demo4.yaml
 ```

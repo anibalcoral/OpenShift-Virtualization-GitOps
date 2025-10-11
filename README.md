@@ -218,16 +218,6 @@ Using the doc [DEMO4-MULTI-ENV-MANAGEMENT.md](demo-scripts/DEMO4-MULTI-ENV-MANAG
 - Centralized base template management across environments
 - GitOps promotion strategies and multi-environment consistency
 
-### Demo 3 Cleanup
-```
-# Using demo runner
-/opt/OpenShift-Virtualization-GitOps/run-demos.sh c
-```
-```bash
-# Using Ansible playbook
-ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/cleanup-demo3.yaml
-```
-
 ### Demo 4 Cleanup
 ```
 # Using demo runner
@@ -392,7 +382,6 @@ OpenShift-Virtualization-GitOps/          # Main workshop repository
 │   ├── demo2-vm-recovery.yaml          # Demo 2: VM recovery
 │   ├── demo3-add-development-vm.yaml   # Demo 3: Add Virtual Machine
 │   ├── demo4-multi-env-management.yaml # Demo 4: Multi-environment management
-│   ├── cleanup-demo3.yaml              # Demo 3 cleanup
 │   ├── cleanup-demo4.yaml              # Demo 4 cleanup
 │   └── templates/                      # Ansible templates
 │       └── ssh-secret.yaml.j2         # SSH secret template
