@@ -305,7 +305,7 @@
 
     - name: Refresh ArgoCD application to detect Git changes
       ansible.builtin.shell:
-        cmd: oc patch application {{ app_name }} -n openshift-gitops --type merge -p '{"metadata":{"annotations":{"refresh":"{{ ansible_date_time.iso8601_basic_short }}"}}}'
+        cmd: oc patch application {{ app_name }} -n openshift-gitops --type merge -p '{"metadata":{"annotations":{"refresh":"last-fix-demo3"}}}'
       failed_when: false
 
     - name: Force ArgoCD sync operation with patch command
