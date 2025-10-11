@@ -146,7 +146,7 @@
 
     - name: Merge development changes to homologation
       ansible.builtin.shell:
-        cmd: git merge vms-dev-{{ guid }} -m "Promote vm-web-09 from development to homologation - Demo 4"
+        cmd: git merge vms-dev-{{ guid }}
         chdir: "{{ apps_repo_path }}"
       register: merge_hml
       changed_when: "'Fast-forward' in merge_hml.stdout or 'Merge made' in merge_hml.stdout"
@@ -199,21 +199,21 @@
       retries: 30
       delay: 2
 
-    - name: Check homologation VM creation
-      kubernetes.core.k8s_info:
-        api_version: kubevirt.io/v1
-        kind: VirtualMachine
-        name: "{{ vm_name }}"
-        namespace: "{{ namespace_hml }}"
-      register: final_vm_status
-      until: >
-        final_vm_status.resources | length > 0 and
-        (
-          final_vm_status.resources[0].status is defined and
-          final_vm_status.resources[0].status.printableStatus == "Running"
-        )
-      retries: 30
-      delay: 10
+#    - name: Check homologation VM creation
+#      kubernetes.core.k8s_info:
+#        api_version: kubevirt.io/v1
+#        kind: VirtualMachine
+#        name: "{{ vm_name }}"
+#        namespace: "{{ namespace_hml }}"
+#      register: final_vm_status
+#      until: >
+#        final_vm_status.resources | length > 0 and
+#        (
+#          final_vm_status.resources[0].status is defined and
+#          final_vm_status.resources[0].status.printableStatus == "Running"
+#        )
+#      retries: 30
+#      delay: 10
 
     - name: Display homologation deployment result
       ansible.builtin.debug:
@@ -231,14 +231,14 @@
 
     - name: Checkout production branch (main)
       ansible.builtin.shell:
-        cmd: git checkout vms-prd-$GUID
+        cmd: git checkout vms-prd-{{ guid }}
         chdir: "{{ apps_repo_path }}"
       register: checkout_main
       changed_when: "'Switched to branch' in checkout_main.stdout or 'Already on' in checkout_main.stdout"
 
     - name: Merge homologation changes to production
       ansible.builtin.shell:
-        cmd: git merge vms-hml-{{ guid }} -m "Promote vm-web-09 from homologation to production - Demo 4"
+        cmd: git merge vms-hml-{{ guid }}
         chdir: "{{ apps_repo_path }}"
       register: merge_prd
       changed_when: "'Fast-forward' in merge_prd.stdout or 'Merge made' in merge_prd.stdout"
@@ -427,7 +427,7 @@
     - name: Promote base changes to production
       ansible.builtin.shell:
         cmd: |
-          git checkout vms-prd-$GUID
+          git checkout vms-prd-{{ guid }}
           git merge vms-hml-{{ guid }}
           git push origin vms-prd-{{ guid }}
         chdir: "{{ apps_repo_path }}"
