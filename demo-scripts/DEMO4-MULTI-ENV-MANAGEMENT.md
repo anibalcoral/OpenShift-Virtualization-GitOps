@@ -70,7 +70,7 @@ git status
 
 3. Ensure you're on the vms-dev branch:
 ```bash
-git checkout vms-dev
+git checkout vms-dev-$GUID
 ```
 
 **Expected Result**: You should be on vms-dev branch with no uncommitted changes
@@ -79,13 +79,13 @@ git checkout vms-dev
 
 1. Create a merge to homologation branch:
 ```bash
-git checkout vms-hml
-git merge vms-dev
+git checkout vms-hml-$GUID
+git merge vms-dev-$GUID
 ```
 
 2. Push the changes:
 ```bash
-git push origin vms-hml
+git push origin vms-hml-$GUID
 ```
 
 3. Wait for ArgoCD to detect and sync the changes:
@@ -106,13 +106,13 @@ oc get vm -n workshop-gitops-vms-hml | grep hml-vm-web-09
 
 1. Merge homologation to main (production):
 ```bash
-git checkout main
-git merge vms-hml
+git checkout vms-prd-$GUID
+git merge vms-hml-$GUID
 ```
 
 2. Push the changes:
 ```bash
-git push origin main
+git push origin vms-prd-$GUID
 ```
 
 3. Wait for ArgoCD to sync production environment:
@@ -162,7 +162,7 @@ kubectl kustomize overlays/prd | grep -A 5 -B 5 "vm-web-09"
 
 1. Go back to development branch to make a base change:
 ```bash
-git checkout vms-dev
+git checkout vms-dev-$GUID
 ```
 
 2. Add a new annotation to the base VM template:
@@ -175,7 +175,7 @@ sed -i '/workshop.gitops\/config-version/a\    workshop.gitops/demo4-timestamp: 
 ```bash
 git add base/vm-web-09.yaml
 git commit -m "Add demo4 timestamp annotation to vm-web-09 base template"
-git push origin vms-dev
+git push origin vms-dev-$GUID
 ```
 
 4. Wait for development environment to sync:
@@ -195,16 +195,16 @@ oc get vm dev-vm-web-09 -n workshop-gitops-vms-dev -o yaml | grep -A 3 -B 3 "dem
 
 1. Promote the base change to homologation:
 ```bash
-git checkout vms-hml
-git merge vms-dev -m "Promote base template changes from development to homologation"
-git push origin vms-hml
+git checkout vms-hml-$GUID
+git merge vms-dev-$GUID
+git push origin vms-hml-$GUID
 ```
 
 2. Promote to production:
 ```bash
-git checkout main
-git merge vms-hml -m "Promote base template changes from homologation to production"
-git push origin main
+git checkout vms-prd-$GUID
+git merge vms-hml-$GUID
+git push origin vms-prd-$GUID
 ```
 
 3. Wait for all environments to sync and verify the annotation exists in all VMs:
@@ -297,20 +297,20 @@ To clean up the resources created in this demo:
 cd /opt/OpenShift-Virtualization-GitOps-Apps
 
 # Remove from development
-git checkout vms-dev
+git checkout vms-dev-$GUID
 git rm base/vm-web-09.yaml
 sed -i '/vm-web-09.yaml/d' base/kustomization.yaml
 git commit -m "Remove vm-web-09 from development"
-git push origin vms-dev
+git push origin vms-dev-$GUID
 
 # Promote removal through environments
-git checkout vms-hml
-git merge vms-dev -m "Remove vm-web-09 from homologation"
-git push origin vms-hml
+git checkout vms-hml-$GUID
+git merge vms-dev-$GUID -m "Remove vm-web-09 from homologation"
+git push origin vms-hml-$GUID
 
-git checkout main
-git merge vms-hml -m "Remove vm-web-09 from production"
-git push origin main
+git checkout vms-prd-$GUID
+git merge vms-hml-$GUID -m "Remove vm-web-09 from production"
+git push origin vms-prd-$GUID
 ```
 
 Wait for ArgoCD to sync and remove the VMs from all environments automatically.

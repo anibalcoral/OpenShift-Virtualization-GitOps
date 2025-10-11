@@ -124,7 +124,7 @@
 
     - name: Ensure we're on vms-dev branch
       ansible.builtin.shell:
-        cmd: git checkout vms-dev
+        cmd: git checkout vms-dev-{GUID}
         chdir: "{{ apps_repo_path }}"
       register: checkout_result
       changed_when: "'Switched to branch' in checkout_result.stdout or 'Already on' in checkout_result.stdout"
@@ -138,14 +138,14 @@
 
     - name: Checkout homologation branch
       ansible.builtin.shell:
-        cmd: git checkout vms-hml
+        cmd: git checkout vms-hml-{GUID}
         chdir: "{{ apps_repo_path }}"
       register: checkout_hml
       changed_when: "'Switched to branch' in checkout_hml.stdout or 'Already on' in checkout_hml.stdout"
 
     - name: Merge development changes to homologation
       ansible.builtin.shell:
-        cmd: git merge vms-dev -m "Promote vm-web-09 from development to homologation - Demo 4"
+        cmd: git merge vms-dev-{GUID} -m "Promote vm-web-09 from development to homologation - Demo 4"
         chdir: "{{ apps_repo_path }}"
       register: merge_hml
       changed_when: "'Fast-forward' in merge_hml.stdout or 'Merge made' in merge_hml.stdout"
@@ -153,7 +153,7 @@
 
     - name: Push changes to homologation branch
       ansible.builtin.shell:
-        cmd: git push origin vms-hml
+        cmd: git push origin vms-hml-{GUID}
         chdir: "{{ apps_repo_path }}"
       register: push_hml
       changed_when: "'[new branch]' in push_hml.stderr or 'To' in push_hml.stderr"
@@ -230,14 +230,14 @@
 
     - name: Checkout production branch (main)
       ansible.builtin.shell:
-        cmd: git checkout main
+        cmd: git checkout vms-prd-$GUID
         chdir: "{{ apps_repo_path }}"
       register: checkout_main
       changed_when: "'Switched to branch' in checkout_main.stdout or 'Already on' in checkout_main.stdout"
 
     - name: Merge homologation changes to production
       ansible.builtin.shell:
-        cmd: git merge vms-hml -m "Promote vm-web-09 from homologation to production - Demo 4"
+        cmd: git merge vms-hml-{GUID} -m "Promote vm-web-09 from homologation to production - Demo 4"
         chdir: "{{ apps_repo_path }}"
       register: merge_prd
       changed_when: "'Fast-forward' in merge_prd.stdout or 'Merge made' in merge_prd.stdout"
@@ -245,7 +245,7 @@
 
     - name: Push changes to production branch
       ansible.builtin.shell:
-        cmd: git push origin main
+        cmd: git push origin vms-prd-{GUID}
         chdir: "{{ apps_repo_path }}"
       register: push_prd
       changed_when: "'[new branch]' in push_prd.stderr or 'To' in push_prd.stderr"
@@ -350,7 +350,7 @@
 
     - name: Switch back to development branch for base changes
       ansible.builtin.shell:
-        cmd: git checkout vms-dev
+        cmd: git checkout vms-dev-{GUID}
         chdir: "{{ apps_repo_path }}"
       register: checkout_dev_final
       changed_when: "'Switched to branch' in checkout_dev_final.stdout or 'Already on' in checkout_dev_final.stdout"
@@ -375,7 +375,7 @@
 
     - name: Push base changes to development
       ansible.builtin.shell:
-        cmd: git push origin vms-dev
+        cmd: git push origin vms-dev-{GUID}
         chdir: "{{ apps_repo_path }}"
       when: commit_base_change.changed
       register: push_base_changes
@@ -415,9 +415,9 @@
     - name: Promote base changes to homologation
       ansible.builtin.shell:
         cmd: |
-          git checkout vms-hml
-          git merge vms-dev
-          git push origin vms-hml
+          git checkout vms-hml-{GUID}
+          git merge vms-dev-{GUID}
+          git push origin vms-hml-{GUID}
         chdir: "{{ apps_repo_path }}"
       register: promote_base_hml
       when: commit_base_change.changed
@@ -426,9 +426,9 @@
     - name: Promote base changes to production
       ansible.builtin.shell:
         cmd: |
-          git checkout main
-          git merge vms-hml
-          git push origin main
+          git checkout vms-prd-$GUID
+          git merge vms-hml-{GUID}
+          git push origin vms-prd-{GUID}
         chdir: "{{ apps_repo_path }}"
       register: promote_base_prd
       when: commit_base_change.changed
@@ -505,5 +505,5 @@
           
           # Check Git branch history
           cd {{ apps_repo_path }}
-          git checkout vms-dev
+          git checkout vms-dev-{GUID}
           git log --oneline --graph --branches

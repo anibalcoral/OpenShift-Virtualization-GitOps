@@ -40,7 +40,7 @@
       changed_when: false
 
     - name: Switch to vms-dev branch if needed
-      ansible.builtin.shell: git checkout vms-dev
+      ansible.builtin.shell: git checkout vms-dev-{GUID}
       args:
         chdir: "{{ apps_repo_path }}"
       when: current_branch.stdout != "vms-dev"
@@ -155,7 +155,7 @@
 
     - name: Push cleanup changes
       ansible.builtin.command:
-        cmd: git push origin vms-dev
+        cmd: git push origin vms-dev-{GUID}
         chdir: "{{ apps_repo_path }}"
       when: git_commit is changed
       register: git_push
@@ -163,7 +163,7 @@
     - name: Ensure the staging branch (hml) is up to date
       ansible.builtin.shell:
         cmd: |
-          git checkout vms-hml
+          git checkout vms-hml-{GUID}
           git pull origin vms-hml
         chdir: "{{ apps_repo_path }}"
       when: git_commit is changed
@@ -171,14 +171,14 @@
 
     - name: Merge DEV into HML
       ansible.builtin.shell:
-        cmd: git merge vms-dev
+        cmd: git merge vms-dev-{GUID}
         chdir: "{{ apps_repo_path }}"
       when: git_commit is changed
       register: merge_hml
 
     - name: Push changes to HML branch
       ansible.builtin.command:
-        cmd: git push origin vms-hml
+        cmd: git push origin vms-hml-{GUID}
         chdir: "{{ apps_repo_path }}"
       when: git_commit is changed and merge_hml.rc == 0
       changed_when: true
@@ -186,7 +186,7 @@
     - name: Ensure the main branch is up to date
       ansible.builtin.shell:
         cmd: |
-          git checkout main
+          git checkout vms-prd-$GUID
           git pull origin main
         chdir: "{{ apps_repo_path }}"
       when: git_commit is changed
@@ -194,14 +194,14 @@
 
     - name: Merge HML into MAIN
       ansible.builtin.shell:
-        cmd: git merge vms-hml
+        cmd: git merge vms-hml-{GUID}
         chdir: "{{ apps_repo_path }}"
       when: git_commit is changed
       register: merge_main
 
     - name: Push changes to MAIN branch
       ansible.builtin.command:
-        cmd: git push origin main
+        cmd: git push origin vms-prd-{GUID}
         chdir: "{{ apps_repo_path }}"
       when: git_commit is changed and merge_main.rc == 0
       changed_when: true
@@ -209,7 +209,7 @@
     - name: Ensure the staging branch (dev) is up to date
       ansible.builtin.shell:
         cmd: |
-          git checkout vms-dev
+          git checkout vms-dev-{GUID}
           git pull origin vms-dev
         chdir: "{{ apps_repo_path }}"
       when: git_commit is changed

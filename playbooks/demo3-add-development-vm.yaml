@@ -210,7 +210,7 @@
       changed_when: false
 
     - name: Switch to vms-dev branch if needed
-      ansible.builtin.shell: git checkout vms-dev
+      ansible.builtin.shell: git checkout vms-dev-{GUID}
       args:
         chdir: "{{ apps_repo_path }}"
       when: current_branch.stdout != "vms-dev"
@@ -248,7 +248,7 @@
 
     - name: Push changes to origin/vms-dev
       ansible.builtin.command:
-        cmd: git push origin vms-dev
+        cmd: git push origin vms-dev-{GUID}
         chdir: "{{ apps_repo_path }}"
       register: git_push
       when: git_commit.rc == 0

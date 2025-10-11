@@ -51,7 +51,7 @@ git branch --show-current
 
 3. Switch to vms-dev branch if needed:
 ```bash
-git checkout vms-dev
+git checkout vms-dev-$GUID
 ```
 
 4. Pull latest changes:
@@ -212,7 +212,7 @@ git commit -m "feat: add development VM web-09 for expanded testing environment
 
 4. Push changes to repository:
 ```bash
-git push origin vms-dev
+git push origin vms-dev-$GUID
 ```
 
 5. Verify push was successful:
@@ -381,7 +381,7 @@ git add -A
 git commit -m "cleanup: remove demo VM web-09"
 ```
 ```bash
-git push origin vms-dev
+git push origin vms-dev-$GUID
 ```
 
 ## Troubleshooting

@@ -443,7 +443,7 @@ This script provides a menu-driven interface to run any demo or check workshop s
 
 ```bash
 # Work on development branch
-git checkout vms-dev
+git checkout vms-dev-$GUID
 
 # Make changes to base templates or overlays
 vim base/vm-web-01.yaml
@@ -453,7 +453,7 @@ vim overlays/dev/kustomization.yaml
 # Commit changes
 git add .
 git commit -m "Update VM configuration"
-git push origin vms-dev
+git push origin vms-dev-$GUID
 ```
 
 ### 2. Promotion to Homologation
