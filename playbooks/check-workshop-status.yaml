@@ -5,7 +5,7 @@
   vars:
     workshop_namespace_base: "workshop-gitops-vms"
     argocd_namespace: "openshift-gitops"
-    guid: "{{ guid | default('') }}"
+    guid: "{{ lookup('env', 'GUID') | default('') }}"
 
   tasks:
     - name: Display status check info

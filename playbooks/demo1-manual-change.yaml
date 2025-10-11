@@ -10,13 +10,9 @@
     argocd_namespace: "openshift-gitops"
     git_run_strategy: "Always"
     manual_run_strategy: "Halted"
+    guid: "{{ ansible_env.GUID | default('st22j') }}"
 
   tasks:
-    - name: Fail if GUID is not provided
-      ansible.builtin.fail:
-        msg: "GUID must be provided. Use -e guid=<your_guid>"
-      when: guid == "default"
-
     - name: Display demo introduction
       ansible.builtin.debug:
         msg: |

@@ -9,7 +9,7 @@
     skip_ssh_setup: false
     ssh_key_name: "ocpvirt-gitops"
     auto_commit: true
-    guid: "{{ guid | default('default') }}"
+    guid: "{{ ansible_env.GUID | default('st22j') }}"
     dev_branch: "vms-dev-{{ guid }}"
     hml_branch: "vms-hml-{{ guid }}"
     prd_branch: "vms-prd-{{ guid }}"
@@ -28,11 +28,6 @@
           3. Setup SSH keys for VMs
           4. Install GitOps operator and applications
           5. Validate installation
-
-    - name: Fail if GUID is not provided
-      ansible.builtin.fail:
-        msg: "GUID must be provided. Use -e guid=<your_guid>"
-      when: guid == "default"
 
     - name: Create GUID-specific branches in Apps repository
       ansible.builtin.include_tasks: tasks/create-guid-branches-tasks.yaml
@@ -105,5 +100,5 @@
 
           Next steps:
           1. Access ArgoCD UI using the credentials above
-          2. Check workshop status with GUID={{ guid }}
-          3. Run demo playbooks with -e guid={{ guid }}
+          2. Check workshop status
+          3. Run demo playbooks

@@ -7,6 +7,7 @@
     vm_name: "dev-vm-web-09"
     app_name: "workshop-gitops-vms-dev"
     apps_repo_path: "/opt/OpenShift-Virtualization-GitOps-Apps"
+    guid: "{{ ansible_env.GUID | default('st22j') }}"
 
   tasks:
     - name: "Demo 3: Adding New Development VM via Git Change"
@@ -210,10 +211,10 @@
       changed_when: false
 
     - name: Switch to vms-dev branch if needed
-      ansible.builtin.shell: git checkout vms-dev-{GUID}
-      args:
+      ansible.builtin.command:
+        cmd: git checkout vms-dev-{{ guid }}
         chdir: "{{ apps_repo_path }}"
-      when: current_branch.stdout != "vms-dev"
+      when: current_branch.stdout != ("vms-dev-" + guid)
       register: branch_switch
 
     - name: Show branch switch result
@@ -248,7 +249,7 @@
 
     - name: Push changes to origin/vms-dev
       ansible.builtin.command:
-        cmd: git push origin vms-dev-{GUID}
+        cmd: git push origin vms-dev-{{ guid }}
         chdir: "{{ apps_repo_path }}"
       register: git_push
       when: git_commit.rc == 0

@@ -7,6 +7,7 @@
     vm_name: "dev-vm-web-09"
     app_name: "workshop-gitops-vms-dev"
     apps_repo_path: "/opt/OpenShift-Virtualization-GitOps-Apps"
+    guid: "{{ ansible_env.GUID | default('st22j') }}"
 
   tasks:
     - name: "Demo 3 Cleanup: Removing Development VM"
@@ -40,10 +41,10 @@
       changed_when: false
 
     - name: Switch to vms-dev branch if needed
-      ansible.builtin.shell: git checkout vms-dev-{GUID}
+      ansible.builtin.shell: git checkout vms-dev-{{ guid }}
       args:
         chdir: "{{ apps_repo_path }}"
-      when: current_branch.stdout != "vms-dev"
+      when: current_branch.stdout != "vms-dev-" + guid
       register: branch_switch
 
     - name: Show branch switch result
@@ -155,7 +156,7 @@
 
     - name: Push cleanup changes
       ansible.builtin.command:
-        cmd: git push origin vms-dev-{GUID}
+        cmd: git push origin vms-dev-{{ guid }}
         chdir: "{{ apps_repo_path }}"
       when: git_commit is changed
       register: git_push
@@ -163,22 +164,22 @@
     - name: Ensure the staging branch (hml) is up to date
       ansible.builtin.shell:
         cmd: |
-          git checkout vms-hml-{GUID}
-          git pull origin vms-hml
+          git checkout vms-hml-{{ guid }}
+          git pull origin vms-hml-{{ guid }}
         chdir: "{{ apps_repo_path }}"
       when: git_commit is changed
       changed_when: false
 
     - name: Merge DEV into HML
       ansible.builtin.shell:
-        cmd: git merge vms-dev-{GUID}
+        cmd: git merge vms-dev-{{ guid }}
         chdir: "{{ apps_repo_path }}"
       when: git_commit is changed
       register: merge_hml
 
     - name: Push changes to HML branch
       ansible.builtin.command:
-        cmd: git push origin vms-hml-{GUID}
+        cmd: git push origin vms-hml-{{ guid }}
         chdir: "{{ apps_repo_path }}"
       when: git_commit is changed and merge_hml.rc == 0
       changed_when: true
@@ -186,22 +187,22 @@
     - name: Ensure the main branch is up to date
       ansible.builtin.shell:
         cmd: |
-          git checkout vms-prd-$GUID
-          git pull origin main
+          git checkout vms-prd-{{ guid }}
+          git pull origin vms-prd-{{ guid }}
         chdir: "{{ apps_repo_path }}"
       when: git_commit is changed
       changed_when: false
 
     - name: Merge HML into MAIN
       ansible.builtin.shell:
-        cmd: git merge vms-hml-{GUID}
+        cmd: git merge vms-hml-{{ guid }}
         chdir: "{{ apps_repo_path }}"
       when: git_commit is changed
       register: merge_main
 
     - name: Push changes to MAIN branch
       ansible.builtin.command:
-        cmd: git push origin vms-prd-{GUID}
+        cmd: git push origin vms-prd-{{ guid }}
         chdir: "{{ apps_repo_path }}"
       when: git_commit is changed and merge_main.rc == 0
       changed_when: true
@@ -209,8 +210,8 @@
     - name: Ensure the staging branch (dev) is up to date
       ansible.builtin.shell:
         cmd: |
-          git checkout vms-dev-{GUID}
-          git pull origin vms-dev
+          git checkout vms-dev-{{ guid }}
+          git pull origin vms-dev-{{ guid }}
         chdir: "{{ apps_repo_path }}"
       when: git_commit is changed
       changed_when: false
@@ -228,35 +229,53 @@
       ansible.builtin.debug:
         msg: "Triggering ArgoCD sync to apply cleanup (with prune)..."
 
-    - name: Trigger ArgoCD sync with prune
+    - name: Trigger ArgoCD sync with aggressive prune
       kubernetes.core.k8s:
         state: present
         definition:
           apiVersion: argoproj.io/v1alpha1
           kind: Application
           metadata:
-            name: "{{ app_name }}"
+            name: "{{ app_name }}-{{ guid }}"
             namespace: openshift-gitops
           spec:
             syncPolicy:
+              automated:
+                prune: true
+                selfHeal: true
               syncOptions:
                 - PrunePropagationPolicy=foreground
                 - Prune=true
-          merge_type:
-            - strategic-merge
-            - merge
+                - Delete=true
+                - CreateNamespace=false
+        merge_type:
+          - strategic-merge
+          - merge
 
-    - name: Trigger ArgoCD refresh and sync
+    - name: Trigger ArgoCD refresh and hard sync
       kubernetes.core.k8s:
         state: present
         definition:
           apiVersion: argoproj.io/v1alpha1
           kind: Application
           metadata:
-            name: "{{ app_name }}"
+            name: "{{ app_name }}-{{ guid }}"
             namespace: openshift-gitops
             annotations:
               argocd.argoproj.io/refresh: "{{ ansible_date_time.iso8601 }}"
+          spec:
+            operation:
+              sync:
+                revision: "HEAD"
+                prune: true
+                dryRun: false
+                syncOptions:
+                  - PrunePropagationPolicy=foreground
+                  - Prune=true
+                  - Delete=true
+        merge_type:
+          - strategic-merge
+          - merge
 
     - name: Wait for VM to be deleted (if it existed)
       kubernetes.core.k8s_info:

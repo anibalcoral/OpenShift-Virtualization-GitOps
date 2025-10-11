@@ -4,6 +4,7 @@
   gather_facts: true
   vars:
     ssh_key_name: "ocpvirt-gitops"
+    guid: "{{ lookup('env', 'GUID') | default('st22j') }}"
 
   tasks:
     - name: Display cleanup start

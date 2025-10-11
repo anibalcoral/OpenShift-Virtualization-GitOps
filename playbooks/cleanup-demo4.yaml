@@ -8,6 +8,7 @@
     namespace_prd: "workshop-gitops-vms-prd"
     vm_name: "vm-web-09"
     apps_repo_path: "/opt/OpenShift-Virtualization-GitOps-Apps"
+    guid: "{{ ansible_env.GUID | default('st22j') }}"
 
   tasks:
     - name: "Cleanup Demo 4: Multi-Environment VM Management"
@@ -79,7 +80,7 @@
 
     - name: Checkout development branch
       ansible.builtin.shell:
-        cmd: git checkout vms-dev-{GUID}
+        cmd: git checkout vms-dev-{{ guid }}
         chdir: "{{ apps_repo_path }}"
       register: checkout_dev
       changed_when: "'Switched to branch' in checkout_dev.stdout or 'Already on' in checkout_dev.stdout"
@@ -132,7 +133,7 @@
 
     - name: Push development changes
       ansible.builtin.shell:
-        cmd: git push origin vms-dev-{GUID}
+        cmd: git push origin vms-dev-{{ guid }}
         chdir: "{{ apps_repo_path }}"
       when: commit_dev_cleanup.changed
       register: push_dev_cleanup
@@ -153,14 +154,14 @@
 
     - name: Checkout homologation branch
       ansible.builtin.shell:
-        cmd: git checkout vms-hml-{GUID}
+        cmd: git checkout vms-hml-{{ guid }}
         chdir: "{{ apps_repo_path }}"
       register: checkout_hml
       changed_when: "'Switched to branch' in checkout_hml.stdout or 'Already on' in checkout_hml.stdout"
 
     - name: Merge development cleanup to homologation
       ansible.builtin.shell:
-        cmd: git merge vms-dev-{GUID} -m "Remove vm-web-09 from homologation environment - Demo 4 cleanup"
+        cmd: git merge vms-dev-{{ guid }} -m "Remove vm-web-09 from homologation environment - Demo 4 cleanup"
         chdir: "{{ apps_repo_path }}"
       register: merge_hml_cleanup
       when: commit_dev_cleanup.changed
@@ -169,7 +170,7 @@
 
     - name: Push homologation cleanup
       ansible.builtin.shell:
-        cmd: git push origin vms-hml-{GUID}
+        cmd: git push origin vms-hml-{{ guid }}
         chdir: "{{ apps_repo_path }}"
       when: merge_hml_cleanup.changed
       register: push_hml_cleanup
@@ -190,14 +191,14 @@
 
     - name: Checkout production branch (main)
       ansible.builtin.shell:
-        cmd: git checkout vms-prd-$GUID
+        cmd: git checkout vms-prd-{{ guid }}
         chdir: "{{ apps_repo_path }}"
       register: checkout_main
       changed_when: "'Switched to branch' in checkout_main.stdout or 'Already on' in checkout_main.stdout"
 
     - name: Merge homologation cleanup to production
       ansible.builtin.shell:
-        cmd: git merge vms-hml-{GUID} -m "Remove vm-web-09 from production environment - Demo 4 cleanup"
+        cmd: git merge vms-hml-{{ guid }} -m "Remove vm-web-09 from production environment - Demo 4 cleanup"
         chdir: "{{ apps_repo_path }}"
       register: merge_prd_cleanup
       when: merge_hml_cleanup.changed
@@ -206,7 +207,7 @@
 
     - name: Push production cleanup
       ansible.builtin.shell:
-        cmd: git push origin vms-prd-{GUID}
+        cmd: git push origin vms-prd-{{ guid }}
         chdir: "{{ apps_repo_path }}"
       when: merge_prd_cleanup.changed
       register: push_prd_cleanup
@@ -225,23 +226,43 @@
           Step 6: Waiting for ArgoCD synchronization
           ============================================
 
-    - name: Wait for ArgoCD applications to sync the removal
-      kubernetes.core.k8s_info:
-        api_version: argoproj.io/v1alpha1
-        kind: Application
-        name: "{{ item }}"
-        namespace: openshift-gitops
-        wait: true
-        wait_condition:
-          type: "SyncStatusCode"
-          status: "Synced"
-        wait_timeout: 300
+    - name: Wait for ArgoCD applications to sync the removal with aggressive prune
+      kubernetes.core.k8s:
+        state: present
+        merge_type:
+          - strategic-merge
+          - merge
+        definition:
+          apiVersion: argoproj.io/v1alpha1
+          kind: Application
+          metadata:
+            name: "{{ item }}"
+            namespace: openshift-gitops
+          spec:
+            syncPolicy:
+              automated:
+                prune: true
+                selfHeal: true
+              syncOptions:
+                - PrunePropagationPolicy=foreground
+                - Prune=true
+                - Delete=true
+                - CreateNamespace=false
+            operation:
+              sync:
+                revision: "HEAD"
+                prune: true
+                dryRun: false
+                syncOptions:
+                  - PrunePropagationPolicy=foreground
+                  - Prune=true
+                  - Delete=true
       register: argocd_sync_cleanup
       failed_when: false
       loop:
-        - "workshop-gitops-vms-dev"
-        - "workshop-gitops-vms-hml"
-        - "workshop-gitops-vms-prd"
+        - "workshop-gitops-vms-dev-{{ guid }}"
+        - "workshop-gitops-vms-hml-{{ guid }}"
+        - "workshop-gitops-vms-prd-{{ guid }}"
 
     - name: Wait additional time for VM deletion to complete
       ansible.builtin.pause:

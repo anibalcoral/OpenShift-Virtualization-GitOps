@@ -31,9 +31,9 @@ This workshop uses a **dual-repository strategy** with **multi-branch environmen
 - **Applications Repository**: Contains VM definitions and Kustomize configurations for each environment
 
 ### Environment Strategy
-- **vms-dev-{GUID} branch**: Development VMs (workshop-gitops-vms-dev namespace)
-- **vms-hml-{GUID} branch**: Homologation/Staging VMs (workshop-gitops-vms-hml namespace)  
-- **vms-prd-{GUID} branch**: Production VMs (workshop-gitops-vms-prd namespace)
+- **vms-dev-{{ guid }} branch**: Development VMs (workshop-gitops-vms-dev namespace)
+- **vms-hml-{{ guid }} branch**: Homologation/Staging VMs (workshop-gitops-vms-hml namespace)  
+- **vms-prd-{{ guid }} branch**: Production VMs (workshop-gitops-vms-prd namespace)
 
 Each GUID gets its own set of branches while sharing common namespaces to ensure isolation between workshop participants.
 Each environment uses Kustomize overlays for environment-specific resource configurations (CPU, memory, disk, naming prefixes).

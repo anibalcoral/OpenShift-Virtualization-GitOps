@@ -3,18 +3,14 @@
   hosts: local
   gather_facts: true
   vars:
-    guid: "{{ guid | default('default') }}"
+    guid: "{{ ansible_env.GUID | default('st22j') }}"
     demo_namespace: "workshop-gitops-vms-dev"
     vm_name: "dev-vm-web-01"
     app_name: "workshop-gitops-vms-dev-{{ guid }}"
     argocd_namespace: "openshift-gitops"
+    guid: "{{ ansible_env.GUID | default('st22j') }}"
 
   tasks:
-    - name: Fail if GUID is not provided
-      ansible.builtin.fail:
-        msg: "GUID must be provided. Use -e guid=<your_guid>"
-      when: guid == "default"
-
     - name: Display demo introduction
       ansible.builtin.debug:
         msg: |

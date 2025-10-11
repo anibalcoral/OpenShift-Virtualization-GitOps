@@ -5,6 +5,7 @@
   vars:
     ssh_key_name: "ocpvirt-gitops"
     apps_repo_path: "/opt/OpenShift-Virtualization-GitOps-Apps"
+    guid: "{{ ansible_env.GUID | default('st22j') }}"
 
   tasks:
     - name: Setup SSH keys for VMs

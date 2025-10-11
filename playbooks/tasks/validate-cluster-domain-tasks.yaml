@@ -134,7 +134,7 @@
 
         - name: Push changes to vms-dev branch
           ansible.builtin.shell:
-            cmd: git push origin vms-dev-{GUID}
+            cmd: git push origin vms-dev-{{ guid }}
           args:
             chdir: "{{ apps_repo_path }}"
           when: git_changes.stdout != ""
@@ -154,12 +154,12 @@
 
         - name: Merge vms-dev into vms-hml
           ansible.builtin.shell:
-            cmd: git merge vms-dev-{GUID}
+            cmd: git merge vms-dev-{{ guid }}
             chdir: "{{ apps_repo_path }}"
 
         - name: Push changes to vms-hml branch
           ansible.builtin.shell:
-            cmd: git push origin vms-hml-{GUID}
+            cmd: git push origin vms-hml-{{ guid }}
             chdir: "{{ apps_repo_path }}"
 
         - name: Switch to main branch and merge from hml
@@ -171,12 +171,12 @@
 
         - name: Merge vms-hml into main
           ansible.builtin.shell:
-            cmd: git merge vms-hml-{GUID}
+            cmd: git merge vms-hml-{{ guid }}
             chdir: "{{ apps_repo_path }}"
             
         - name: Push changes to main branch
           ansible.builtin.shell:
-            cmd: git push origin vms-prd-{GUID}
+            cmd: git push origin vms-prd-{{ guid }}
             chdir: "{{ apps_repo_path }}"
 
         - name: Switch back to vms-dev branch

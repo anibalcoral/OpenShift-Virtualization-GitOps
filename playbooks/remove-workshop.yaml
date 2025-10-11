@@ -6,7 +6,7 @@
     workshop_namespace_base: "workshop-gitops-vms"
     argocd_namespace: "openshift-gitops"
     remove_operator: false
-    guid: "{{ guid | default('default') }}"
+    guid: "{{ ansible_env.GUID | default('st22j') }}"
     dev_branch: "vms-dev-{{ guid }}"
     hml_branch: "vms-hml-{{ guid }}"
     prd_branch: "vms-prd-{{ guid }}"
@@ -20,11 +20,6 @@
           ==========================================
           GUID: {{ guid }}
           This will remove all workshop resources for GUID {{ guid }}
-
-    - name: Fail if GUID is not provided
-      ansible.builtin.fail:
-        msg: "GUID must be provided. Use -e guid=<your_guid>"
-      when: guid == "default"
 
 #    - name: Change applications to automaticly sync and prune before deletion
 #      kubernetes.core.k8s:
