@@ -262,20 +262,12 @@
       ansible.builtin.debug:
         msg: "Triggering an ArgoCD sync to correct the drift..."
 
-    - name: Trigger ArgoCD refresh to detect Git changes
-      kubernetes.core.k8s:
-        state: present
-        definition:
-          apiVersion: argoproj.io/v1alpha1
-          kind: Application
-          metadata:
-            name: "{{ app_name }}"
-            namespace: openshift-gitops
-            annotations:
-              argocd.argoproj.io/refresh: "{{ ansible_date_time.iso8601 }}"
+    - name: Refresh ArgoCD application to detect Git changes (homologation)
+      ansible.builtin.shell:
+        cmd: oc patch application {{ app_name }} -n openshift-gitops --type merge -p '{"metadata":{"annotations":{"refresh":"{{ ansible_date_time.iso8601_basic_short }}"}}}'
       failed_when: false
 
-    - name: Force ArgoCD sync operation
+    - name: Force ArgoCD sync operation with patch command
       kubernetes.core.k8s:
         state: present
         definition:
@@ -284,14 +276,13 @@
           metadata:
             name: "{{ app_name }}"
             namespace: openshift-gitops
-          spec:
-            syncPolicy:
-              automated: null
           operation:
             sync:
               revision: "HEAD"
               prune: true
               dryRun: false
+        merge_type: merge
+      register: sync_result
       failed_when: false
 
     - name: "Step 6: Waiting for ArgoCD to detect Git changes"

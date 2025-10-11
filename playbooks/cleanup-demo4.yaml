@@ -226,7 +226,16 @@
           Step 6: Waiting for ArgoCD synchronization
           ============================================
 
-    - name: Force ArgoCD sync operation again to ensure deployment
+    - name: Refresh ArgoCD application to detect Git changes (homologation)
+      ansible.builtin.shell:
+        cmd: oc patch application {{ item }} -n openshift-gitops --type merge -p '{"metadata":{"annotations":{"refresh":"{{ ansible_date_time.iso8601_basic_short }}"}}}'
+      failed_when: false
+      loop:
+        - "workshop-gitops-vms-dev"
+        - "workshop-gitops-vms-hml"
+        - "workshop-gitops-vms-prd"
+
+    - name: Force ArgoCD sync operation with patch command
       kubernetes.core.k8s:
         state: present
         definition:
@@ -235,15 +244,13 @@
           metadata:
             name: "{{ item }}"
             namespace: openshift-gitops
-            annotations:
-              ansible.argocd.force.sync/timestamp: "{{ ansible_date_time.iso8601_basic_short }}"
-          spec:
           operation:
             sync:
               revision: "HEAD"
               prune: true
               dryRun: false
-      register: argocd_sync_cleanup
+        merge_type: merge
+      register: sync_result_hml
       failed_when: false
       loop:
         - "workshop-gitops-vms-dev"
@@ -293,52 +300,52 @@
           =================================================================
           Demo 4 Cleanup: Multi-Environment VM Management - COMPLETED
           =================================================================
-          
+
           Cleanup Summary:
-          
+
           {% if cleanup_success %}
           ✅ SUCCESS: All vm-web-09 instances removed from all environments
           {% else %}
           ⚠️  WARNING: Some VMs may still exist - check manually
           {% endif %}
-          
+
           Actions Performed:
           1. ✅ Removed vm-web-09.yaml from base directory
           2. ✅ Updated base/kustomization.yaml to remove reference
           3. ✅ Committed changes to vms-dev branch
           4. ✅ Promoted removal through vms-hml to main branches
           5. ✅ ArgoCD automatically removed VMs from all environments
-          
+
           GitOps Benefits Demonstrated in Cleanup:
           - Centralized removal: One change removes from all environments
           - Safe promotion: Changes flow through the same pipeline
           - Automated cleanup: ArgoCD handles VM deletion automatically
           - Consistent state: All environments maintain consistency
-          
+
           Environment Status:
           {% for result in vms_after_cleanup.results %}
           - {{ result.item.name }} in {{ result.item.namespace }}: {{ 'REMOVED' if not result.resources else 'STILL EXISTS' }}
           {% endfor %}
-          
+
           =================================================================
 
     - name: Provide verification commands
       ansible.builtin.debug:
         msg: |
-          
+
           Verification Commands:
-          
+
           # Verify VMs are removed from all environments
           oc get vm -n workshop-gitops-vms-dev | grep vm-web-09 || echo "Not found (expected)"
           oc get vm -n workshop-gitops-vms-hml | grep vm-web-09 || echo "Not found (expected)"
           oc get vm -n workshop-gitops-vms-prd | grep vm-web-09 || echo "Not found (expected)"
-          
+
           # Check ArgoCD application status
           oc get applications.argoproj.io -n openshift-gitops | grep workshop-gitops-vms
-          
+
           # Verify Git repository state
           cd {{ apps_repo_path }}
           git log --oneline --graph --branches -10
-          
+
           # Check base directory
           ls -la base/ | grep vm-web-09 || echo "File removed (expected)"
