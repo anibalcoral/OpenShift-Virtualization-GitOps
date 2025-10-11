@@ -6,7 +6,7 @@
     guid: "{{ guid | default('default') }}"
     demo_namespace: "workshop-gitops-vms-dev"
     vm_name: "dev-vm-web-01"
-    app_name: "workshop-gitops-vms-dev-{{ guid }}"
+    app_name: "workshop-gitops-vms-dev"
     argocd_namespace: "openshift-gitops"
     git_run_strategy: "Always"
     manual_run_strategy: "Halted"

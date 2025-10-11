@@ -89,9 +89,9 @@
           ArgoCD Password: {{ argocd_password }}
 
           Workshop Applications:
-          - workshop-gitops-vms-dev-{{ guid }} (Development VMs)
-          - workshop-gitops-vms-hml-{{ guid }} (Homologation VMs)
-          - workshop-gitops-vms-prd-{{ guid }} (Production VMs)
+          - workshop-gitops-vms-dev (Development VMs)
+          - workshop-gitops-vms-hml (Homologation VMs)
+          - workshop-gitops-vms-prd (Production VMs)
 
           Application URLs (after deployment):
           - Development: https://dev-workshop-gitops-vms.{{ cluster_domain }}

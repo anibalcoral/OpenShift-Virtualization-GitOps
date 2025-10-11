@@ -260,9 +260,9 @@
       register: argocd_sync_cleanup
       failed_when: false
       loop:
-        - "workshop-gitops-vms-dev-{{ guid }}"
-        - "workshop-gitops-vms-hml-{{ guid }}"
-        - "workshop-gitops-vms-prd-{{ guid }}"
+        - "workshop-gitops-vms-dev"
+        - "workshop-gitops-vms-hml"
+        - "workshop-gitops-vms-prd"
 
     - name: Wait additional time for VM deletion to complete
       ansible.builtin.pause:

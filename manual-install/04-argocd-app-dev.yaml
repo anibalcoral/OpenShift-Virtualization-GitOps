@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: workshop-gitops-vms-dev-{GUID}
+  name: workshop-gitops-vms-dev
   namespace: openshift-gitops
   labels:
     guid: "{GUID}"

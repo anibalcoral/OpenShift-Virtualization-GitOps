@@ -53,9 +53,9 @@
         name: "{{ item }}"
         namespace: "{{ argocd_namespace }}"
       loop:
-        - "workshop-gitops-vms-dev-{{ guid }}"
-        - "workshop-gitops-vms-hml-{{ guid }}"
-        - "workshop-gitops-vms-prd-{{ guid }}"
+        - "workshop-gitops-vms-dev"
+        - "workshop-gitops-vms-hml"
+        - "workshop-gitops-vms-prd"
       failed_when: false
 
     - name: Wait for applications to be deleted
@@ -69,9 +69,9 @@
       retries: 30
       delay: 10
       loop:
-        - "workshop-gitops-vms-dev-{{ guid }}"
-        - "workshop-gitops-vms-hml-{{ guid }}"
-        - "workshop-gitops-vms-prd-{{ guid }}"
+        - "workshop-gitops-vms-dev"
+        - "workshop-gitops-vms-hml"
+        - "workshop-gitops-vms-prd"
       loop_control:
         label: "{{ item }}"
       failed_when: false

@@ -115,7 +115,7 @@
       apiVersion: argoproj.io/v1alpha1
       kind: Application
       metadata:
-        name: "workshop-gitops-vms-dev-{{ guid }}"
+        name: "workshop-gitops-vms-dev"
         namespace: openshift-gitops
         labels:
           guid: "{{ guid }}"
@@ -139,7 +139,7 @@
       apiVersion: argoproj.io/v1alpha1
       kind: Application
       metadata:
-        name: "workshop-gitops-vms-hml-{{ guid }}"
+        name: "workshop-gitops-vms-hml"
         namespace: openshift-gitops
         labels:
           guid: "{{ guid }}"
@@ -163,7 +163,7 @@
       apiVersion: argoproj.io/v1alpha1
       kind: Application
       metadata:
-        name: "workshop-gitops-vms-prd-{{ guid }}"
+        name: "workshop-gitops-vms-prd"
         namespace: openshift-gitops
         labels:
           guid: "{{ guid }}"
@@ -196,9 +196,9 @@
             syncOptions:
               - Prune=true
   loop:
-    - "workshop-gitops-vms-dev-{{ guid }}"
-    - "workshop-gitops-vms-hml-{{ guid }}"
-    - "workshop-gitops-vms-prd-{{ guid }}"
+    - "workshop-gitops-vms-dev"
+    - "workshop-gitops-vms-hml"
+    - "workshop-gitops-vms-prd"
 
 - name: Trigger ArgoCD refresh for applications
   kubernetes.core.k8s:
@@ -212,9 +212,9 @@
         annotations:
           argocd.argoproj.io/refresh: "{{ ansible_date_time.iso8601 }}"
   loop:
-    - "workshop-gitops-vms-dev-{{ guid }}"
-    - "workshop-gitops-vms-hml-{{ guid }}"
-    - "workshop-gitops-vms-prd-{{ guid }}"
+    - "workshop-gitops-vms-dev"
+    - "workshop-gitops-vms-hml"
+    - "workshop-gitops-vms-prd"
 
 - name: Wait for applications to reach Synced state
   kubernetes.core.k8s_info:
@@ -233,6 +233,6 @@
   retries: 30
   delay: 2
   loop:
-    - "workshop-gitops-vms-dev-{{ guid }}"
-    - "workshop-gitops-vms-hml-{{ guid }}"
-    - "workshop-gitops-vms-prd-{{ guid }}"
+    - "workshop-gitops-vms-dev"
+    - "workshop-gitops-vms-hml"
+    - "workshop-gitops-vms-prd"
