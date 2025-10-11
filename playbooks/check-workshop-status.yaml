@@ -1,24 +1,46 @@
 ---
 - name: Check Workshop Status
   hosts: localhost
-  gather_facts: false
+  gather_facts: true
   vars:
     workshop_namespace_base: "workshop-gitops-vms"
     argocd_namespace: "openshift-gitops"
+    guid: "{{ guid | default('') }}"
 
   tasks:
-    - name: Check ArgoCD Applications
+    - name: Display status check info
+      ansible.builtin.debug:
+        msg: |
+          Checking Workshop Status
+          ========================
+          {% if guid %}GUID: {{ guid }}{% else %}No GUID specified - checking all workshops{% endif %}
+
+    - name: Check ArgoCD Applications (with GUID filter)
       kubernetes.core.k8s_info:
         api_version: argoproj.io/v1alpha1
         kind: Application
         namespace: "{{ argocd_namespace }}"
         label_selectors:
-          - "app.kubernetes.io/part-of!=argocd"
-      register: argocd_apps
+          - "guid={{ guid }}"
+      register: argocd_apps_guid
+      when: guid
+
+    - name: Check ArgoCD Applications (all workshops)
+      kubernetes.core.k8s_info:
+        api_version: argoproj.io/v1alpha1
+        kind: Application
+        namespace: "{{ argocd_namespace }}"
+      register: argocd_apps_all
+      when: not guid
 
     - name: Filter workshop applications
       ansible.builtin.set_fact:
-        workshop_apps: "{{ argocd_apps.resources | selectattr('metadata.name', 'match', '^workshop-gitops-vms-.*') | list }}"
+        workshop_apps: >-
+          {%- if guid -%}
+          {{ argocd_apps_guid.resources | selectattr('metadata.name', 'match', '^workshop-gitops-vms-.*-' + guid + '$') | list }}
+          {%- else -%}
+          {{ argocd_apps_all.resources | selectattr('metadata.name', 'match', '^workshop-gitops-vms-.*') | list }}
+          {%- endif -%}
 
     - name: Display ArgoCD Applications status
       ansible.builtin.debug:
@@ -31,44 +53,76 @@
             Health Status: {{ app.status.health.status | default('Unknown') }}
           {% endfor %}
 
-    - name: Check workshop namespaces
+    - name: Check workshop namespaces (with GUID)
       kubernetes.core.k8s_info:
         api_version: v1
         kind: Namespace
         name: "{{ workshop_namespace_base }}-{{ item }}"
-      register: namespace_status
+      register: namespace_status_guid
       loop:
         - dev
         - hml
         - prd
+      when: guid
+
+    - name: Check workshop namespaces (all environments)
+      kubernetes.core.k8s_info:
+        api_version: v1
+        kind: Namespace
+      register: all_namespaces
+      when: not guid
+
+    - name: Filter workshop namespaces (when no GUID)
+      ansible.builtin.set_fact:
+        namespace_status_all: >-
+          {{ all_namespaces.resources | selectattr('metadata.name', 'match', '^workshop-gitops-vms-.*') | list }}
+      when: not guid
 
     - name: Display namespace status
       ansible.builtin.debug:
         msg: |
           Workshop Namespaces:
           ===================
-          {% for ns in namespace_status.results %}
+          {% if guid %}
+          {% for ns in namespace_status_guid.results %}
           {{ workshop_namespace_base }}-{{ ns.item }}: {{ 'EXISTS' if ns.resources else 'NOT FOUND' }}
           {% endfor %}
+          {% else %}
+          {% for ns in namespace_status_all %}
+          {{ ns.metadata.name }}: EXISTS
+          {% endfor %}
+          {% endif %}
 
-    - name: Check Virtual Machines in all environments
+    - name: Check Virtual Machines in all environments (with GUID)
       kubernetes.core.k8s_info:
         api_version: kubevirt.io/v1
         kind: VirtualMachine
         namespace: "{{ workshop_namespace_base }}-{{ item }}"
-      register: vm_status
+      register: vm_status_guid
       loop:
         - dev
         - hml
         - prd
       ignore_errors: true
+      when: guid
+
+    - name: Check Virtual Machines in all workshop namespaces (no GUID)
+      kubernetes.core.k8s_info:
+        api_version: kubevirt.io/v1
+        kind: VirtualMachine
+        namespace: "{{ item.metadata.name }}"
+      register: vm_status_all
+      loop: "{{ namespace_status_all | default([]) }}"
+      ignore_errors: true
+      when: not guid
 
     - name: Display Virtual Machines status
       ansible.builtin.debug:
         msg: |
           Virtual Machines:
           ================
-          {% for env in vm_status.results %}
+          {% if guid %}
+          {% for env in vm_status_guid.results %}
           {% if env.resources is defined %}
           {{ workshop_namespace_base }}-{{ env.item }}:
           {% for vm in env.resources %}
@@ -78,27 +132,53 @@
           {{ workshop_namespace_base }}-{{ env.item }}: No VMs found or namespace doesn't exist
           {% endif %}
           {% endfor %}
+          {% else %}
+          {% for env in vm_status_all.results %}
+          {% if env.resources is defined %}
+          {{ env.item.metadata.name }}:
+          {% for vm in env.resources %}
+            {{ vm.metadata.name }}: {{ vm.status.printableStatus | default('Unknown') }}
+          {% endfor %}
+          {% else %}
+          {{ env.item.metadata.name }}: No VMs found
+          {% endif %}
+          {% endfor %}
+          {% endif %}
 
-    - name: Check Services in all environments
+    - name: Check Services in all environments (with GUID)
       kubernetes.core.k8s_info:
         api_version: v1
         kind: Service
         namespace: "{{ workshop_namespace_base }}-{{ item }}"
         label_selectors:
           - "app=workshop-gitops-vms"
-      register: service_status
+      register: service_status_guid
       loop:
         - dev
         - hml
         - prd
       ignore_errors: true
+      when: guid
+
+    - name: Check Services in all workshop namespaces (no GUID)
+      kubernetes.core.k8s_info:
+        api_version: v1
+        kind: Service
+        namespace: "{{ item.metadata.name }}"
+        label_selectors:
+          - "app=workshop-gitops-vms"
+      register: service_status_all
+      loop: "{{ namespace_status_all | default([]) }}"
+      ignore_errors: true
+      when: not guid
 
     - name: Display Services status
       ansible.builtin.debug:
         msg: |
           Services:
           =========
-          {% for env in service_status.results %}
+          {% if guid %}
+          {% for env in service_status_guid.results %}
           {% if env.resources is defined and env.resources | length > 0 %}
           {{ workshop_namespace_base }}-{{ env.item }}:
           {% for svc in env.resources %}
@@ -108,25 +188,49 @@
           {{ workshop_namespace_base }}-{{ env.item }}: No services found
           {% endif %}
           {% endfor %}
+          {% else %}
+          {% for env in service_status_all.results %}
+          {% if env.resources is defined and env.resources | length > 0 %}
+          {{ env.item.metadata.name }}:
+          {% for svc in env.resources %}
+            {{ svc.metadata.name }}: {{ svc.spec.type }} ({{ svc.spec.ports | map(attribute='port') | join(', ') }})
+          {% endfor %}
+          {% else %}
+          {{ env.item.metadata.name }}: No services found
+          {% endif %}
+          {% endfor %}
+          {% endif %}
 
-    - name: Check Routes in all environments
+    - name: Check Routes in all environments (with GUID)
       kubernetes.core.k8s_info:
         api_version: route.openshift.io/v1
         kind: Route
         namespace: "{{ workshop_namespace_base }}-{{ item }}"
-      register: route_status
+      register: route_status_guid
       loop:
         - dev
         - hml
         - prd
       ignore_errors: true
+      when: guid
+
+    - name: Check Routes in all workshop namespaces (no GUID)
+      kubernetes.core.k8s_info:
+        api_version: route.openshift.io/v1
+        kind: Route
+        namespace: "{{ item.metadata.name }}"
+      register: route_status_all
+      loop: "{{ namespace_status_all | default([]) }}"
+      ignore_errors: true
+      when: not guid
 
     - name: Display Routes status
       ansible.builtin.debug:
         msg: |
           Routes:
           =======
-          {% for env in route_status.results %}
+          {% if guid %}
+          {% for env in route_status_guid.results %}
           {% if env.resources is defined and env.resources | length > 0 %}
           {{ workshop_namespace_base }}-{{ env.item }}:
           {% for route in env.resources %}
@@ -136,22 +240,46 @@
           {{ workshop_namespace_base }}-{{ env.item }}: No routes found
           {% endif %}
           {% endfor %}
+          {% else %}
+          {% for env in route_status_all.results %}
+          {% if env.resources is defined and env.resources | length > 0 %}
+          {{ env.item.metadata.name }}:
+          {% for route in env.resources %}
+            {{ route.metadata.name }}: https://{{ route.spec.host }}
+          {% endfor %}
+          {% else %}
+          {{ env.item.metadata.name }}: No routes found
+          {% endif %}
+          {% endfor %}
+          {% endif %}
 
     - name: Calculate overall status
       ansible.builtin.set_fact:
         apps_healthy: "{{ workshop_apps | selectattr('status.health.status', 'equalto', 'Healthy') | list | length }}"
         apps_synced: "{{ workshop_apps | selectattr('status.sync.status', 'equalto', 'Synced') | list | length }}"
         total_apps: "{{ workshop_apps | length }}"
-        namespaces_exist: "{{ namespace_status.results | selectattr('resources', 'defined') | list | length }}"
+        namespaces_exist: >-
+          {%- if guid -%}
+          {{ namespace_status_guid.results | selectattr('resources', 'defined') | list | length }}
+          {%- else -%}
+          {{ namespace_status_all | length }}
+          {%- endif -%}
+        expected_namespaces: >-
+          {%- if guid -%}
+          3
+          {%- else -%}
+          {{ namespace_status_all | length }}
+          {%- endif -%}
 
     - name: Display overall workshop status
       ansible.builtin.debug:
         msg: |
           Overall Workshop Status:
           =======================
+          {% if guid %}GUID: {{ guid }}{% endif %}
           Applications: {{ apps_synced }}/{{ total_apps }} synced, {{ apps_healthy }}/{{ total_apps }} healthy
-          Namespaces: {{ namespaces_exist }}/3 exist
-          Status: {{ 'HEALTHY' if (apps_healthy | int == total_apps | int and apps_synced | int == total_apps | int and namespaces_exist | int == 3) else 'ISSUES DETECTED' }}
+          Namespaces: {{ namespaces_exist }}/{{ expected_namespaces }} exist
+          Status: {{ 'HEALTHY' if (apps_healthy | int == total_apps | int and apps_synced | int == total_apps | int and namespaces_exist | int == expected_namespaces | int) else 'ISSUES DETECTED' }}
 
     - name: Get ArgoCD server route
       kubernetes.core.k8s_info:

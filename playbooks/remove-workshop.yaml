@@ -6,6 +6,11 @@
     workshop_namespace_base: "workshop-gitops-vms"
     argocd_namespace: "openshift-gitops"
     remove_operator: false
+    guid: "{{ guid | default('default') }}"
+    dev_branch: "vms-dev-{{ guid }}"
+    hml_branch: "vms-hml-{{ guid }}"
+    prd_branch: "vms-prd-{{ guid }}"
+    apps_repo_path: "/opt/OpenShift-Virtualization-GitOps-Apps"
 
   tasks:
     - name: Display removal start
@@ -13,7 +18,13 @@
         msg: |
           Starting OpenShift GitOps Workshop Removal
           ==========================================
-          This will remove all workshop resources
+          GUID: {{ guid }}
+          This will remove all workshop resources for GUID {{ guid }}
+
+    - name: Fail if GUID is not provided
+      ansible.builtin.fail:
+        msg: "GUID must be provided. Use -e guid=<your_guid>"
+      when: guid == "default"
 
 #    - name: Change applications to automaticly sync and prune before deletion
 #      kubernetes.core.k8s:
@@ -47,9 +58,9 @@
         name: "{{ item }}"
         namespace: "{{ argocd_namespace }}"
       loop:
-        - workshop-gitops-vms-dev
-        - workshop-gitops-vms-hml
-        - workshop-gitops-vms-prd
+        - "workshop-gitops-vms-dev-{{ guid }}"
+        - "workshop-gitops-vms-hml-{{ guid }}"
+        - "workshop-gitops-vms-prd-{{ guid }}"
       failed_when: false
 
     - name: Wait for applications to be deleted
@@ -63,9 +74,9 @@
       retries: 30
       delay: 10
       loop:
-        - workshop-gitops-vms-dev
-        - workshop-gitops-vms-hml
-        - workshop-gitops-vms-prd
+        - "workshop-gitops-vms-dev-{{ guid }}"
+        - "workshop-gitops-vms-hml-{{ guid }}"
+        - "workshop-gitops-vms-prd-{{ guid }}"
       loop_control:
         label: "{{ item }}"
       failed_when: false
@@ -143,6 +154,18 @@
     - name: Cleanup SSH known_hosts for workshop VMs
       ansible.builtin.include_tasks: tasks/cleanup-ssh-known-hosts-tasks.yaml
 
+    - name: Remove GUID-specific branches from Apps repository
+      ansible.builtin.include_tasks: tasks/remove-guid-branches-tasks.yaml
+
+    - name: Remove SSH repository secret for GUID
+      kubernetes.core.k8s:
+        state: absent
+        api_version: v1
+        kind: Secret
+        name: "workshop-repo-ssh-{{ guid }}"
+        namespace: "{{ argocd_namespace }}"
+      failed_when: false
+
 #    - name: Remove GitOps operator (if requested)
 #      kubernetes.core.k8s:
 #        state: absent
@@ -179,5 +202,7 @@
         msg: |
           Workshop removal completed successfully!
           =======================================
-          All workshop resources have been removed
+          GUID: {{ guid }}
+          All workshop resources for GUID {{ guid }} have been removed
+          GUID-specific branches have been deleted
           {{ 'GitOps operator was also removed' if remove_operator else 'GitOps operator was preserved (use -e remove_operator=true to remove it)' }}

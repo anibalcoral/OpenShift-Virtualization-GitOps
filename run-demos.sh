@@ -5,8 +5,18 @@ set -e
 # Source common functions for backward compatibility with remaining bash scripts
 source "$(dirname "$0")/demo-scripts/demo-functions.sh"
 
+# Check if GUID environment variable is set
+if [ -z "$GUID" ]; then
+    log_error "GUID environment variable is not set. Please export GUID before running demos."
+    log_error "Example: export GUID=user01"
+    exit 1
+fi
+
+log "Using GUID: $GUID"
+
 echo "OpenShift GitOps Workshop - Demo Runner"
 echo "======================================="
+echo "GUID: $GUID"
 echo ""
 echo "Available demos:"
 echo "1. Manual Change Detection and Drift Correction"
@@ -36,44 +46,44 @@ case $choice in
         log "Running Demo 1: Manual Change Detection and Drift Correction"
         echo ""
         cd "$(dirname "$0")/.."
-        ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps//opt/OpenShift-Virtualization-GitOps/playbooks/demo1-manual-change.yaml
+        ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo1-manual-change.yaml -e "guid=$GUID"
         ;;
     2)
         log "Running Demo 2: VM Recovery from Data Loss"
         echo ""
         cd "$(dirname "$0")/.."
-        ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo2-vm-recovery.yaml
+        ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo2-vm-recovery.yaml -e "guid=$GUID"
         ;;
     3)
         log "Running Demo 3: Adding New Development VM via Git Change"
         echo ""
-        ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo3-add-development-vm.yaml
+        ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo3-add-development-vm.yaml -e "guid=$GUID"
         ;;
     4)
         log "Running Demo 4: Multi-Environment VM Management with Kustomize"
         echo ""
-        ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo4-multi-env-management.yaml
+        ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo4-multi-env-management.yaml -e "guid=$GUID"
         ;;
     s|S)
         log "Checking workshop status..."
         echo ""
         cd "$(dirname "$0")/.."
-        ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/check-workshop-status.yaml
+        ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/check-workshop-status.yaml -e "guid=$GUID"
         ;;
     h|H)
         log "Cleaning up SSH known_hosts for workshop VMs..."
         echo ""
-        ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/cleanup-ssh-known-hosts.yaml
+        ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/cleanup-ssh-known-hosts.yaml -e "guid=$GUID"
         ;;
     c|C)
         log "Running Demo 3 cleanup..."
         echo ""
-        ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/cleanup-demo3.yaml
+        ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/cleanup-demo3.yaml -e "guid=$GUID"
         ;;
     d|D)
         log "Running Demo 4 cleanup..."
         echo ""
-        ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/cleanup-demo4.yaml
+        ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/cleanup-demo4.yaml -e "guid=$GUID"
         ;;
     q|Q)
         log "Exiting demo runner..."
@@ -84,18 +94,18 @@ case $choice in
         echo ""
         cd "$(dirname "$0")/.."
         log "Running Demo 1..."
-        ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo1-manual-change.yaml
+        ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo1-manual-change.yaml -e "guid=$GUID"
         echo ""
         log "Running Demo 2..."
-        ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo2-vm-recovery.yaml
+        ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo2-vm-recovery.yaml -e "guid=$GUID"
         echo ""
         log "Running Demo 3..."
-        ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo3-add-development-vm.yaml
+        ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo3-add-development-vm.yaml -e "guid=$GUID"
         echo ""
         log "Running Demo 4..."
-        ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo4-multi-env-management.yaml
+        ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo4-multi-env-management.yaml -e "guid=$GUID"
         echo ""
-        ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/cleanup-demo4.yaml
+        ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/cleanup-demo4.yaml -e "guid=$GUID"
         ;;
     *)
         log_error "Invalid choice. Please select 1-4, a, s, h, c, d, or q."

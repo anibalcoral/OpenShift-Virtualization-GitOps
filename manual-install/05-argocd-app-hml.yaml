@@ -1,8 +1,10 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: workshop-gitops-vms-hml
+  name: workshop-gitops-vms-hml-{GUID}
   namespace: openshift-gitops
+  labels:
+    guid: "{GUID}"
 spec:
   destination:
     namespace: workshop-gitops-vms-hml
@@ -11,4 +13,4 @@ spec:
   source:
     path: overlays/hml
     repoURL: git@github.com:anibalcoral/OpenShift-Virtualization-GitOps-Apps.git
-    targetRevision: vms-hml
+    targetRevision: vms-hml-{GUID}

@@ -9,6 +9,10 @@
     skip_ssh_setup: false
     ssh_key_name: "ocpvirt-gitops"
     auto_commit: true
+    guid: "{{ guid | default('default') }}"
+    dev_branch: "vms-dev-{{ guid }}"
+    hml_branch: "vms-hml-{{ guid }}"
+    prd_branch: "vms-prd-{{ guid }}"
 
   tasks:
     - name: Display installation start
@@ -16,11 +20,22 @@
         msg: |
           Starting OpenShift GitOps Workshop Installation
           ==============================================
+          GUID: {{ guid }}
+          Branches: {{ dev_branch }}, {{ hml_branch }}, {{ prd_branch }}
           This playbook will:
-          1. Validate and configure cluster domain
-          2. Setup SSH keys for VMs
-          3. Install GitOps operator and applications
-          4. Validate installation
+          1. Create GUID-specific branches
+          2. Validate and configure cluster domain
+          3. Setup SSH keys for VMs
+          4. Install GitOps operator and applications
+          5. Validate installation
+
+    - name: Fail if GUID is not provided
+      ansible.builtin.fail:
+        msg: "GUID must be provided. Use -e guid=<your_guid>"
+      when: guid == "default"
+
+    - name: Create GUID-specific branches in Apps repository
+      ansible.builtin.include_tasks: tasks/create-guid-branches-tasks.yaml
 
     - name: Check prerequisites
       ansible.builtin.fail:
@@ -79,9 +94,9 @@
           ArgoCD Password: {{ argocd_password }}
 
           Workshop Applications:
-          - workshop-gitops-vms-dev (Development VMs)
-          - workshop-gitops-vms-hml (Homologation VMs)
-          - workshop-gitops-vms-prd (Production VMs)
+          - workshop-gitops-vms-dev-{{ guid }} (Development VMs)
+          - workshop-gitops-vms-hml-{{ guid }} (Homologation VMs)
+          - workshop-gitops-vms-prd-{{ guid }} (Production VMs)
 
           Application URLs (after deployment):
           - Development: https://dev-workshop-gitops-vms.{{ cluster_domain }}
@@ -90,5 +105,5 @@
 
           Next steps:
           1. Access ArgoCD UI using the credentials above
-          2. Check workshop status: ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/check-workshop-status.yaml
-          3. Run demo playbooks in /opt/OpenShift-Virtualization-GitOps/playbooks/ directory
+          2. Check workshop status with GUID={{ guid }}
+          3. Run demo playbooks with -e guid={{ guid }}

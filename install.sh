@@ -26,6 +26,15 @@ log_warning() {
 
 log "Starting OpenShift GitOps Workshop Installation..."
 
+# Check if GUID environment variable is set
+if [ -z "$GUID" ]; then
+    log_error "GUID environment variable is not set. Please export GUID before running the installation."
+    log_error "Example: export GUID=user01"
+    exit 1
+fi
+
+log "Using GUID: $GUID"
+
 if ! command -v ansible-playbook &> /dev/null; then
     log_error "ansible-playbook not found. Please install Ansible."
     exit 1
@@ -36,5 +45,10 @@ if ! command -v oc &> /dev/null; then
     exit 1
 fi
 
+if ! command -v git &> /dev/null; then
+    log_error "git CLI not found. Please install Git."
+    exit 1
+fi
+
 log "Running Ansible playbook installation..."
-ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/install-workshop.yaml
+ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/install-workshop.yaml -e "guid=$GUID"

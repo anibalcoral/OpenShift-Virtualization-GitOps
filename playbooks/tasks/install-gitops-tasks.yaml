@@ -60,6 +60,7 @@
         labels:
           workshop: "gitops-ocpvirt"
           environment: "{{ item }}"
+          guid: "{{ guid }}"
   loop:
     - dev
     - hml
@@ -71,10 +72,11 @@
       apiVersion: v1
       kind: Secret
       metadata:
-        name: workshop-repo-ssh
+        name: "workshop-repo-ssh-{{ guid }}"
         namespace: openshift-gitops
         labels:
           argocd.argoproj.io/secret-type: repository
+          guid: "{{ guid }}"
       type: Opaque
       stringData:
         type: git
@@ -87,9 +89,9 @@
     namespace: "{{ item }}"
     state: present
   loop:
-    - workshop-gitops-vms-dev
-    - workshop-gitops-vms-hml
-    - workshop-gitops-vms-prd
+    - "workshop-gitops-vms-dev"
+    - "workshop-gitops-vms-hml"
+    - "workshop-gitops-vms-prd"
 
 - name: Create workshop namespaces
   kubernetes.core.k8s:
@@ -100,11 +102,12 @@
         name: "{{ item }}"
         labels:
           openshift.io/cluster-monitoring: "true"
+          guid: "{{ guid }}"
     state: present
   loop:
-    - workshop-gitops-vms-dev
-    - workshop-gitops-vms-hml
-    - workshop-gitops-vms-prd
+    - "workshop-gitops-vms-dev"
+    - "workshop-gitops-vms-hml"
+    - "workshop-gitops-vms-prd"
 
 - name: Create ArgoCD application for development
   kubernetes.core.k8s:
@@ -112,17 +115,19 @@
       apiVersion: argoproj.io/v1alpha1
       kind: Application
       metadata:
-        name: workshop-gitops-vms-dev
+        name: "workshop-gitops-vms-dev-{{ guid }}"
         namespace: openshift-gitops
+        labels:
+          guid: "{{ guid }}"
       spec:
         project: default
         source:
           repoURL: git@github.com:anibalcoral/OpenShift-Virtualization-GitOps-Apps.git
-          targetRevision: vms-dev
+          targetRevision: "{{ dev_branch }}"
           path: overlays/dev
         destination:
           server: https://kubernetes.default.svc
-          namespace: workshop-gitops-vms-dev
+          namespace: "workshop-gitops-vms-dev"
         syncPolicy:
           automated:
             prune: false
@@ -134,17 +139,19 @@
       apiVersion: argoproj.io/v1alpha1
       kind: Application
       metadata:
-        name: workshop-gitops-vms-hml
+        name: "workshop-gitops-vms-hml-{{ guid }}"
         namespace: openshift-gitops
+        labels:
+          guid: "{{ guid }}"
       spec:
         project: default
         source:
           repoURL: git@github.com:anibalcoral/OpenShift-Virtualization-GitOps-Apps.git
-          targetRevision: vms-hml
+          targetRevision: "{{ hml_branch }}"
           path: overlays/hml
         destination:
           server: https://kubernetes.default.svc
-          namespace: workshop-gitops-vms-hml
+          namespace: "workshop-gitops-vms-hml"
         syncPolicy:
           automated:
             prune: false
@@ -156,17 +163,19 @@
       apiVersion: argoproj.io/v1alpha1
       kind: Application
       metadata:
-        name: workshop-gitops-vms-prd
+        name: "workshop-gitops-vms-prd-{{ guid }}"
         namespace: openshift-gitops
+        labels:
+          guid: "{{ guid }}"
       spec:
         project: default
         source:
           repoURL: git@github.com:anibalcoral/OpenShift-Virtualization-GitOps-Apps.git
-          targetRevision: main
+          targetRevision: "{{ prd_branch }}"
           path: overlays/prd
         destination:
           server: https://kubernetes.default.svc
-          namespace: workshop-gitops-vms-prd
+          namespace: "workshop-gitops-vms-prd"
         syncPolicy:
           automated:
             prune: false
@@ -187,9 +196,9 @@
             syncOptions:
               - Prune=true
   loop:
-    - workshop-gitops-vms-dev
-    - workshop-gitops-vms-hml
-    - workshop-gitops-vms-prd
+    - "workshop-gitops-vms-dev-{{ guid }}"
+    - "workshop-gitops-vms-hml-{{ guid }}"
+    - "workshop-gitops-vms-prd-{{ guid }}"
 
 - name: Trigger ArgoCD refresh for applications
   kubernetes.core.k8s:
@@ -203,9 +212,9 @@
         annotations:
           argocd.argoproj.io/refresh: "{{ ansible_date_time.iso8601 }}"
   loop:
-    - workshop-gitops-vms-dev
-    - workshop-gitops-vms-hml
-    - workshop-gitops-vms-prd
+    - "workshop-gitops-vms-dev-{{ guid }}"
+    - "workshop-gitops-vms-hml-{{ guid }}"
+    - "workshop-gitops-vms-prd-{{ guid }}"
 
 - name: Wait for applications to reach Synced state
   kubernetes.core.k8s_info:
@@ -224,6 +233,6 @@
   retries: 30
   delay: 2
   loop:
-    - workshop-gitops-vms-dev
-    - workshop-gitops-vms-hml
-    - workshop-gitops-vms-prd
+    - "workshop-gitops-vms-dev-{{ guid }}"
+    - "workshop-gitops-vms-hml-{{ guid }}"
+    - "workshop-gitops-vms-prd-{{ guid }}"

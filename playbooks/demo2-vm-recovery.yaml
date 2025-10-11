@@ -3,17 +3,24 @@
   hosts: local
   gather_facts: true
   vars:
+    guid: "{{ guid | default('default') }}"
     demo_namespace: "workshop-gitops-vms-dev"
     vm_name: "dev-vm-web-01"
-    app_name: "workshop-gitops-vms-dev"
+    app_name: "workshop-gitops-vms-dev-{{ guid }}"
     argocd_namespace: "openshift-gitops"
 
   tasks:
+    - name: Fail if GUID is not provided
+      ansible.builtin.fail:
+        msg: "GUID must be provided. Use -e guid=<your_guid>"
+      when: guid == "default"
+
     - name: Display demo introduction
       ansible.builtin.debug:
         msg: |
           Demo 2: VM Recovery from Data Loss (Removing and Recreating VM)
           ==============================================================
+          GUID: {{ guid }}
           This demo simulates complete VM loss and shows GitOps recovery
 
     - name: Check initial VM status

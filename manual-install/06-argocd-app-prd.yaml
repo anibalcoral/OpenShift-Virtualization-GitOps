@@ -1,8 +1,10 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: workshop-gitops-vms-prd
+  name: workshop-gitops-vms-prd-{GUID}
   namespace: openshift-gitops
+  labels:
+    guid: "{GUID}"
 spec:
   destination:
     namespace: workshop-gitops-vms-prd
@@ -11,4 +13,4 @@ spec:
   source:
     path: overlays/prd
     repoURL: git@github.com:anibalcoral/OpenShift-Virtualization-GitOps-Apps.git
-    targetRevision: main
+    targetRevision: vms-prd-{GUID}
