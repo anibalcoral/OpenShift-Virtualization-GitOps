@@ -112,7 +112,7 @@
 
     - name: Get Git status
       ansible.builtin.shell:
-        cmd: git status --porcelain
+        cmd: git status
         chdir: "{{ apps_repo_path }}"
       register: git_status
       changed_when: false
@@ -165,22 +165,24 @@
           Merge result: {{ merge_hml.stdout if merge_hml.stdout else 'Already up to date' }}
           Push result: {{ 'Changes pushed successfully' if push_hml.changed else 'No changes to push' }}
 
-    - name: Trigger ArgoCD sync for the application on homologation
+    - name: Force ArgoCD sync operation again to ensure deployment
       kubernetes.core.k8s:
-        state: patched
-        api_version: argoproj.io/v1alpha1
-        kind: Application
-        name: "{{ app_name_hml }}"
-        namespace: "openshift-gitops"
+        state: present
         definition:
+          apiVersion: argoproj.io/v1alpha1
+          kind: Application
+          metadata:
+            name: "{{ app_name_hml }}"
+            namespace: openshift-gitops
+            annotations:
+              ansible.argocd.force.sync/timestamp: "{{ ansible_date_time.iso8601_basic_short }}"
           spec:
-            syncPolicy:
-              automated: null
           operation:
             sync:
               revision: "HEAD"
               prune: true
               dryRun: false
+      failed_when: false
 
     - name: Wait for application to return to Synced state
       kubernetes.core.k8s_info:
@@ -215,11 +217,19 @@
 #      retries: 30
 #      delay: 10
 
+    - name: Check homologation VM creation
+      kubernetes.core.k8s_info:
+        api_version: kubevirt.io/v1
+        kind: VirtualMachine
+        name: "hml-{{ vm_name }}"
+        namespace: "{{ namespace_hml }}"
+      register: hml_vm_created
+
     - name: Display homologation deployment result
       ansible.builtin.debug:
         msg: |
           Homologation Environment Status:
-          ArgoCD Sync: {{ 'SUCCESS' if hml_sync.resources else 'PENDING' }}
+          ArgoCD Sync: {{ 'SUCCESS' if final_sync_check.resources else 'PENDING' }}
           VM Creation: {{ 'SUCCESS' if hml_vm_created.resources else 'PENDING' }}
 
     - name: "Step 4: Promote changes from homologation to production"
@@ -257,22 +267,24 @@
           Merge result: {{ merge_prd.stdout if merge_prd.stdout else 'Already up to date' }}
           Push result: {{ 'Changes pushed successfully' if push_prd.changed else 'No changes to push' }}
 
-    - name: Trigger ArgoCD sync for the application on production
+    - name: Force ArgoCD sync operation again to ensure deployment
       kubernetes.core.k8s:
-        state: patched
-        api_version: argoproj.io/v1alpha1
-        kind: Application
-        name: "{{ app_name_prd }}"
-        namespace: "openshift-gitops"
+        state: present
         definition:
+          apiVersion: argoproj.io/v1alpha1
+          kind: Application
+          metadata:
+            name: "{{ app_name_prd }}"
+            namespace: openshift-gitops
+            annotations:
+              ansible.argocd.force.sync/timestamp: "{{ ansible_date_time.iso8601_basic_short }}"
           spec:
-            syncPolicy:
-              automated: null
           operation:
             sync:
               revision: "HEAD"
               prune: true
               dryRun: false
+      failed_when: false
 
     - name: Wait for application to return to Synced state
       kubernetes.core.k8s_info:
@@ -295,14 +307,14 @@
       kubernetes.core.k8s_info:
         api_version: kubevirt.io/v1
         kind: VirtualMachine
-        name: "{{ vm_name }}"
+        name: "prd-{{ vm_name }}"
         namespace: "{{ namespace_prd }}"
-      register: final_vm_status
+      register: prd_vm_created
       until: >
-        final_vm_status.resources | length > 0 and
+        prd_vm_created.resources | length > 0 and
         (
-          final_vm_status.resources[0].status is defined and
-          final_vm_status.resources[0].status.printableStatus == "Running"
+          prd_vm_created.resources[0].status is defined and
+          prd_vm_created.resources[0].status.printableStatus == "Running"
         )
       retries: 30
       delay: 10
@@ -311,7 +323,7 @@
       ansible.builtin.debug:
         msg: |
           Production Environment Status:
-          ArgoCD Sync: {{ 'SUCCESS' if prd_sync.resources else 'PENDING' }}
+          ArgoCD Sync: {{ 'SUCCESS' if final_sync_check.resources else 'PENDING' }}
           VM Creation: {{ 'SUCCESS' if prd_vm_created.resources else 'PENDING' }}
 
     - name: "Step 5: Verify multi-environment deployment"

@@ -111,7 +111,7 @@
       block:
         - name: Check for git changes
           ansible.builtin.shell:
-            cmd: git status --porcelain
+            cmd: git status
           args:
             chdir: "{{ apps_repo_path }}"
           register: git_changes

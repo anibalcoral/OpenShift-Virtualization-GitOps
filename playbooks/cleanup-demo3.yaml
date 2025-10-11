@@ -229,7 +229,7 @@
       ansible.builtin.debug:
         msg: "Triggering ArgoCD sync to apply cleanup (with prune)..."
 
-    - name: Trigger ArgoCD sync with aggressive prune
+    - name: Force ArgoCD sync operation again to ensure deployment
       kubernetes.core.k8s:
         state: present
         definition:
@@ -238,19 +238,15 @@
           metadata:
             name: "{{ app_name }}-{{ guid }}"
             namespace: openshift-gitops
+            annotations:
+              ansible.argocd.force.sync/timestamp: "{{ ansible_date_time.iso8601_basic_short }}"
           spec:
-            syncPolicy:
-              automated:
-                prune: true
-                selfHeal: true
-              syncOptions:
-                - PrunePropagationPolicy=foreground
-                - Prune=true
-                - Delete=true
-                - CreateNamespace=false
-        merge_type:
-          - strategic-merge
-          - merge
+          operation:
+            sync:
+              revision: "HEAD"
+              prune: true
+              dryRun: false
+      failed_when: false
 
     - name: Trigger ArgoCD refresh and hard sync
       kubernetes.core.k8s:

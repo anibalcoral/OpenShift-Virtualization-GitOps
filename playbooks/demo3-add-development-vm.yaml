@@ -186,12 +186,11 @@
       when: not vm_already_in_kustomization
 
     - name: Update kustomization.yaml to include vm-web-09.yaml
-      ansible.builtin.replace:
+      ansible.builtin.lineinfile:
         path: "{{ apps_repo_path }}/base/kustomization.yaml"
-        regexp: '^resources:'
-        replace: |
-          resources:
-            - vm-web-09.yaml
+        insertafter: "^resources:"
+        line: "  - vm-web-09.yaml"
+        regexp: "^  - vm-web-09.yaml$"
       when: not vm_already_in_kustomization
 
     - name: Confirm kustomization updated
@@ -276,23 +275,61 @@
               argocd.argoproj.io/refresh: "{{ ansible_date_time.iso8601 }}"
       failed_when: false
 
- #   - name: "Step 6: Waiting for ArgoCD to detect Git changes"
- #     ansible.builtin.debug:
- #       msg: "Waiting for ArgoCD to detect Git changes..."
- #
- #   - name: Wait for application to become OutOfSync (detecting changes)
- #     kubernetes.core.k8s_info:
- #       api_version: argoproj.io/v1alpha1
- #       kind: Application
- #       name: "{{ app_name }}"
- #       namespace: openshift-gitops
- #     register: app_sync_check
- #     until: >
- #       app_sync_check.resources | length > 0 and
- #       app_sync_check.resources[0].status.sync.status == "OutOfSync"
- #     retries: 30
- #     delay: 2
- #     ignore_errors: true
+    - name: Force ArgoCD sync operation
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: argoproj.io/v1alpha1
+          kind: Application
+          metadata:
+            name: "{{ app_name }}"
+            namespace: openshift-gitops
+          spec:
+            syncPolicy:
+              automated: null
+          operation:
+            sync:
+              revision: "HEAD"
+              prune: true
+              dryRun: false
+      failed_when: false
+
+    - name: "Step 6: Waiting for ArgoCD to detect Git changes"
+      ansible.builtin.debug:
+        msg: "Waiting for ArgoCD to detect Git changes..."
+ 
+    - name: Wait for application to become OutOfSync (detecting changes)
+      kubernetes.core.k8s_info:
+        api_version: argoproj.io/v1alpha1
+        kind: Application
+        name: "{{ app_name }}"
+        namespace: openshift-gitops
+      register: app_sync_check
+      until: >
+        app_sync_check.resources | length > 0 and
+        app_sync_check.resources[0].status.sync.status == "OutOfSync"
+      retries: 30
+      delay: 2
+      ignore_errors: true
+
+    - name: Force ArgoCD sync operation again to ensure deployment
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: argoproj.io/v1alpha1
+          kind: Application
+          metadata:
+            name: "{{ app_name }}"
+            namespace: openshift-gitops
+            annotations:
+              ansible.argocd.force.sync/timestamp: "{{ ansible_date_time.iso8601_basic_short }}"
+          spec:
+          operation:
+            sync:
+              revision: "HEAD"
+              prune: true
+              dryRun: false
+      failed_when: false
 
     - name: "Step 7: Waiting for new VM to be created"
       ansible.builtin.debug:
