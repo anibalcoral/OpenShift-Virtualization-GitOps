@@ -6,11 +6,6 @@
     path: "{{ apps_repo_path }}"
   register: apps_repo_stat
 
-- name: Fail if Apps repository does not exist
-  ansible.builtin.fail:
-    msg: "Apps repository not found at {{ apps_repo_path }}. Please clone it first."
-  when: not apps_repo_stat.stat.exists
-
 - name: Check current branch in Apps repository
   ansible.builtin.command:
     cmd: git branch --show-current

@@ -6,32 +6,32 @@
     src: "{{ ansible_env.HOME }}/.ssh/ocpvirt-gitops"
   register: ssh_private_key_content
 
-- name: Apply GitOps operator subscription
-  kubernetes.core.k8s:
-    definition:
-      apiVersion: operators.coreos.com/v1alpha1
-      kind: Subscription
-      metadata:
-        name: openshift-gitops-operator
-        namespace: openshift-operators
-      spec:
-        channel: latest
-        installPlanApproval: Automatic
-        name: openshift-gitops-operator
-        source: redhat-operators
-        sourceNamespace: openshift-marketplace
+#- name: Apply GitOps operator subscription
+#  kubernetes.core.k8s:
+#    definition:
+#      apiVersion: operators.coreos.com/v1alpha1
+#      kind: Subscription
+#      metadata:
+#        name: openshift-gitops-operator
+#        namespace: openshift-operators
+#      spec:
+#        channel: latest
+#        installPlanApproval: Automatic
+#        name: openshift-gitops-operator
+#        source: redhat-operators
+#        sourceNamespace: openshift-marketplace
 
-- name: Wait for GitOps operator to be ready
-  kubernetes.core.k8s_info:
-    api_version: apps/v1
-    kind: Deployment
-    name: openshift-gitops-server
-    namespace: openshift-gitops
-    wait: true
-    wait_condition:
-      type: Available
-      status: "True"
-    wait_timeout: 300
+#- name: Wait for GitOps operator to be ready
+#  kubernetes.core.k8s_info:
+#    api_version: apps/v1
+#    kind: Deployment
+#    name: openshift-gitops-server
+#    namespace: openshift-gitops
+#    wait: true
+#    wait_condition:
+#      type: Available
+#      status: "True"
+#    wait_timeout: 300
 
 - name: Create cluster role binding for ArgoCD
   kubernetes.core.k8s:

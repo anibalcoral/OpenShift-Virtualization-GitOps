@@ -1,16 +1,4 @@
 ---
-    - name: Check if Apps repository exists
-      ansible.builtin.stat:
-        path: "{{ apps_repo_path }}"
-      register: apps_repo
-
-    - name: Fail if Apps repository not found
-      ansible.builtin.fail:
-        msg: |
-          Apps repository not found at {{ apps_repo_path }}
-          Please clone the Apps repository: git clone {{ apps_repo_url }} {{ apps_repo_path }}
-      when: not apps_repo.stat.exists
-
     - name: Get cluster domain from OpenShift
       kubernetes.core.k8s_info:
         api_version: config.openshift.io/v1
@@ -173,7 +161,7 @@
           ansible.builtin.shell:
             cmd: git merge vms-hml-{{ guid }}
             chdir: "{{ apps_repo_path }}"
-            
+
         - name: Push changes to production branch
           ansible.builtin.shell:
             cmd: git push origin vms-prd-{{ guid }}
