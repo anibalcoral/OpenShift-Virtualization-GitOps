@@ -289,42 +289,42 @@
       ansible.builtin.debug:
         msg: "Waiting for ArgoCD to detect Git changes..."
  
-#    - name: Wait for application to become OutOfSync (detecting changes)
-#      kubernetes.core.k8s_info:
-#        api_version: argoproj.io/v1alpha1
-#        kind: Application
-#        name: "{{ app_name }}"
-#        namespace: openshift-gitops
-#      register: app_sync_check
-#      until: >
-#        app_sync_check.resources | length > 0 and
-#        app_sync_check.resources[0].status.sync.status == "OutOfSync"
-#      retries: 30
-#      delay: 2
-#      ignore_errors: true
+    - name: Wait for application to become OutOfSync (detecting changes)
+      kubernetes.core.k8s_info:
+        api_version: argoproj.io/v1alpha1
+        kind: Application
+        name: "{{ app_name }}"
+        namespace: openshift-gitops
+      register: app_sync_check
+      until: >
+        app_sync_check.resources | length > 0 and
+        app_sync_check.resources[0].status.sync.status == "OutOfSync"
+      retries: 30
+      delay: 2
+      ignore_errors: true
 
-#    - name: Refresh ArgoCD application to detect Git changes (homologation)
-#      ansible.builtin.shell:
-#        cmd: oc patch application {{ app_name }} -n openshift-gitops --type merge -p '{"metadata":{"annotations":{"refresh":"{{ ansible_date_time.iso8601_basic_short }}"}}}'
-#      failed_when: false
-#
-#    - name: Force ArgoCD sync operation with patch command
-#      kubernetes.core.k8s:
-#        state: present
-#        definition:
-#          apiVersion: argoproj.io/v1alpha1
-#          kind: Application
-#          metadata:
-#            name: "{{ app_name }}"
-#            namespace: openshift-gitops
-#          operation:
-#            sync:
-#              revision: "HEAD"
-#              prune: true
-#              dryRun: false
-#        merge_type: merge
-#      register: sync_result
-#      failed_when: false
+    - name: Refresh ArgoCD application to detect Git changes (homologation)
+      ansible.builtin.shell:
+        cmd: oc patch application {{ app_name }} -n openshift-gitops --type merge -p '{"metadata":{"annotations":{"refresh":"{{ ansible_date_time.iso8601_basic_short }}"}}}'
+      failed_when: false
+
+    - name: Force ArgoCD sync operation with patch command
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: argoproj.io/v1alpha1
+          kind: Application
+          metadata:
+            name: "{{ app_name }}"
+            namespace: openshift-gitops
+          operation:
+            sync:
+              revision: "HEAD"
+              prune: true
+              dryRun: false
+        merge_type: merge
+      register: sync_result
+      failed_when: false
 
     - name: "Step 7: Waiting for new VM to be created"
       ansible.builtin.debug:
