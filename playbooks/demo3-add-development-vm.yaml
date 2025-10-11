@@ -366,13 +366,21 @@
       ansible.builtin.debug:
         msg: "Verifying the new VM is running..."
 
-    - name: Get final VM status
+    - name: Wait for VM 09 to be running
       kubernetes.core.k8s_info:
         api_version: kubevirt.io/v1
         kind: VirtualMachine
         name: "{{ vm_name }}"
         namespace: "{{ namespace }}"
       register: final_vm_status
+      until: >
+        final_vm_status.resources | length > 0 and
+        (
+          final_vm_status.resources[0].status is defined and
+          final_vm_status.resources[0].status.printableStatus == "Running"
+        )
+      retries: 30
+      delay: 10
 
     - name: Display VM creation success
       ansible.builtin.debug:
