@@ -49,7 +49,7 @@
 
 - name: Create GUID-specific development branch
   ansible.builtin.command:
-    cmd: "git checkout -b {{ dev_branch }} origin/vms-dev"
+    cmd: "git checkout -b {{ dev_branch }} origin/vms-dev-{{ guid }}"
     chdir: "{{ apps_repo_path }}"
   register: create_dev_branch
   failed_when: create_dev_branch.rc != 0 and "already exists" not in create_dev_branch.stderr
@@ -57,7 +57,7 @@
 
 - name: Create GUID-specific homologation branch
   ansible.builtin.command:
-    cmd: "git checkout -b {{ hml_branch }} origin/vms-hml"
+    cmd: "git checkout -b {{ hml_branch }} origin/vms-hml-{{ guid }}"
     chdir: "{{ apps_repo_path }}"
   register: create_hml_branch
   failed_when: create_hml_branch.rc != 0 and "already exists" not in create_hml_branch.stderr
@@ -65,7 +65,7 @@
 
 - name: Create GUID-specific production branch
   ansible.builtin.command:
-    cmd: "git checkout -b {{ prd_branch }} origin/main"
+    cmd: "git checkout -b {{ prd_branch }} origin/vms-prd-{{ guid }}"
     chdir: "{{ apps_repo_path }}"
   register: create_prd_branch
   failed_when: create_prd_branch.rc != 0 and "already exists" not in create_prd_branch.stderr

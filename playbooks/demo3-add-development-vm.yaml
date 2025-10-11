@@ -247,7 +247,7 @@
         msg: "WARNING: No changes to commit (maybe demo was run before?)"
       when: git_commit.rc != 0
 
-    - name: Push changes to origin/vms-dev
+    - name: Push changes to origin/vms-dev-guid
       ansible.builtin.command:
         cmd: git push origin vms-dev-{{ guid }}
         chdir: "{{ apps_repo_path }}"
