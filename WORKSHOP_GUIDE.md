@@ -206,10 +206,9 @@ The workshop includes three main demonstrations that show GitOps capabilities in
 **Purpose**: Demonstrate how ArgoCD detects and corrects configuration drift.
 
 **Steps**:
-1. Use the interactive demo runner:
+1. Use the demo runner:
    ```bash
-   ./run-demos.sh
-   # Select option '1'
+   ./run-demos.sh 1
    ```
 
 2. This will:
@@ -227,10 +226,9 @@ The workshop includes three main demonstrations that show GitOps capabilities in
 **Purpose**: Demonstrate how ArgoCD can recover from complete resource deletion.
 
 **Steps**:
-1. Use the interactive demo runner:
+1. Use the demo runner:
    ```bash
-   ./run-demos.sh
-   # Select option '2'
+   ./run-demos.sh 2
    ```
 
 2. This will:
@@ -248,10 +246,9 @@ The workshop includes three main demonstrations that show GitOps capabilities in
 **Purpose**: Demonstrate infrastructure provisioning through Git commits.
 
 **Steps**:
-1. Use the interactive demo runner:
+1. Use the demo runner:
    ```bash
-   ./run-demos.sh
-   # Select option '3'
+   ./run-demos.sh 3
    ```
 
 2. This provides instructions for:
@@ -269,10 +266,9 @@ The workshop includes three main demonstrations that show GitOps capabilities in
 **Purpose**: Demonstrate advanced GitOps practices for managing VMs across multiple environments using Kustomize overlays and Git branch promotion.
 
 **Steps**:
-1. Use the interactive demo runner:
+1. Use the demo runner:
    ```bash
-   ./run-demos.sh
-   # Select option '4'
+   ./run-demos.sh 4
    ```
 
 2. This demonstrates:
@@ -308,8 +304,7 @@ The main demo script provides a menu-driven interface:
 Check the current state of all workshop components:
 
 ```bash
-./run-demos.sh
-# Select option 's'
+./run-demos.sh s
 ```
 
 This shows:

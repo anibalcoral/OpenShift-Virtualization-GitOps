@@ -31,9 +31,9 @@ This workshop uses a **dual-repository strategy** with **multi-branch environmen
 - **Applications Repository**: Contains VM definitions and Kustomize configurations for each environment
 
 ### Environment Strategy
-- **vms-dev-{{ guid }} branch**: Development VMs (workshop-gitops-vms-dev namespace)
-- **vms-hml-{{ guid }} branch**: Homologation/Staging VMs (workshop-gitops-vms-hml namespace)  
-- **vms-prd-{{ guid }} branch**: Production VMs (workshop-gitops-vms-prd namespace)
+- **vms-dev-{GUID} branch**: Development VMs (workshop-gitops-vms-dev namespace)
+- **vms-hml-{GUID} branch**: Homologation/Staging VMs (workshop-gitops-vms-hml namespace)  
+- **vms-prd-{GUID} branch**: Production VMs (workshop-gitops-vms-prd namespace)
 
 Each GUID gets its own set of branches while sharing common namespaces to ensure isolation between workshop participants.
 Each environment uses Kustomize overlays for environment-specific resource configurations (CPU, memory, disk, naming prefixes).
@@ -63,14 +63,14 @@ export GUID=user01  # Not necessary if you are running at bastion lab
 export GUID=user01  # Not necessary if you are running at bastion lab
 ```
 ```
-ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/install-workshop.yaml
+ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/install-workshop.yaml -e "guid=$GUID"
 ```
 ```
 # Or run individual components
-ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/validate-cluster-domain.yaml
+ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/validate-cluster-domain.yaml -e "guid=$GUID"
 ```
 ```
-ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/setup-ssh-key.yaml
+ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/setup-ssh-key.yaml -e "guid=$GUID"
 ```
 
 ### Manual Installation (for Learning)
@@ -78,9 +78,9 @@ ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /op
 For step-by-step installation or troubleshooting:
 
 
-- Replace {GUID} with your actual GUID in manual install files
-- Apply manual manifests in order
 - Before applying you have to edit and replace {GUID} on all playbooks
+- Apply manual manifests in order
+
 ```bash
 oc apply -f manual-install/01-gitops-operator-subscription.yaml
 ```
@@ -119,7 +119,7 @@ export GUID=user01  # Not necessary if you are running at bastion lab
 ```
 ```
 # Or directly with Ansible
-ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/check-workshop-status.yaml
+ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/check-workshop-status.yaml -e "guid=$GUID"
 ```
 
 ## Workshop Demonstrations
@@ -128,12 +128,7 @@ ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /op
 ```bash
 # Using Ansible playbook
 export GUID=user01  # Not necessary if you are running at bastion lab
-ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo1-manual-change.yaml
-
-# Using interactive runner (requires GUID environment variable)
-export GUID=user01
-./run-demos.sh
-# Select option '1'
+ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo1-manual-change.yaml -e "guid=$GUID"
 
 # Direct using run-demos.sh with parameter
 ./run-demos.sh 1
@@ -158,10 +153,6 @@ Using the doc [DEMO1-MANUAL-CHANGE.md](demo-scripts/DEMO1-MANUAL-CHANGE.md)
 # Using Ansible playbook
 ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo2-vm-recovery.yaml
 
-# Or using interactive runner
-./run-demos.sh
-# Select option '2'
-
 # Direct using run-demos.sh with parameter
 ./run-demos.sh 2
 ```
@@ -181,10 +172,6 @@ Using the doc [DEMO2-VM-RECOVERY.md](demo-scripts/DEMO2-VM-RECOVERY.md)
 # Using Ansible playbook
 ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo3-add-development-vm.yaml
 
-# Or using interactive runner
-./run-demos.sh
-# Select option '3'
-
 # Direct using run-demos.sh with parameter
 ./run-demos.sh 3
 
@@ -203,10 +190,6 @@ Using the doc [DEMO3-ADD-DEVELOPMENT-VM.md](demo-scripts/DEMO3-ADD-DEVELOPMENT-V
 ```bash
 # Using Ansible playbook
 ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo4-multi-env-management.yaml
-
-# Or using interactive runner
-./run-demos.sh
-# Select option '4'
 
 # Direct using run-demos.sh with parameter
 ./run-demos.sh 4
@@ -254,17 +237,16 @@ export GUID=user01  # Not necessary if you are running at bastion lab
 export GUID=user01  # Not necessary if you are running at bastion lab
 ```
 ```
-ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/remove-workshop.yaml
+ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/remove-workshop.yaml -e "guid=$GUID"
 ```
 
 ### Status Monitoring
 ```bash
 # Using interactive demo runner
-./run-demos.sh
-# Select option 's' to check status
+./run-demos.sh 2
 
 # Direct Ansible playbook
-ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/check-workshop-status.yaml
+ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/check-workshop-status.yaml -e "guid=$GUID"
 
 # OpenShift CLI monitoring
 oc get applications.argoproj.io -n openshift-gitops
@@ -356,14 +338,14 @@ Each environment deploys identical VMs with environment-specific resource alloca
 **Or use Ansible playbooks directly:**
 ```bash
 # Remove workshop resources only
-ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/remove-workshop.yaml
+ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/remove-workshop.yaml -e "guid=$GUID"
 ```
 
 ### Status Monitoring
 
 **Ansible method:**
 ```bash
-ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/check-workshop-status.yaml
+ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/check-workshop-status.yaml -e "guid=$GUID"
 ```
 
 **ArgoCD UI monitoring:**
@@ -535,8 +517,7 @@ patches:
 
 ```bash
 # Comprehensive status check
-./run-demos.sh
-# Select option 's' for status check
+./run-demos.sh s
 
 # Verify all workshop components
 oc get applications.argoproj.io -n openshift-gitops | grep workshop-gitops-vms
