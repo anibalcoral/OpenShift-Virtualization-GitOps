@@ -29,24 +29,6 @@
   register: git_fetch
   changed_when: git_fetch.rc == 0
 
-- name: Check if source branches exist
-  ansible.builtin.command:
-    cmd: "git rev-parse --verify origin/{{ item }}"
-    chdir: "{{ apps_repo_path }}"
-  register: source_branch_check
-  failed_when: false
-  changed_when: false
-  loop:
-    - vms-dev
-    - vms-hml
-    - main
-
-- name: Fail if required source branches do not exist
-  ansible.builtin.fail:
-    msg: "Source branch {{ item.item }} does not exist in the Apps repository"
-  when: item.rc != 0
-  loop: "{{ source_branch_check.results }}"
-
 - name: Create GUID-specific development branch
   ansible.builtin.command:
     cmd: "git checkout -b {{ dev_branch }} origin/vms-dev-{{ guid }}"
