@@ -58,18 +58,10 @@ export GUID=user01  # Not necessary if you are running at bastion lab
 
 **Individual Ansible playbooks:**
 ```bash
-# Install complete workshop
 export GUID=user01  # Not necessary if you are running at bastion lab
 ```
 ```
 ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/install-workshop.yaml
-```
-```
-# Or run individual components
-ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/validate-cluster-domain.yaml
-```
-```
-ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/setup-ssh-key.yaml
 ```
 
 ### Manual Installation (for Learning)
@@ -83,19 +75,19 @@ For step-by-step installation or troubleshooting:
 ```bash
 oc apply -f manual-install/01-gitops-operator-subscription.yaml
 ```
-```
+```bash
 oc apply -f manual-install/02-cluster-role-binding.yaml
 ```
-```
+```bash
 oc apply -f manual-install/03-namespaces.yaml
 ```
-```
+```bash
 oc apply -f manual-install/04-argocd-app-dev.yaml
 ```
-```
+```bash
 oc apply -f manual-install/05-argocd-app-hml.yaml
 ```
-```
+```bash
 oc apply -f manual-install/06-argocd-app-prd.yaml
 ```
 
@@ -112,11 +104,11 @@ echo "Password: $(oc get secret openshift-gitops-cluster -n openshift-gitops -o 
 ```bash
 export GUID=user01  # Not necessary if you are running at bastion lab
 ```
-```
+```bash
 # Using demo runner
 /opt/OpenShift-Virtualization-GitOps/run-demos.sh s
 ```
-```
+```bash
 # Or directly with Ansible
 ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/check-workshop-status.yaml
 ```
@@ -127,11 +119,11 @@ ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /op
 ```bash
 export GUID=user01  # Not necessary if you are running at bastion lab
 ```
-```
+```bash
 # Using demo runner
 /opt/OpenShift-Virtualization-GitOps/run-demos.sh 1
 ```
-```
+```bash
 # Or directly with Ansible
 ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo1-manual-change.yaml
 ```
@@ -154,11 +146,11 @@ Using the doc [DEMO1-MANUAL-CHANGE.md](demo-scripts/DEMO1-MANUAL-CHANGE.md)
 ```bash
 export GUID=user01  # Not necessary if you are running at bastion lab
 ```
-```
+```bash
 # Using demo runner
 /opt/OpenShift-Virtualization-GitOps/run-demos.sh 2
 ```
-```
+```bash
 # Using Ansible playbook
 ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo2-vm-recovery.yaml
 ```
@@ -177,12 +169,12 @@ Using the doc [DEMO2-VM-RECOVERY.md](demo-scripts/DEMO2-VM-RECOVERY.md)
 ```bash
 export GUID=user01  # Not necessary if you are running at bastion lab
 ```
-```
+```bash
 # Using demo runner
 /opt/OpenShift-Virtualization-GitOps/run-demos.sh 3
 ```
 
-```
+```bash
 # Using Ansible playbook
 ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo3-add-development-vm.yaml
 ```
@@ -200,11 +192,11 @@ Using the doc [DEMO3-ADD-DEVELOPMENT-VM.md](demo-scripts/DEMO3-ADD-DEVELOPMENT-V
 ```bash
 export GUID=user01  # Not necessary if you are running at bastion lab
 ```
-```
+```bash
 # Using demo runner
 /opt/OpenShift-Virtualization-GitOps/run-demos.sh 4
 ```
-```
+```bash
 # Using Ansible playbook
 ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo4-multi-env-management.yaml
 ```
@@ -219,7 +211,7 @@ Using the doc [DEMO4-MULTI-ENV-MANAGEMENT.md](demo-scripts/DEMO4-MULTI-ENV-MANAG
 - GitOps promotion strategies and multi-environment consistency
 
 ### Demo 4 Cleanup
-```
+```bash
 # Using demo runner
 /opt/OpenShift-Virtualization-GitOps/run-demos.sh d
 ```
@@ -234,7 +226,7 @@ ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /op
 ```bash
 export GUID=user01  # Not necessary if you are running at bastion lab
 ```
-```
+```bash
 ./remove.sh
 ```
 
@@ -243,7 +235,7 @@ export GUID=user01  # Not necessary if you are running at bastion lab
 # Remove workshop resources only
 export GUID=user01  # Not necessary if you are running at bastion lab
 ```
-```
+```bash
 ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/remove-workshop.yaml
 ```
 
@@ -361,7 +353,7 @@ oc get vm -A | grep workshop-gitops
 
 This repository contains the workshop configuration and automation:
 
-```
+```bash
 OpenShift-Virtualization-GitOps/          # Main workshop repository
 ├── install.sh                           # Installation script
 ├── remove.sh                            # Cleanup script

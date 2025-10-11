@@ -4,7 +4,7 @@ This workshop demonstrates how to implement GitOps principles for managing Virtu
 
 ## Architecture
 
-```
+```bash
 Git Repository Structure
 ├── Main Repository: OpenShift-Virtualization-GitOps
 │   ├── Installation scripts (install.sh, remove.sh)
@@ -147,7 +147,8 @@ oc get svc -n workshop-gitops-vms-prd
 
 # Check routes (if created)
 oc get routes -A
-```
+
+# Check endpoints
 oc get endpoints -A
 
 # Services target kubevirt.io/domain labels - verify VM pods have these labels
@@ -592,7 +593,7 @@ oc get svc -A | grep workshop
 After the manual installation, you should see:
 
 **ArgoCD Applications:**
-```
+```bash
 NAME               SYNC STATUS   HEALTH STATUS
 workshop-gitops-vms-dev   Synced        Healthy
 workshop-gitops-vms-hml   Synced        Healthy
@@ -600,7 +601,7 @@ workshop-gitops-vms-prd   Synced        Healthy
 ```
 
 **Virtual Machines:**
-```
+```bash
 NAMESPACE                   NAME            STATUS
 workshop-gitops-vms-dev     dev-vm-web-01   Running
 workshop-gitops-vms-dev     dev-vm-web-02   Running
