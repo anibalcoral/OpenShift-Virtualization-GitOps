@@ -120,7 +120,7 @@ oc get vms -n workshop-gitops-vms-prd
 oc get vmi -A
 
 # Run complete verification using the demo script
-./run-demos.sh s
+/opt/OpenShift-Virtualization-GitOps/run-demos.sh s
 ```
 
 ### SSH Access to VMs
@@ -208,7 +208,7 @@ The workshop includes three main demonstrations that show GitOps capabilities in
 **Steps**:
 1. Use the demo runner:
    ```bash
-   ./run-demos.sh 1
+   /opt/OpenShift-Virtualization-GitOps/run-demos.sh 1
    ```
 
 2. This will:
@@ -228,7 +228,7 @@ The workshop includes three main demonstrations that show GitOps capabilities in
 **Steps**:
 1. Use the demo runner:
    ```bash
-   ./run-demos.sh 2
+   /opt/OpenShift-Virtualization-GitOps/run-demos.sh 2
    ```
 
 2. This will:
@@ -248,7 +248,7 @@ The workshop includes three main demonstrations that show GitOps capabilities in
 **Steps**:
 1. Use the demo runner:
    ```bash
-   ./run-demos.sh 3
+   /opt/OpenShift-Virtualization-GitOps/run-demos.sh 3
    ```
 
 2. This provides instructions for:
@@ -268,7 +268,7 @@ The workshop includes three main demonstrations that show GitOps capabilities in
 **Steps**:
 1. Use the demo runner:
    ```bash
-   ./run-demos.sh 4
+   /opt/OpenShift-Virtualization-GitOps/run-demos.sh 4
    ```
 
 2. This demonstrates:
@@ -288,7 +288,7 @@ The workshop includes three main demonstrations that show GitOps capabilities in
 The main demo script provides a menu-driven interface:
 
 ```bash
-./run-demos.sh
+/opt/OpenShift-Virtualization-GitOps/run-demos.sh
 ```
 
 **Available options**:
@@ -304,7 +304,7 @@ The main demo script provides a menu-driven interface:
 Check the current state of all workshop components:
 
 ```bash
-./run-demos.sh s
+/opt/OpenShift-Virtualization-GitOps/run-demos.sh s
 ```
 
 This shows:
@@ -427,7 +427,7 @@ Demonstrates live infrastructure updates through Git workflow.
 Use the interactive demo runner to easily run any demo:
 
 ```bash
-./run-demos.sh
+/opt/OpenShift-Virtualization-GitOps/run-demos.sh
 ```
 
 This script provides a menu-driven interface to run any demo or check workshop status.

@@ -115,7 +115,7 @@ echo "Password: $(oc get secret openshift-gitops-cluster -n openshift-gitops -o 
 export GUID=user01  # Not necessary if you are running at bastion lab
 ```
 ```
-./run-demos.sh s
+/opt/OpenShift-Virtualization-GitOps/run-demos.sh s
 ```
 ```
 # Or directly with Ansible
@@ -131,7 +131,7 @@ export GUID=user01  # Not necessary if you are running at bastion lab
 ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo1-manual-change.yaml -e "guid=$GUID"
 
 # Use the demo runner:
-./run-demos.sh 1
+/opt/OpenShift-Virtualization-GitOps/run-demos.sh 1
 ```
 
 **Step By Step to run Demo 1**
@@ -154,7 +154,7 @@ Using the doc [DEMO1-MANUAL-CHANGE.md](demo-scripts/DEMO1-MANUAL-CHANGE.md)
 ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo2-vm-recovery.yaml
 
 # Use the demo runner:
-./run-demos.sh 2
+/opt/OpenShift-Virtualization-GitOps/run-demos.sh 2
 ```
 
 **Step By Step to run Demo 2**
@@ -173,7 +173,7 @@ Using the doc [DEMO2-VM-RECOVERY.md](demo-scripts/DEMO2-VM-RECOVERY.md)
 ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo3-add-development-vm.yaml
 
 # Use the demo runner:
-./run-demos.sh 3
+/opt/OpenShift-Virtualization-GitOps/run-demos.sh 3
 
 ```
 **Step By Step to run Demo 3**
@@ -192,7 +192,7 @@ Using the doc [DEMO3-ADD-DEVELOPMENT-VM.md](demo-scripts/DEMO3-ADD-DEVELOPMENT-V
 ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo4-multi-env-management.yaml
 
 # Use the demo runner:
-./run-demos.sh 4
+/opt/OpenShift-Virtualization-GitOps/run-demos.sh 4
 
 ```
 **Step By Step to run Demo 4**
@@ -207,7 +207,7 @@ Using the doc [DEMO4-MULTI-ENV-MANAGEMENT.md](demo-scripts/DEMO4-MULTI-ENV-MANAG
 
 ### Interactive Demo Runner
 ```bash
-./run-demos.sh
+/opt/OpenShift-Virtualization-GitOps/run-demos.sh
 ```
 Provides a menu-driven interface to run all demos and utilities.
 
@@ -243,7 +243,7 @@ ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /op
 ### Status Monitoring
 ```bash
 # Using interactive demo runner
-./run-demos.sh 2
+/opt/OpenShift-Virtualization-GitOps/run-demos.sh 2
 
 # Direct Ansible playbook
 ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/check-workshop-status.yaml -e "guid=$GUID"
@@ -255,7 +255,7 @@ oc get vm -A | grep workshop-gitops
 
 ### Run All Demos
 ```bash
-./run-demos.sh a
+/opt/OpenShift-Virtualization-GitOps/run-demos.sh a
 ```
 
 ## ArgoCD Applications
@@ -517,7 +517,7 @@ patches:
 
 ```bash
 # Comprehensive status check
-./run-demos.sh s
+/opt/OpenShift-Virtualization-GitOps/run-demos.sh s
 
 # Verify all workshop components
 oc get applications.argoproj.io -n openshift-gitops | grep workshop-gitops-vms
