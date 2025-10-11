@@ -42,7 +42,7 @@ Each environment uses Kustomize overlays for environment-specific resource confi
 
 **SSH Key Management:**
 - The `setup-ssh-key.yaml` playbook automatically generates and configures SSH keys
-- SSH keys are generated locally and only the public key is used in VM configurations
+- SSH keys were generated locally and only the public key is used in VM configurations
 
 ## Installation
 
@@ -195,12 +195,14 @@ Using the doc [DEMO3-ADD-DEVELOPMENT-VM.md](demo-scripts/DEMO3-ADD-DEVELOPMENT-V
 
 ### Demo 4: Multi-Environment VM Management with Kustomize
 ```bash
+export GUID=user01  # Not necessary if you are running at bastion lab
+```
+```
+/opt/OpenShift-Virtualization-GitOps/run-demos.sh 4
+```
+```
 # Using Ansible playbook
 ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo4-multi-env-management.yaml
-
-# Use the demo runner:
-/opt/OpenShift-Virtualization-GitOps/run-demos.sh 4
-
 ```
 **Step By Step to run Demo 4**
 
@@ -212,25 +214,21 @@ Using the doc [DEMO4-MULTI-ENV-MANAGEMENT.md](demo-scripts/DEMO4-MULTI-ENV-MANAG
 - Centralized base template management across environments
 - GitOps promotion strategies and multi-environment consistency
 
-### Interactive Demo Runner
-```bash
-export GUID=user01  # Not necessary if you are running at bastion lab
-```
-```
-/opt/OpenShift-Virtualization-GitOps/run-demos.sh 4
-```
-```
-# Using Ansible playbook
-ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo4-multi-env-management.yam
-```
-
 ### Demo 3 Cleanup
+```
+/opt/OpenShift-Virtualization-GitOps/run-demos.sh c
+```
 ```bash
+# Using Ansible playbook
 ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/cleanup-demo3.yaml
 ```
 
 ### Demo 4 Cleanup
+```
+/opt/OpenShift-Virtualization-GitOps/run-demos.sh d
+```
 ```bash
+# Using Ansible playbook
 ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/cleanup-demo4.yaml
 ```
 
