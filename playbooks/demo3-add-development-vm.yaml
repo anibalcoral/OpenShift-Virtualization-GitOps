@@ -262,11 +262,6 @@
       ansible.builtin.debug:
         msg: "Triggering an ArgoCD sync to correct the drift..."
 
-    - name: Refresh ArgoCD application to detect Git changes
-      ansible.builtin.shell:
-        cmd: oc patch application {{ app_name }} -n openshift-gitops --type merge -p '{"metadata":{"annotations":{"refresh":"{{ ansible_date_time.iso8601_basic_short }}"}}}'
-      failed_when: false
-
     - name: Force ArgoCD sync operation with patch command
       kubernetes.core.k8s:
         state: present
@@ -305,7 +300,7 @@
 
     - name: Refresh ArgoCD application to detect Git changes
       ansible.builtin.shell:
-        cmd: oc patch application {{ app_name }} -n openshift-gitops --type merge -p '{"metadata":{"annotations":{"refresh":"last-fix-demo3"}}}'
+        cmd: oc patch application {{ app_name }} -n openshift-gitops --type merge -p '{"metadata":{"annotations":{"refresh":"{{ ansible_date_time.iso8601_basic_short }}"}}}'
       failed_when: false
 
     - name: Force ArgoCD sync operation with patch command
@@ -338,8 +333,8 @@
         namespace: "{{ namespace }}"
       register: vm_check
       until: vm_check.resources | length > 0
-      retries: 60
-      delay: 2
+      retries: 300
+      delay: 5
 
     - name: "Step 8: Waiting for application to return to Synced state"
       ansible.builtin.debug:

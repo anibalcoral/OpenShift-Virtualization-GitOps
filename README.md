@@ -166,6 +166,10 @@ Using the doc [DEMO2-VM-RECOVERY.md](demo-scripts/DEMO2-VM-RECOVERY.md)
 - Complete VM recreation and functionality
 
 ### Demo 3: Adding New Development VM via Git Change
+
+**TODO: Fix demo3**
+The demo3 is not finishing when running. It's necessary to execute a Sync in the ArgoCD web console to finish.
+
 ```bash
 export GUID=user01  # Not necessary if you are running at bastion lab
 ```
@@ -252,7 +256,7 @@ oc get applications.argoproj.io -n openshift-gitops
 oc get vm -A | grep workshop-gitops
 ```
 
-### Run All Demos (TODO: Fix demo3 and demo4)
+### Run All Demos (TODO: Fix demo3)
 ```bash
 /opt/OpenShift-Virtualization-GitOps/run-demos.sh a
 ```
