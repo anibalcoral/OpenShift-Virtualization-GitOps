@@ -56,17 +56,22 @@ oc get pods -n workshop-gitops-vms-dev | grep dev-vm-web-02
 
 > **Note**: In a real scenario, you would access the VM console and run destructive commands like `rm -rf /*`, making the VM unresponsive. For this demo, we simulate by deleting the VM and storage directly.
 
-1. Document current VM configuration before deletion:
+1. Access the VM over SSH and remove /*:
 ```bash
-oc get vm dev-vm-web-02 -n workshop-gitops-vms-dev -o yaml > /tmp/vm-backup.yaml
+virctl ssh cloud-user@dev-vm-web-02 -c "sudo rm -rf /*"
 ```
 
-2. Delete the VM:
+2. Stop de VM
+```bash
+virtctl stop dev-vm-web-02 --force --grace-period 0
+```
+
+3. Delete the VM:
 ```bash
 oc delete vm dev-vm-web-02 -n workshop-gitops-vms-dev
 ```
 
-3. Verify VM deletion:
+4. Verify VM deletion:
 ```bash
 oc get vm dev-vm-web-02 -n workshop-gitops-vms-dev
 ```
