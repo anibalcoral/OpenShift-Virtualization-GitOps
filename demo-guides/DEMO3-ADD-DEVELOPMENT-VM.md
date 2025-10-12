@@ -69,10 +69,10 @@ git checkout vms-dev-$GUID
 
 4. Pull latest changes:
 ```bash
-git pull origin vms-dev
+git pull origin vms-dev-$GUID
 ```
 
-**Expected Result**: You should be on the `vms-dev` branch with latest changes
+**Expected Result**: You should be on the `vms-dev-$GUID` branch with latest changes
 
 ### Step 3: Create New VM Definition
 
