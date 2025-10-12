@@ -178,12 +178,12 @@
         msg: "WARNING: base/kustomization.yaml already references vm-web-09.yaml"
       when: vm_already_in_kustomization
 
-    - name: Create backup of kustomization.yaml
-      ansible.builtin.copy:
-        src: "{{ apps_repo_path }}/base/kustomization.yaml"
-        dest: "{{ apps_repo_path }}/base/kustomization.yaml.bak"
-        backup: true
-      when: not vm_already_in_kustomization
+#    - name: Create backup of kustomization.yaml
+#      ansible.builtin.copy:
+#        src: "{{ apps_repo_path }}/base/kustomization.yaml"
+#        dest: "{{ apps_repo_path }}/base/kustomization.yaml.bak"
+#        backup: true
+#      when: not vm_already_in_kustomization
 
     - name: Update kustomization.yaml to include vm-web-09.yaml
       ansible.builtin.lineinfile:
@@ -195,7 +195,7 @@
 
     - name: Confirm kustomization updated
       ansible.builtin.debug:
-        msg: "Added 'vm-web-09.yaml' to base/kustomization.yaml (backup saved as base/kustomization.yaml.bak)"
+        msg: "Added 'vm-web-09.yaml' to base/kustomization.yaml"
       when: not vm_already_in_kustomization
 
     - name: "Step 4: Committing changes to Git repository"
