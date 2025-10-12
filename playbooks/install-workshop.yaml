@@ -29,6 +29,12 @@
           4. Install GitOps operator and applications
           5. Validate installation
 
+    - name: Export GUID on .bashrc file
+      ansible.builtin.lineinfile:
+        path: "{{ ansible_env.HOME }}/.bashrc"
+        line: "export GUID={{ guid }}"
+        state: present
+
     - name: Create GUID-specific branches in Apps repository
       ansible.builtin.include_tasks: tasks/create-guid-branches-tasks.yaml
 
