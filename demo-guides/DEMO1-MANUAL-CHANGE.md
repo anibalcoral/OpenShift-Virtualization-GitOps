@@ -5,7 +5,7 @@ This demo demonstrates how ArgoCD detects manual changes made directly to OpenSh
 
 ## Prerequisites
 - OpenShift GitOps Workshop installed and configured
-- GUID environment variable set (`export GUID=your-guid`)
+- GUID environment variable set (`export GUID=user01`)
 - Workshop GitOps VMs development environment deployed
 - Access to OpenShift cluster with `oc` CLI and cluster admin privileges
 
@@ -24,7 +24,7 @@ This demo demonstrates how ArgoCD detects manual changes made directly to OpenSh
 ### Direct Ansible Playbook Execution
 ```bash
 # Ensure GUID is set
-export GUID=your-guid
+export GUID=user01
 
 # Run the demo playbook
 ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo1-manual-change.yaml

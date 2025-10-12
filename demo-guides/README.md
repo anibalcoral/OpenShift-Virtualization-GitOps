@@ -90,7 +90,7 @@ ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /op
 
 - OpenShift cluster with Virtualization operator installed
 - OpenShift GitOps (ArgoCD) operator installed
-- GUID environment variable set (`export GUID=your-guid`)
+- GUID environment variable set (`export GUID=user01`)
 - Both repositories cloned to `/opt/` directory
 - Cluster admin access with `oc` CLI authenticated
 
