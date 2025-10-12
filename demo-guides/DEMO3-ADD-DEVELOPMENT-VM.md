@@ -340,7 +340,7 @@ oc get vm -n workshop-gitops-vms-dev --no-headers | wc -l
 
 3. Check VM labels and annotations:
 ```bash
-oc get vm dev-vm-web-09 -n workshop-gitops-vms-dev -o jsonpath='{.metadata.labels}'
+oc get vm dev-vm-web-09 -n workshop-gitops-vms-dev -o jsonpath='{.metadata.labels}' ; echo
 ```
 
 **Expected Result**: Environment should have expanded from 3 to 4 VMs, all managed by GitOps
