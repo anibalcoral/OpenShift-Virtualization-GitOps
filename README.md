@@ -307,9 +307,9 @@ Each environment deploys identical VMs with environment-specific resource alloca
 - **Networking**: LoadBalancer services with external routes
 
 ### Resource Scaling by Environment
-- **Development**: 1 vCPU, 2Gi RAM, 10Gi storage per VM
-- **Homologation**: 2 vCPU, 4Gi RAM, 20Gi storage per VM  
-- **Production**: 4 vCPU, 8Gi RAM, 40Gi storage per VM
+- **Development**: 1 vCPU, 2Gi RAM, 30Gi storage per VM
+- **Homologation**: 2 vCPU, 4Gi RAM, 30Gi storage per VM  
+- **Production**: 4 vCPU, 8Gi RAM, 50Gi storage per VM
 - **Storage**: Persistent volumes with environment-specific sizes
 
 ### Accessing Virtual Machines
