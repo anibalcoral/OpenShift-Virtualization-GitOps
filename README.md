@@ -10,7 +10,6 @@ This workshop demonstrates how to use OpenShift GitOps (ArgoCD) to manage Virtua
 - [Workshop Architecture](#workshop-architecture)
     - [Repository Structure](#repository-structure)
     - [Environment Strategy](#environment-strategy)
-  - [Security Considerations](#security-considerations)
   - [Installation](#installation)
     - [Automated Installation](#automated-installation)
     - [Manual Installation (for Learning)](#manual-installation-for-learning)
@@ -80,12 +79,6 @@ This workshop uses a **dual-repository strategy** with **multi-branch environmen
 
 Each GUID gets its own set of branches to ensure isolation between workshops participants.
 Each environment uses Kustomize overlays for environment-specific resource configurations (CPU, memory, disk, naming prefixes).
-
-## Security Considerations
-
-**SSH Key Management:**
-- The `setup-ssh-key.yaml` playbook automatically generates and configures SSH keys
-- SSH keys were generated locally and only the public key is used in VM configurations
 
 ## Installation
 
