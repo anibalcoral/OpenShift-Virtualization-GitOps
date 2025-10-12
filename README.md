@@ -524,7 +524,6 @@ oc get routes -n openshift-gitops
 
 ## Additional Resources
 
-- **Detailed Workshop Guide**: See `WORKSHOP_GUIDE.md` for comprehensive learning objectives and step-by-step instructions
 - **Demo Documentation**: Individual demo guides available in `demo-guides/DEMO*.md` files
  - **Detailed Workshop Guide**: See [WORKSHOP_GUIDE.md](demo-guides/WORKSHOP_GUIDE.md) for comprehensive learning objectives and step-by-step instructions
  - **Demo Documentation**: Individual demo guides available:
