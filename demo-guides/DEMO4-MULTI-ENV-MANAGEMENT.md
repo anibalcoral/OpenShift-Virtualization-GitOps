@@ -312,15 +312,6 @@ This demo demonstrates several key GitOps and Kustomize concepts:
 - **Automated Synchronization**: ArgoCD ensures environments stay in sync with their respective Git branches
 - **Configuration Management**: Kustomize provides a declarative way to manage environment differences
 
-## Troubleshooting
-
-### Common Issues
-
-1. **ArgoCD Sync Failures**: Check application logs and ensure Git repository is accessible
-2. **VM Creation Failures**: Verify OpenShift Virtualization operator is working and storage is available
-3. **Merge Conflicts**: Resolve conflicts manually during branch promotion
-4. **Permission Issues**: Ensure ArgoCD has proper RBAC permissions for all namespaces
-
 ### Verification Commands
 
 ```bash

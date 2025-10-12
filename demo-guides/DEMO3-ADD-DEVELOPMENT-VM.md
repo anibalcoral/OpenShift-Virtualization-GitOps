@@ -419,18 +419,3 @@ git commit -m "cleanup: remove demo VM web-09"
 ```bash
 git push origin vms-dev-$GUID
 ```
-
-## Troubleshooting
-
-If the demo doesn't work as expected:
-
-1. **Git push fails**: Check repository permissions and authentication
-2. **ArgoCD not detecting changes**: Force refresh:
-   ```bash
-   oc annotate applications.argoproj.io workshop-gitops-vms-dev -n openshift-gitops argocd.argoproj.io/refresh="$(date)" --overwrite
-   ```
-3. **VM creation stuck**: Check DataVolume and storage:
-   ```bash
-   oc describe dv dev-vm-web-09 -n workshop-gitops-vms-dev
-   ```
-4. **Kustomization errors**: Validate YAML syntax and indentation
