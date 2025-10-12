@@ -25,10 +25,10 @@ oc wait --for=condition=Ready pod -l name=argocd-application-controller -n opens
 ### Step 2: Create Repository Secret
 ```bash
 oc create secret generic workshop-gitops-repo \
-  --from-file=sshPrivateKey=$HOME/.ssh/ocpvirt-gitops-labs \
-  --from-literal=url=git@github.com:${GITHUB_USERNAME}/workshop-gitops-ocpvirt.git \
+  --from-file=sshPrivateKey=$HOME/.ssh/ocpvirt-gitops \
+  --from-literal=url=git@github.com:anibalcoral/OpenShift-Virtualization-GitOps-Apps.git \
   --from-literal=type=git \
-  -n openshift-gitops
+  -n openshift-gitops --dry-run=client -o yaml | oc apply -f -
 
 oc label secret workshop-gitops-repo argocd.argoproj.io/secret-type=repository -n openshift-gitops
 ```
