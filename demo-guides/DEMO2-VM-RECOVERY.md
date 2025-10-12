@@ -55,8 +55,6 @@ oc get pods -n workshop-gitops-vms-dev | grep dev-vm-web-02
 
 ### Step 2: Simulate Data Corruption Scenario
 
-> **Note**: In a real scenario, you would access the VM console and run destructive commands like `rm -rf /*`, making the VM unresponsive. For this demo, we simulate by deleting the VM and storage directly.
-
 1. Access the VM over SSH and remove /*:
 ```bash
 virtctl ssh cloud-user@dev-vm-web-02 -c "sudo rm -rf /*"
