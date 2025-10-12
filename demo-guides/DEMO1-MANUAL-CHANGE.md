@@ -9,27 +9,6 @@ This demo demonstrates how ArgoCD detects manual changes made directly to OpenSh
 - Workshop GitOps VMs development environment deployed
 - Access to OpenShift cluster with `oc` CLI and cluster admin privileges
 
-## Automated Execution
-
-### Using Demo Runner Script
-```bash
-# Interactive execution
-/opt/OpenShift-Virtualization-GitOps/run-demos.sh 1
-
-# Or via menu
-/opt/OpenShift-Virtualization-GitOps/run-demos.sh
-# Select option: 1
-```
-
-### Direct Ansible Playbook Execution
-```bash
-# Ensure GUID is set
-export GUID=user01
-
-# Run the demo playbook
-ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo1-manual-change.yaml
-```
-
 ## What the Demo Does
 
 The automated playbook performs these steps:

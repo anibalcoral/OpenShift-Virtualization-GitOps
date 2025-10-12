@@ -11,18 +11,6 @@ This demo demonstrates advanced GitOps practices for managing Virtual Machines a
 - Git configured for commits and push access to the repository
 - Demo 3 completed (dev-vm-web-09 exists in development environment)
 
-## Automated Execution
-
-### Using Demo Runner Script
-```bash
-# Interactive execution
-/opt/OpenShift-Virtualization-GitOps/run-demos.sh 4
-
-# Or via menu
-/opt/OpenShift-Virtualization-GitOps/run-demos.sh
-# Select option: 4
-```
-
 ### Direct Ansible Playbook Execution
 ```bash
 # Ensure GUID is set

@@ -10,18 +10,6 @@ This demo demonstrates how to add new Virtual Machines to the environment using 
 - Access to Git repository: `OpenShift-Virtualization-GitOps-Apps`
 - Git configured for commits and push access to the repository
 
-## Automated Execution
-
-### Using Demo Runner Script
-```bash
-# Interactive execution
-/opt/OpenShift-Virtualization-GitOps/run-demos.sh 3
-
-# Or via menu
-/opt/OpenShift-Virtualization-GitOps/run-demos.sh
-# Select option: 3
-```
-
 ### Direct Ansible Playbook Execution
 ```bash
 # Ensure GUID is set
