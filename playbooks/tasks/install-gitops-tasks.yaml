@@ -33,39 +33,36 @@
 #      status: "True"
 #    wait_timeout: 300
 
-- name: Apply Argo CD ConfigMap customization for KubeVirt VirtualMachine
+- name: Patch ArgoCD CR to add VirtualMachine health check via extraConfig
   kubernetes.core.k8s:
-    state: present
+    state: patched
+    kind: ArgoCD
+    api_version: argoproj.io/v1beta1
+    name: "{{ argocd_name }}"
+    namespace: "{{ argocd_namespace }}"
+    merge_type: merge
     definition:
-      apiVersion: v1
-      kind: ConfigMap
-      metadata:
-        name: "argocd-cm"
-        namespace: "openshift-gitops"
-        labels:
-          app.kubernetes.io/name: argocd-cm
-          app.kubernetes.io/part-of: argocd
-      data:
-        resource.customizations.health.kubevirt.io_VirtualMachine: |
-          hs = {}
-          hs.status = "Progressing"
-          hs.message = "Waiting for virtual machine status"
-          if obj.status and obj.status.printableStatus then
-            if obj.status.printableStatus == "Running" then
-              hs.status = "Healthy"
-              hs.message = "Virtual machine is running"
-            elseif obj.status.printableStatus == "Stopped" then
-              hs.status = "Healthy"
-              hs.message = "Virtual machine is stopped"
-            elseif obj.status.printableStatus == "Provisioning" then
-              hs.status = "Progressing"
-              hs.message = "Virtual machine is provisioning"
-            else
-              hs.status = "Degraded"
-              hs.message = "Virtual machine status is: " .. obj.status.printableStatus
+      spec:
+        extraConfig:
+          resource.customizations.health.kubevirt.io_VirtualMachine: |
+            hs = {}
+            hs.status = "Progressing"
+            hs.message = "Waiting for virtual machine status"
+            if obj.status and obj.status.printableStatus then
+              if obj.status.printableStatus == "Running" then
+                hs.status = "Healthy"
+                hs.message = "Virtual machine is running"
+              elseif obj.status.printableStatus == "Stopped" then
+                hs.status = "Healthy"
+                hs.message = "Virtual machine is stopped"
+              elseif obj.status.printableStatus == "Provisioning" then
+                hs.status = "Progressing"
+                hs.message = "Virtual machine is provisioning"
+              else
+                hs.status = "Degraded"
+                hs.message = "Virtual machine status is: " .. obj.status.printableStatus
+              end
             end
-          end
-          return hs
 
 - name: Create cluster role binding for ArgoCD
   kubernetes.core.k8s:
