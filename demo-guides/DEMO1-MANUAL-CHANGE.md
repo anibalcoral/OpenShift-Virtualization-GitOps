@@ -11,8 +11,6 @@ This demo demonstrates how ArgoCD detects manual changes made directly to OpenSh
 
 ## What the Demo Does
 
-The automated playbook performs these steps:
-
 1. **Initial Status Check**: Verifies the VM exists and is in the correct initial state
 2. **Manual Change**: Patches the VM to change `runStrategy` from `Always` to `Halted`
 3. **Drift Detection**: Monitors ArgoCD application for drift detection

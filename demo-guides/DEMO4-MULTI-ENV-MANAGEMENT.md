@@ -11,21 +11,7 @@ This demo demonstrates advanced GitOps practices for managing Virtual Machines a
 - Git configured for commits and push access to the repository
 - Demo 3 completed (dev-vm-web-09 exists in development environment)
 
-### Direct Ansible Playbook Execution
-```bash
-# Ensure GUID is set
-export GUID=user01
-
-# Run the demo playbook
-ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo4-multi-env-management.yaml
-
-# Clean up afterwards
-ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/cleanup-demo4.yaml
-```
-
 ## What the Demo Does
-
-The automated playbook performs these steps:
 
 1. **Environment Status Check**: Verifies all ArgoCD applications and current VMs in each environment
 2. **Development to Homologation Promotion**: 

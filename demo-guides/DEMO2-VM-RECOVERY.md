@@ -11,8 +11,6 @@ This demo demonstrates how GitOps can recover from complete VM and data loss sce
 
 ## What the Demo Does
 
-The automated playbook performs these steps:
-
 1. **Initial Status Check**: Verifies the VM and associated resources exist
 2. **Documentation**: Records current VM configuration before deletion
 3. **Complete Deletion**: Removes VM, DataVolume, and associated resources (simulating data loss)
@@ -40,9 +38,6 @@ oc get applications.argoproj.io workshop-gitops-vms-dev -n openshift-gitops -o c
 2. Verify the VM exists and its current state:
 ```bash
 oc get vm dev-vm-web-02 -n workshop-gitops-vms-dev
-```
-```bash
-oc get vmi dev-vm-web-02 -n workshop-gitops-vms-dev
 ```
 
 3. Check associated DataVolume:

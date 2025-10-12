@@ -10,18 +10,7 @@ This demo demonstrates how to add new Virtual Machines to the environment using 
 - Access to Git repository: `OpenShift-Virtualization-GitOps-Apps`
 - Git configured for commits and push access to the repository
 
-### Direct Ansible Playbook Execution
-```bash
-# Ensure GUID is set
-export GUID=user01
-
-# Run the demo playbook
-ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo3-add-development-vm.yaml
-```
-
 ## What the Demo Does
-
-The automated playbook performs these steps:
 
 1. **Initial Status Check**: Verifies current VMs in development environment
 2. **Git Repository Setup**: Navigates to the Apps repository and ensures correct branch
