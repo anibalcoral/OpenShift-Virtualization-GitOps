@@ -249,7 +249,7 @@ oc patch applications workshop-gitops-vms-dev -n openshift-gitops --type merge -
 
 3. Monitor application status until drift is detected:
 ```bash
-oc get applications workshop-gitops-vms-dev -n openshift-gitops -o jsonpath='{.status.sync.status}'
+oc get applications workshop-gitops-vms-dev -n openshift-gitops -o jsonpath='{.status.sync.status}' ; echo
 ```
 
 **Expected Result**: Application status should change to "OutOfSync"
@@ -305,10 +305,10 @@ oc get vm dev-vm-web-09 -n workshop-gitops-vms-dev -o custom-columns="NAME:.meta
 
 2. Verify VM configuration:
 ```bash
-oc get vm dev-vm-web-09 -n workshop-gitops-vms-dev -o jsonpath='{.spec.running}'
+oc get vm dev-vm-web-09 -n workshop-gitops-vms-dev -o jsonpath='{.spec.running}' ; echo
 ```
 ```bash
-oc get vm dev-vm-web-09 -n workshop-gitops-vms-dev -o jsonpath='{.spec.template.spec.domain.cpu.cores}'
+oc get vm dev-vm-web-09 -n workshop-gitops-vms-dev -o jsonpath='{.spec.template.spec.domain.cpu.cores}' ; echo
 ```
 
 3. List all VMs in development environment:

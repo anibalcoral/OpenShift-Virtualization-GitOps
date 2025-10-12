@@ -101,7 +101,7 @@ oc get dv dev-vm-web-02 -n workshop-gitops-vms-dev
 
 1. Monitor application sync status until drift is detected:
 ```bash
-oc get applications workshop-gitops-vms-dev -n openshift-gitops -o jsonpath='{.status.sync.status}'
+oc get applications workshop-gitops-vms-dev -n openshift-gitops -o jsonpath='{.status.sync.status}' ; echo
 ```
 
 2. You can force a refresh if needed:
@@ -154,7 +154,7 @@ watch oc get applications workshop-gitops-vms-dev -n openshift-gitops -o jsonpat
 
 2. Check application health:
 ```bash
-oc get applications workshop-gitops-vms-dev -n openshift-gitops -o jsonpath='{.status.health.status}'
+oc get applications workshop-gitops-vms-dev -n openshift-gitops -o jsonpath='{.status.health.status}' ; echo
 ```
 
 **Expected Result**: Application should return to "Synced" and "Healthy" status
@@ -173,10 +173,10 @@ oc get dv -n workshop-gitops-vms-dev | grep dev-vm-web-02
 
 3. Verify VM configuration matches Git definition:
 ```bash
-oc get vm dev-vm-web-02 -n workshop-gitops-vms-dev -o jsonpath='{.spec.runStrategy}'
+oc get vm dev-vm-web-02 -n workshop-gitops-vms-dev -o jsonpath='{.spec.runStrategy}' ; echo
 ```
 ```bash
-oc get vm dev-vm-web-02 -n workshop-gitops-vms-dev -o jsonpath='{.spec.template.spec.domain.resources.requests.memory}'
+oc get vm dev-vm-web-02 -n workshop-gitops-vms-dev -o jsonpath='{.spec.template.spec.domain.resources.requests.memory}' ; echo
 ```
 
 4. Check if VM is running (may take time to start):

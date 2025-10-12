@@ -31,11 +31,11 @@ This demo demonstrates how ArgoCD detects manual changes made directly to OpenSh
 
 1. Check the ArgoCD application status:
 ```bash
-oc get applications workshop-gitops-vms-dev -n openshift-gitops -o jsonpath='{.status.sync.status}'
+oc get applications workshop-gitops-vms-dev -n openshift-gitops -o jsonpath='{.status.sync.status}' ; echo
 ```
 
 ```bash
-oc get applications workshop-gitops-vms-dev -n openshift-gitops -o jsonpath='{.status.health.status}'
+oc get applications workshop-gitops-vms-dev -n openshift-gitops -o jsonpath='{.status.health.status}' ; echo
 ```
 
 2. Verify the VM exists and is running:
@@ -49,7 +49,7 @@ oc get vmi dev-vm-web-01 -n workshop-gitops-vms-dev
 
 3. Check the current runStrategy (should be "Always"):
 ```bash
-oc get vm dev-vm-web-01 -n workshop-gitops-vms-dev -o jsonpath='{.spec.runStrategy}'
+oc get vm dev-vm-web-01 -n workshop-gitops-vms-dev -o jsonpath='{.spec.runStrategy}' ; echo
 ```
 
 **Expected Result**: VM should exist and be running with `runStrategy: Always`
@@ -63,7 +63,7 @@ oc patch vm dev-vm-web-01 -n workshop-gitops-vms-dev --type merge -p '{"spec":{"
 
 2. Verify the change was applied:
 ```bash
-oc get vm dev-vm-web-01 -n workshop-gitops-vms-dev -o jsonpath='{.spec.runStrategy}'
+oc get vm dev-vm-web-01 -n workshop-gitops-vms-dev -o jsonpath='{.spec.runStrategy}' ; echo
 ```
 
 **Expected Result**: `runStrategy` should now be "Halted"
@@ -91,7 +91,7 @@ oc patch applications workshop-gitops-vms-dev -n openshift-gitops --type merge -
 
 2. Check application status repeatedly until drift is detected:
 ```bash
-oc get applications workshop-gitops-vms-dev -n openshift-gitops -o jsonpath='{.status.sync.status}'
+oc get applications workshop-gitops-vms-dev -n openshift-gitops -o jsonpath='{.status.sync.status}' ; echo
 ```
 
 **Expected Result**: Sync status should return to "Synced"
@@ -100,7 +100,7 @@ oc get applications workshop-gitops-vms-dev -n openshift-gitops -o jsonpath='{.s
 
 1. Check that the runStrategy has been reverted:
 ```bash
-oc get vm dev-vm-web-01 -n workshop-gitops-vms-dev -o jsonpath='{.spec.runStrategy}'
+oc get vm dev-vm-web-01 -n workshop-gitops-vms-dev -o jsonpath='{.spec.runStrategy}' ; echo
 ```
 
 2. Wait for the VM to start again:
