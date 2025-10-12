@@ -8,7 +8,7 @@ This workshop demonstrates how to implement GitOps principles for managing Virtu
 Git Repository Structure
 ├── Main Repository: OpenShift-Virtualization-GitOps
 │   ├── Installation scripts (install.sh, remove.sh)
-│   ├── Demo scripts (demo-scripts/run-demos.sh)
+│   ├── Demo automation (run-demos.sh)
 │   ├── Manual installation YAML files
 │   └── Workshop documentation
 └── Apps Repository: OpenShift-Virtualization-GitOps-Apps
@@ -200,109 +200,133 @@ Follow the instructions below, or use the individual YAML files in `manual-insta
 
 ## Workshop Demonstrations
 
-The workshop includes three main demonstrations that show GitOps capabilities in action:
+The workshop includes four comprehensive demonstrations that showcase GitOps capabilities in action. All demonstrations are automated through Ansible playbooks that provide consistent, reproducible results while including detailed logging and verification steps.
 
 ### Demo 1: Manual Change Detection and Drift Correction
 
-**Purpose**: Demonstrate how ArgoCD detects and corrects configuration drift.
+**Purpose**: Demonstrate how ArgoCD detects and corrects configuration drift automatically.
 
-**Steps**:
-1. Use the demo runner:
+**Execution Methods**:
+1. **Using demo runner** (recommended):
    ```bash
    /opt/OpenShift-Virtualization-GitOps/run-demos.sh 1
    ```
 
-2. This will:
-   - Show current VM configuration
-   - Make a manual change to VM resources (scale CPU to 4 cores)
-   - ArgoCD will detect the drift and automatically correct it
+2. **Direct Ansible execution**:
+   ```bash
+   ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo1-manual-change.yaml
+   ```
+
+**What the demo does**:
+- Shows current VM configuration (runStrategy: Always)
+- Makes a manual change to stop the VM (runStrategy: Halted)
+- ArgoCD detects the drift and automatically corrects it
+- VM returns to desired state defined in Git
 
 **Learning Objectives**:
-- Configuration drift detection
-- Automatic self-healing
-- GitOps principles in action
+- Configuration drift detection through ArgoCD monitoring
+- Automatic self-healing and remediation capabilities
+- GitOps principles ensuring desired state convergence
 
 ### Demo 2: VM Recovery from Data Loss
 
-**Purpose**: Demonstrate how ArgoCD can recover from complete resource deletion.
+**Purpose**: Demonstrate complete disaster recovery capabilities through Git-based reconstruction.
 
-**Steps**:
-1. Use the demo runner:
+**Execution Methods**:
+1. **Using demo runner** (recommended):
    ```bash
    /opt/OpenShift-Virtualization-GitOps/run-demos.sh 2
    ```
 
-2. This will:
-   - Delete a VM completely (simulating data loss)
-   - ArgoCD will detect the missing resource
-   - Automatically recreate the VM from Git
+2. **Direct Ansible execution**:
+   ```bash
+   ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo2-vm-recovery.yaml
+   ```
+
+**What the demo does**:
+- Completely deletes a VM and its storage (simulating catastrophic data loss)
+- ArgoCD detects missing resources and health degradation
+- Automatically recreates the entire VM infrastructure from Git definitions
+- Verifies complete functionality restoration
 
 **Learning Objectives**:
-- Disaster recovery capabilities
-- Infrastructure as Code benefits
-- Declarative resource management
+- Disaster recovery through declarative infrastructure
+- Infrastructure as Code providing robust backup strategy
+- GitOps ensuring consistent recovery processes
 
 ### Demo 3: Adding New Development VM via Git Change
 
-**Purpose**: Demonstrate infrastructure provisioning through Git commits.
+**Purpose**: Demonstrate infrastructure provisioning through Git-based workflows and automation.
 
-**Steps**:
-1. Use the demo runner:
+**Execution Methods**:
+1. **Using demo runner** (recommended):
    ```bash
    /opt/OpenShift-Virtualization-GitOps/run-demos.sh 3
    ```
 
-2. This provides instructions for:
-   - Manual Git operations to add new VMs
-   - Updating Kustomize configurations
-   - ArgoCD automatically deploying changes
+2. **Direct Ansible execution**:
+   ```bash
+   ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo3-add-development-vm.yaml
+   ```
+
+**What the demo does**:
+- Creates new VM definition in Git repository
+- Updates Kustomize configuration to include new VM
+- Commits and pushes changes to development branch
+- ArgoCD automatically detects and deploys the new VM
+- Provides cleanup automation for demo repeatability
 
 **Learning Objectives**:
-- Git-based infrastructure provisioning
-- Code review workflows for infrastructure
-- Environment-specific configurations
+- Git-based infrastructure provisioning workflows
+- Code review and approval processes for infrastructure changes
+- Automated deployment through continuous synchronization
 
 ### Demo 4: Multi-Environment VM Management with Kustomize
 
-**Purpose**: Demonstrate advanced GitOps practices for managing VMs across multiple environments using Kustomize overlays and Git branch promotion.
+**Purpose**: Demonstrate advanced GitOps practices for managing VMs across multiple environments using Kustomize overlays and Git branch promotion strategies.
 
-**Steps**:
-1. Use the demo runner:
+**Execution Methods**:
+1. **Using demo runner** (recommended):
    ```bash
    /opt/OpenShift-Virtualization-GitOps/run-demos.sh 4
    ```
 
-2. This demonstrates:
-   - Promoting VM changes from development → homologation → production
-   - Environment-specific configurations using Kustomize overlays
-   - Centralized base template management
-   - Branch-based promotion strategies
+2. **Direct Ansible execution**:
+   ```bash
+   ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo4-multi-env-management.yaml
+   ```
+
+**What the demo does**:
+- Promotes VM changes from development → homologation → production environments
+- Demonstrates environment-specific configurations using Kustomize overlays  
+- Shows centralized base template management across environments
+- Illustrates branch-based promotion strategies in GitOps workflows
+- Validates different resource allocations per environment
 
 **Learning Objectives**:
-- Multi-environment GitOps workflows
-- Kustomize for environment-specific configurations
-- Safe promotion pipelines using Git branches
-- DRY principle in infrastructure management
+- Multi-environment GitOps workflows and promotion strategies
+- Kustomize overlays for environment-specific configurations
+- Safe promotion pipelines using Git branch strategies
+- DRY (Don't Repeat Yourself) principles in infrastructure management
 
 ### Interactive Demo Runner
 
-The main demo script provides a menu-driven interface:
+The main demo script provides a menu-driven interface for all workshop operations:
 
 ```bash
 /opt/OpenShift-Virtualization-GitOps/run-demos.sh
 ```
 
 **Available options**:
-- `1-4`: Individual demos
-- `a`: Run all demos sequentially  
-- `s`: Check workshop status
-- `c`: Cleanup Demo 3 resources
-- `d`: Cleanup Demo 4 resources
-- `q`: Quit
+- `1-4`: Execute individual demos with full automation
+- `a`: Run all demos sequentially with validation between each
+- `s`: Check comprehensive workshop status across all environments
+- `c`: Cleanup Demo 4 resources for repeatability
+- `q`: Quit the demo runner
 
 ### Status Checking
 
-Check the current state of all workshop components:
+Check the current state of all workshop components across environments:
 
 ```bash
 /opt/OpenShift-Virtualization-GitOps/run-demos.sh s
@@ -395,7 +419,7 @@ This workshop teaches:
 Demonstrates the complete GitOps deployment process from scratch.
 
 ```bash
-./demo-scripts/demo4-initial-deployment.sh
+./run-demos.sh 4
 ```
 
 **What happens:**
@@ -405,14 +429,6 @@ Demonstrates the complete GitOps deployment process from scratch.
 4. Trigger manual sync in ArgoCD
 5. Monitor VM creation and startup process
 6. Verify all associated resources (DataVolume, Service, Route)
-
-### Demo 5: Live VM Configuration Update via Git
-
-Demonstrates live infrastructure updates through Git workflow.
-
-```bash
-./demo-scripts/demo5-live-config-update.sh
-```
 
 **What happens:**
 1. Check current VM configuration (2Gi memory)

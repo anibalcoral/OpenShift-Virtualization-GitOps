@@ -2,8 +2,21 @@
 
 set -e
 
-# Source common functions for backward compatibility with remaining bash scripts
-source "$(dirname "$0")/demo-scripts/demo-functions.sh"
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m'
+
+# Log functions
+log() {
+    echo -e "${BLUE}[$(date '+%Y-%m-%d %H:%M:%S')]${NC} $1"
+}
+
+log_error() {
+    echo -e "${RED}[$(date '+%Y-%m-%d %H:%M:%S')] ERROR:${NC} $1"
+}
 
 # Check if GUID environment variable is set
 if [ -z "$GUID" ]; then

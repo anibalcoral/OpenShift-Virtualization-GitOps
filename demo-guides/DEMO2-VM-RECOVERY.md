@@ -1,14 +1,49 @@
 # Demo 2: VM Recovery from Data Loss
 
 ## Overview
-This demo demonstrates how GitOps can recover from complete VM and data loss scenarios. By deleting both the VM and its persistent storage, we simulate catastrophic data corruption or hardware failure, then show how ArgoCD automatically recreates the entire VM infrastructure from Git definitions.
+This demo demonstrates how GitOps can recover from complete VM and data loss scenarios. By deleting both the VM and its persistent storage, we simulate catastrophic data corruption or hardware failure, then show how ArgoCD automatically recreates the entire VM infrastructure from Git definitions. The demo is automated through Ansible playbooks but includes manual step-by-step instructions for educational purposes.
 
 ## Prerequisites
-- ArgoCD Operator installed and configured
+- OpenShift GitOps Workshop installed and configured
+- GUID environment variable set (`export GUID=your-guid`)
 - Workshop GitOps VMs development environment deployed
-- Access to OpenShift cluster with `oc` CLI
+- Access to OpenShift cluster with `oc` CLI and cluster admin privileges
+
+## Automated Execution
+
+### Using Demo Runner Script
+```bash
+# Interactive execution
+/opt/OpenShift-Virtualization-GitOps/run-demos.sh 2
+
+# Or via menu
+/opt/OpenShift-Virtualization-GitOps/run-demos.sh
+# Select option: 2
+```
+
+### Direct Ansible Playbook Execution
+```bash
+# Ensure GUID is set
+export GUID=your-guid
+
+# Run the demo playbook
+ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo2-vm-recovery.yaml
+```
+
+## What the Demo Does
+
+The automated playbook performs these steps:
+
+1. **Initial Status Check**: Verifies the VM and associated resources exist
+2. **Documentation**: Records current VM configuration before deletion
+3. **Complete Deletion**: Removes VM, DataVolume, and associated resources (simulating data loss)
+4. **Verification**: Confirms all resources are completely removed
+5. **Recovery Monitoring**: Watches ArgoCD detect missing resources and trigger recovery
+6. **Validation**: Verifies complete VM recreation with original configuration
+7. **Service Testing**: Confirms the recovered VM is fully functional
 
 ## Environment Details
+- **GUID**: Dynamic based on environment variable
 - **Namespace**: `workshop-gitops-vms-dev`
 - **VM Name**: `dev-vm-web-02`
 - **ArgoCD Application**: `workshop-gitops-vms-dev`

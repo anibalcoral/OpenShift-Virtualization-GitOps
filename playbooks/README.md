@@ -201,7 +201,7 @@ oc get pods -n openshift-gitops || true
 ## See also
 
 - Top-level `README.md` — workshop overview and installation instructions: [../README.md](../README.md)
-- Demo scripts documentation: [../demo-scripts/README.md](../demo-scripts/README.md)
+- Demo guides documentation: [../demo-guides/README.md](../demo-guides/README.md)
 - Manual installation manifests and ordering: [../manual-install/README.md](../manual-install/README.md)
 - Apps repository (GitHub) — companion Apps project with VM definitions and kustomize overlays: [anibalcoral/OpenShift-Virtualization-GitOps-Apps](https://github.com/anibalcoral/OpenShift-Virtualization-GitOps-Apps)
 

@@ -1,20 +1,56 @@
 # Demo 3: Adding New Development VM via Git Change
 
 ## Overview
-This demo demonstrates how to add new Virtual Machines to the environment using GitOps workflow. By adding a new VM definition to Git and updating the kustomization, ArgoCD automatically deploys the new infrastructure without manual OpenShift intervention.
+This demo demonstrates how to add new Virtual Machines to the environment using GitOps workflow. By adding a new VM definition to Git and updating the kustomization, ArgoCD automatically deploys the new infrastructure without manual OpenShift intervention. The demo is automated through Ansible playbooks but includes manual step-by-step instructions for educational purposes.
 
 ## Prerequisites
-- ArgoCD Operator installed and configured
+- OpenShift GitOps Workshop installed and configured
+- GUID environment variable set (`export GUID=your-guid`)
 - Workshop GitOps VMs development environment deployed
 - Access to Git repository: `OpenShift-Virtualization-GitOps-Apps`
 - Git configured for commits and push access to the repository
 
+## Automated Execution
+
+### Using Demo Runner Script
+```bash
+# Interactive execution
+/opt/OpenShift-Virtualization-GitOps/run-demos.sh 3
+
+# Or via menu
+/opt/OpenShift-Virtualization-GitOps/run-demos.sh
+# Select option: 3
+```
+
+### Direct Ansible Playbook Execution
+```bash
+# Ensure GUID is set
+export GUID=your-guid
+
+# Run the demo playbook
+ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo3-add-development-vm.yaml
+```
+
+## What the Demo Does
+
+The automated playbook performs these steps:
+
+1. **Initial Status Check**: Verifies current VMs in development environment
+2. **Git Repository Setup**: Navigates to the Apps repository and ensures correct branch
+3. **VM Definition Creation**: Creates a new VM definition file (`vm-web-09.yaml`) based on existing templates
+4. **Kustomization Update**: Updates the kustomization.yaml to include the new VM
+5. **Git Workflow**: Commits and pushes changes to the development branch
+6. **ArgoCD Sync**: Monitors ArgoCD for automatic sync and deployment
+7. **Deployment Verification**: Confirms the new VM is created and operational
+8. **Cleanup**: Provides option to remove the VM for demo repeatability
+
 ## Environment Details
+- **GUID**: Dynamic based on environment variable
 - **Namespace**: `workshop-gitops-vms-dev`
 - **New VM Name**: `dev-vm-web-09`
 - **ArgoCD Application**: `workshop-gitops-vms-dev`
 - **Git Repository**: `OpenShift-Virtualization-GitOps-Apps`
-- **Target Branch**: `vms-dev`
+- **Target Branch**: `vms-dev-{guid}` (GUID-specific development branch)
 
 ## Step-by-Step Manual Instructions
 

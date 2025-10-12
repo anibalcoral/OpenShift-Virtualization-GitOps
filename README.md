@@ -130,7 +130,7 @@ ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /op
 
 **Step By Step to run Demo 1**
 
-Using the doc [DEMO1-MANUAL-CHANGE.md](demo-scripts/DEMO1-MANUAL-CHANGE.md)
+Using the doc [DEMO1-MANUAL-CHANGE.md](demo-guides/DEMO1-MANUAL-CHANGE.md)
 
 - Manual modifications to VM resources
 - ArgoCD detecting "OutOfSync" status
@@ -157,7 +157,7 @@ ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /op
 
 **Step By Step to run Demo 2**
 
-Using the doc [DEMO2-VM-RECOVERY.md](demo-scripts/DEMO2-VM-RECOVERY.md)
+Using the doc [DEMO2-VM-RECOVERY.md](demo-guides/DEMO2-VM-RECOVERY.md)
 
 **Demonstrates:**
 - Complete VM deletion (simulating data loss)
@@ -166,9 +166,6 @@ Using the doc [DEMO2-VM-RECOVERY.md](demo-scripts/DEMO2-VM-RECOVERY.md)
 - Complete VM recreation and functionality
 
 ### Demo 3: Adding New Development VM via Git Change
-
-**TODO: Fix demo3**
-The demo3 is not finishing when running. It's necessary to execute a Sync in the ArgoCD web console to finish.
 
 ```bash
 export GUID=user01  # Not necessary if you are running at bastion lab
@@ -184,7 +181,7 @@ ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /op
 ```
 **Step By Step to run Demo 3**
 
-Using the doc [DEMO3-ADD-DEVELOPMENT-VM.md](demo-scripts/DEMO3-ADD-DEVELOPMENT-VM.md)
+Using the doc [DEMO3-ADD-DEVELOPMENT-VM.md](demo-guides/DEMO3-ADD-DEVELOPMENT-VM.md)
 
 **Demonstrates:**
 - Git-based workflow for infrastructure changes
@@ -206,7 +203,7 @@ ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /op
 ```
 **Step By Step to run Demo 4**
 
-Using the doc [DEMO4-MULTI-ENV-MANAGEMENT.md](demo-scripts/DEMO4-MULTI-ENV-MANAGEMENT.md)
+Using the doc [DEMO4-MULTI-ENV-MANAGEMENT.md](demo-guides/DEMO4-MULTI-ENV-MANAGEMENT.md)
 
 **Demonstrates:**
 - Branch-based environment promotion (dev → hml → prod)
@@ -389,8 +386,7 @@ OpenShift-Virtualization-GitOps/          # Main workshop repository
 │   ├── 05-argocd-app-hml.yaml
 │   ├── 06-argocd-app-prd.yaml
 │   └── README.md
-└── demo-scripts/                        # Workshop demonstration scripts
-    ├── demo-functions.sh                # Common demo functions
+└── demo-guides/                         # Workshop demonstration guides
     ├── DEMO1-MANUAL-CHANGE.md           # Demo 1 documentation
     ├── DEMO2-VM-RECOVERY.md             # Demo 2 documentation
     ├── DEMO3-ADD-DEVELOPMENT-VM.md      # Demo 3 documentation
@@ -529,13 +525,13 @@ oc get routes -n openshift-gitops
 ## Additional Resources
 
 - **Detailed Workshop Guide**: See `WORKSHOP_GUIDE.md` for comprehensive learning objectives and step-by-step instructions
-- **Demo Documentation**: Individual demo guides available in `demo-scripts/DEMO*.md` files
+- **Demo Documentation**: Individual demo guides available in `demo-guides/DEMO*.md` files
  - **Detailed Workshop Guide**: See [WORKSHOP_GUIDE.md](WORKSHOP_GUIDE.md) for comprehensive learning objectives and step-by-step instructions
  - **Demo Documentation**: Individual demo guides available:
-    - [DEMO1-MANUAL-CHANGE.md](demo-scripts/DEMO1-MANUAL-CHANGE.md)
-    - [DEMO2-VM-RECOVERY.md](demo-scripts/DEMO2-VM-RECOVERY.md)
-    - [DEMO3-ADD-DEVELOPMENT-VM.md](demo-scripts/DEMO3-ADD-DEVELOPMENT-VM.md)
-    - [DEMO4-MULTI-ENV-MANAGEMENT.md](demo-scripts/DEMO4-MULTI-ENV-MANAGEMENT.md)
+    - [DEMO1-MANUAL-CHANGE.md](demo-guides/DEMO1-MANUAL-CHANGE.md)
+    - [DEMO2-VM-RECOVERY.md](demo-guides/DEMO2-VM-RECOVERY.md)
+    - [DEMO3-ADD-DEVELOPMENT-VM.md](demo-guides/DEMO3-ADD-DEVELOPMENT-VM.md)
+    - [DEMO4-MULTI-ENV-MANAGEMENT.md](demo-guides/DEMO4-MULTI-ENV-MANAGEMENT.md)
 - **Apps Repository**: [OpenShift-Virtualization-GitOps-Apps](https://github.com/anibalcoral/OpenShift-Virtualization-GitOps-Apps) contains VM definitions and Kustomize configurations
 
 ## Workshop Learning Objectives

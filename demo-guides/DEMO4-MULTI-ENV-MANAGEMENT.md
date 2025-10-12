@@ -1,24 +1,74 @@
 # Demo 4: Multi-Environment VM Management with Kustomize
 
 ## Overview
-This demo demonstrates advanced GitOps practices for managing Virtual Machines across multiple environments (development, homologation, and production) using Kustomize overlays and Git branch promotion strategies. It showcases how to efficiently manage environment-specific configurations while maintaining consistency across environments.
+This demo demonstrates advanced GitOps practices for managing Virtual Machines across multiple environments (development, homologation, and production) using Kustomize overlays and Git branch promotion strategies. It showcases how to efficiently manage environment-specific configurations while maintaining consistency across environments. The demo is automated through Ansible playbooks but includes manual step-by-step instructions for educational purposes.
 
 ## Prerequisites
-- ArgoCD Operator installed and configured
+- OpenShift GitOps Workshop installed and configured
+- GUID environment variable set (`export GUID=your-guid`)
 - Workshop GitOps VMs deployed in all environments (dev, hml, prd)
 - Access to Git repository: `OpenShift-Virtualization-GitOps-Apps`
 - Git configured for commits and push access to the repository
 - Demo 3 completed (dev-vm-web-09 exists in development environment)
 
+## Automated Execution
+
+### Using Demo Runner Script
+```bash
+# Interactive execution
+/opt/OpenShift-Virtualization-GitOps/run-demos.sh 4
+
+# Or via menu
+/opt/OpenShift-Virtualization-GitOps/run-demos.sh
+# Select option: 4
+```
+
+### Direct Ansible Playbook Execution
+```bash
+# Ensure GUID is set
+export GUID=your-guid
+
+# Run the demo playbook
+ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo4-multi-env-management.yaml
+
+# Clean up afterwards
+ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/cleanup-demo4.yaml
+```
+
+## What the Demo Does
+
+The automated playbook performs these steps:
+
+1. **Environment Status Check**: Verifies all ArgoCD applications and current VMs in each environment
+2. **Development to Homologation Promotion**: 
+   - Merges development branch changes into homologation branch
+   - Updates Kustomize overlays for environment-specific configurations
+   - Monitors ArgoCD sync for homologation environment
+3. **Homologation to Production Promotion**:
+   - Merges homologation branch changes into production branch
+   - Applies production-specific Kustomize patches
+   - Monitors ArgoCD sync for production environment
+4. **Verification**: Confirms VMs are deployed in all environments with correct configurations
+5. **Environment Comparison**: Shows differences in VM configurations across environments (CPU, memory, naming)
+
 ## Environment Details
+- **GUID**: Dynamic based on environment variable
 - **Development Namespace**: `workshop-gitops-vms-dev`
 - **Homologation Namespace**: `workshop-gitops-vms-hml`
 - **Production Namespace**: `workshop-gitops-vms-prd`
 - **ArgoCD Applications**: 
-  - `workshop-gitops-vms-dev` (targets `vms-dev` branch)
-  - `workshop-gitops-vms-hml` (targets `vms-hml` branch)
-  - `workshop-gitops-vms-prd` (targets `main` branch)
+  - `workshop-gitops-vms-dev` (targets `vms-dev-{guid}` branch)
+  - `workshop-gitops-vms-hml` (targets `vms-hml-{guid}` branch)
+  - `workshop-gitops-vms-prd` (targets `vms-prd-{guid}` branch)
 - **Git Repository**: `OpenShift-Virtualization-GitOps-Apps`
+
+## Kustomize Environment Strategy
+
+The demo showcases how Kustomize overlays provide environment-specific configurations:
+
+- **Development**: Lower resource allocation, development naming prefix
+- **Homologation**: Medium resource allocation, homologation naming prefix  
+- **Production**: Higher resource allocation, production naming prefix, enhanced monitoring
 
 ## Step-by-Step Manual Instructions
 

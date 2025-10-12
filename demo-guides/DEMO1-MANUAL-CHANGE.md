@@ -1,14 +1,47 @@
 # Demo 1: Manual Change Detection and Drift Correction
 
 ## Overview
-This demo demonstrates how ArgoCD detects manual changes made directly to OpenShift resources and automatically corrects the configuration drift by reverting to the state defined in Git.
+This demo demonstrates how ArgoCD detects manual changes made directly to OpenShift resources and automatically corrects the configuration drift by reverting to the state defined in Git. The demo is automated through Ansible playbooks but includes manual step-by-step instructions for educational purposes.
 
 ## Prerequisites
-- ArgoCD Operator installed and configured
+- OpenShift GitOps Workshop installed and configured
+- GUID environment variable set (`export GUID=your-guid`)
 - Workshop GitOps VMs development environment deployed
-- Access to OpenShift cluster with `oc` CLI
+- Access to OpenShift cluster with `oc` CLI and cluster admin privileges
+
+## Automated Execution
+
+### Using Demo Runner Script
+```bash
+# Interactive execution
+/opt/OpenShift-Virtualization-GitOps/run-demos.sh 1
+
+# Or via menu
+/opt/OpenShift-Virtualization-GitOps/run-demos.sh
+# Select option: 1
+```
+
+### Direct Ansible Playbook Execution
+```bash
+# Ensure GUID is set
+export GUID=your-guid
+
+# Run the demo playbook
+ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo1-manual-change.yaml
+```
+
+## What the Demo Does
+
+The automated playbook performs these steps:
+
+1. **Initial Status Check**: Verifies the VM exists and is in the correct initial state
+2. **Manual Change**: Patches the VM to change `runStrategy` from `Always` to `Halted`
+3. **Drift Detection**: Monitors ArgoCD application for drift detection
+4. **Self-Healing Verification**: Confirms ArgoCD automatically corrects the drift
+5. **Final Validation**: Ensures the VM returns to the desired Git-defined state
 
 ## Environment Details
+- **GUID**: Dynamic based on environment variable
 - **Namespace**: `workshop-gitops-vms-dev`
 - **VM Name**: `dev-vm-web-01`
 - **ArgoCD Application**: `workshop-gitops-vms-dev`
