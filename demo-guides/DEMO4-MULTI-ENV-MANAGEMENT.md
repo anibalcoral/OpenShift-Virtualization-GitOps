@@ -112,11 +112,9 @@ git merge vms-dev-$GUID
 git push origin vms-hml-$GUID
 ```
 
-3. Wait for ArgoCD to detect and sync the changes:
+3. Force ArgoCD to detect and sync the changes:
 ```bash
-echo "Waiting for ArgoCD to sync homologation environment..."
-# Monitor the sync status
-watch -n 5 "oc get applications workshop-gitops-vms-hml -n openshift-gitops -o custom-columns='NAME:.metadata.name,SYNC:.status.sync.status,HEALTH:.status.health.status'"
+oc patch applications workshop-gitops-vms-hml -n openshift-gitops --type merge -p '{"operation":{"sync":{"syncStrategy":{"hook":{}}}}}' &>/dev/null
 ```
 
 4. Verify the VM was created in homologation:
@@ -139,11 +137,9 @@ git merge vms-hml-$GUID
 git push origin vms-prd-$GUID
 ```
 
-3. Wait for ArgoCD to sync production environment:
+3. Force ArgoCD to detect and sync the changes:
 ```bash
-echo "Waiting for ArgoCD to sync production environment..."
-# Monitor the sync status
-watch -n 5 "oc get applications workshop-gitops-vms-prd -n openshift-gitops -o custom-columns='NAME:.metadata.name,SYNC:.status.sync.status,HEALTH:.status.health.status'"
+oc patch applications workshop-gitops-vms-prd -n openshift-gitops --type merge -p '{"operation":{"sync":{"syncStrategy":{"hook":{}}}}}' &>/dev/null
 ```
 
 4. Verify the VM was created in production:
