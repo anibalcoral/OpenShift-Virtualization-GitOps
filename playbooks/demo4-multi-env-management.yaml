@@ -517,7 +517,7 @@
           oc get vm -n workshop-gitops-vms-prd | grep vm-web-09
           
           # Check ArgoCD application status
-          oc get applications.argoproj.io -n openshift-gitops | grep workshop-gitops-vms
+          oc get applications -n openshift-gitops | grep workshop-gitops-vms
           
           # Verify annotations across environments
           oc get vm dev-vm-web-09 -n workshop-gitops-vms-dev -o yaml | grep demo4-timestamp

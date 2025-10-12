@@ -31,11 +31,11 @@ This demo demonstrates how ArgoCD detects manual changes made directly to OpenSh
 
 1. Check the ArgoCD application status:
 ```bash
-oc get applications.argoproj.io workshop-gitops-vms-dev -n openshift-gitops -o jsonpath='{.status.sync.status}'
+oc get applications workshop-gitops-vms-dev -n openshift-gitops -o jsonpath='{.status.sync.status}'
 ```
 
 ```bash
-oc get applications.argoproj.io workshop-gitops-vms-dev -n openshift-gitops -o jsonpath='{.status.health.status}'
+oc get applications workshop-gitops-vms-dev -n openshift-gitops -o jsonpath='{.status.health.status}'
 ```
 
 2. Verify the VM exists and is running:
@@ -86,12 +86,12 @@ oc get vmi dev-vm-web-01 -n workshop-gitops-vms-dev
 
 1. Force application refresh to detect changes:
 ```bash
-oc patch applications.argoproj.io workshop-gitops-vms-dev -n openshift-gitops --type merge -p '{"operation":{"initiatedBy":{"username":"admin"},"sync":{"revision":"HEAD"}}}'
+oc patch applications workshop-gitops-vms-dev -n openshift-gitops --type merge -p '{"operation":{"initiatedBy":{"username":"admin"},"sync":{"revision":"HEAD"}}}'
 ```
 
 2. Check application status repeatedly until drift is detected:
 ```bash
-oc get applications.argoproj.io workshop-gitops-vms-dev -n openshift-gitops -o jsonpath='{.status.sync.status}'
+oc get applications workshop-gitops-vms-dev -n openshift-gitops -o jsonpath='{.status.sync.status}'
 ```
 
 **Expected Result**: Sync status should return to "Synced"
@@ -122,7 +122,7 @@ oc get vmi dev-vm-web-01 -n workshop-gitops-vms-dev
 
 1. Check final application status:
 ```bash
-oc get applications.argoproj.io workshop-gitops-vms-dev -n openshift-gitops -o custom-columns="NAME:.metadata.name,SYNC:.status.sync.status,HEALTH:.status.health.status"
+oc get applications workshop-gitops-vms-dev -n openshift-gitops -o custom-columns="NAME:.metadata.name,SYNC:.status.sync.status,HEALTH:.status.health.status"
 ```
 
 2. List all VMs in the development environment:

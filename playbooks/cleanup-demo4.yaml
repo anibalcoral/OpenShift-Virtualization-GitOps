@@ -341,7 +341,7 @@
           oc get vm -n workshop-gitops-vms-prd | grep vm-web-09 || echo "Not found (expected)"
 
           # Check ArgoCD application status
-          oc get applications.argoproj.io -n openshift-gitops | grep workshop-gitops-vms
+          oc get applications -n openshift-gitops | grep workshop-gitops-vms
 
           # Verify Git repository state
           cd {{ apps_repo_path }}

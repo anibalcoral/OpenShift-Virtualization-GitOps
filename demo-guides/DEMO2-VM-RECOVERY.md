@@ -32,7 +32,7 @@ This demo demonstrates how GitOps can recover from complete VM and data loss sce
 
 1. Check the ArgoCD application status:
 ```bash
-oc get applications.argoproj.io workshop-gitops-vms-dev -n openshift-gitops -o custom-columns="NAME:.metadata.name,SYNC:.status.sync.status,HEALTH:.status.health.status"
+oc get applications workshop-gitops-vms-dev -n openshift-gitops -o custom-columns="NAME:.metadata.name,SYNC:.status.sync.status,HEALTH:.status.health.status"
 ```
 
 2. Verify the VM exists and its current state:
@@ -101,12 +101,12 @@ oc get dv dev-vm-web-02 -n workshop-gitops-vms-dev
 
 1. Monitor application sync status until drift is detected:
 ```bash
-oc get applications.argoproj.io workshop-gitops-vms-dev -n openshift-gitops -o jsonpath='{.status.sync.status}'
+oc get applications workshop-gitops-vms-dev -n openshift-gitops -o jsonpath='{.status.sync.status}'
 ```
 
 2. You can force a refresh if needed:
 ```bash
-oc annotate applications.argoproj.io workshop-gitops-vms-dev -n openshift-gitops argocd.argoproj.io/refresh="$(date)" --overwrite
+oc annotate applications workshop-gitops-vms-dev -n openshift-gitops argocd.argoproj.io/refresh="$(date)" --overwrite
 ```
 
 **Expected Result**: Application sync status should change to "OutOfSync"
@@ -115,12 +115,12 @@ oc annotate applications.argoproj.io workshop-gitops-vms-dev -n openshift-gitops
 
 1. Trigger manual sync to recreate the missing resources:
 ```bash
-oc patch applications.argoproj.io $app_name -n $namespace --type merge -p '{"operation":{"sync":{"syncStrategy":{"hook":{}}}}}' &>/dev/null
+oc patch applications $app_name -n $namespace --type merge -p '{"operation":{"sync":{"syncStrategy":{"hook":{}}}}}' &>/dev/null
 ```
 
 2. Monitor the sync process:
 ```bash
-watch oc get applications.argoproj.io workshop-gitops-vms-dev -n openshift-gitops -o jsonpath='{.status.sync.status}'
+watch oc get applications workshop-gitops-vms-dev -n openshift-gitops -o jsonpath='{.status.sync.status}'
 ```
 
 **Expected Result**: ArgoCD should start recreating the missing VM
@@ -149,12 +149,12 @@ oc get dv -n workshop-gitops-vms-dev | grep dev-vm-web-02
 
 1. Monitor until application returns to Synced state:
 ```bash
-watch oc get applications.argoproj.io workshop-gitops-vms-dev -n openshift-gitops -o jsonpath='{.status.sync.status}'
+watch oc get applications workshop-gitops-vms-dev -n openshift-gitops -o jsonpath='{.status.sync.status}'
 ```
 
 2. Check application health:
 ```bash
-oc get applications.argoproj.io workshop-gitops-vms-dev -n openshift-gitops -o jsonpath='{.status.health.status}'
+oc get applications workshop-gitops-vms-dev -n openshift-gitops -o jsonpath='{.status.health.status}'
 ```
 
 **Expected Result**: Application should return to "Synced" and "Healthy" status
@@ -198,7 +198,7 @@ oc get vm -n workshop-gitops-vms-dev
 
 2. Check final application status:
 ```bash
-oc get applications.argoproj.io workshop-gitops-vms-dev -n openshift-gitops -o custom-columns="NAME:.metadata.name,SYNC:.status.sync.status,HEALTH:.status.health.status"
+oc get applications workshop-gitops-vms-dev -n openshift-gitops -o custom-columns="NAME:.metadata.name,SYNC:.status.sync.status,HEALTH:.status.health.status"
 ```
 
 3. Verify the recreated VM has fresh storage:

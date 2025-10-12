@@ -109,7 +109,7 @@ After installation, you can access and verify your VMs:
 
 ```bash
 # Check ArgoCD Applications
-oc get applications.argoproj.io -n openshift-gitops
+oc get applications -n openshift-gitops
 
 # Check VMs in each environment
 oc get vms -n workshop-gitops-vms-dev
@@ -175,13 +175,13 @@ oc get vm <vm-name> -n <namespace> -o yaml | grep -A 10 accessCredentials
 **ArgoCD Application Issues:**
 ```bash
 # Check application status
-oc get applications.argoproj.io -n openshift-gitops
+oc get applications -n openshift-gitops
 
 # Force application sync if needed
-oc patch applications.argoproj.io workshop-gitops-vms-dev -n openshift-gitops --type merge -p '{"spec":{"syncPolicy":{"automated":null}},"operation":{"sync":{"revision":"HEAD","prune":true,"dryRun":false}}}'
+oc patch applications workshop-gitops-vms-dev -n openshift-gitops --type merge -p '{"spec":{"syncPolicy":{"automated":null}},"operation":{"sync":{"revision":"HEAD","prune":true,"dryRun":false}}}'
 
 # Check application details
-oc describe applications.argoproj.io workshop-gitops-vms-dev -n openshift-gitops
+oc describe applications workshop-gitops-vms-dev -n openshift-gitops
 ```
 
 **Detailed Manual Steps:**
@@ -339,7 +339,7 @@ This shows:
 echo "ArgoCD Password: $(oc get secret openshift-gitops-cluster -n openshift-gitops -o jsonpath='{.data.admin\.password}' | base64 -d)"
 
 # Check application status
-oc get applications.argoproj.io -n openshift-gitops
+oc get applications -n openshift-gitops
 
 # Check workshop status
 ## Workshop Environments
@@ -521,27 +521,27 @@ oc exec deployment/openshift-gitops-repo-server -n openshift-gitops -- git ls-re
 #### Application Sync Issues
 ```bash
 # Force application sync
-oc patch applications.argoproj.io workshop-gitops-vms-dev -n openshift-gitops --type merge --patch '{"operation":{"initiatedBy":{"username":"admin"},"sync":{"revision":"HEAD"}}}'
+oc patch applications workshop-gitops-vms-dev -n openshift-gitops --type merge --patch '{"operation":{"initiatedBy":{"username":"admin"},"sync":{"revision":"HEAD"}}}'
 
 # Check application details
-oc describe applications.argoproj.io workshop-gitops-vms-dev -n openshift-gitops
+oc describe applications workshop-gitops-vms-dev -n openshift-gitops
 ```
 
 ### Regular Monitoring Commands
 
 ### Check Application Status
 ```bash
-oc get applications.argoproj.io -n openshift-gitops
+oc get applications -n openshift-gitops
 ```
 
 ### Check Sync Status
 ```bash
-oc get applications.argoproj.io workshop-gitops-vms-dev -n openshift-gitops -o yaml
+oc get applications workshop-gitops-vms-dev -n openshift-gitops -o yaml
 ```
 
 ### Force Sync
 ```bash
-oc patch applications.argoproj.io workshop-gitops-vms-dev -n openshift-gitops -p '{"operation":{"sync":{}}}' --type merge
+oc patch applications workshop-gitops-vms-dev -n openshift-gitops -p '{"operation":{"sync":{}}}' --type merge
 ```
 
 ### Access ArgoCD UI
@@ -594,7 +594,7 @@ After completing all manual installation steps, verify everything is working:
 
 ```bash
 # Check ArgoCD applications
-oc get applications.argoproj.io -n openshift-gitops
+oc get applications -n openshift-gitops
 
 # Check created VMs
 oc get vm -A | grep workshop

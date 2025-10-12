@@ -249,7 +249,7 @@ ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /op
 ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/check-workshop-status.yaml
 
 # OpenShift CLI monitoring
-oc get applications.argoproj.io -n openshift-gitops
+oc get applications -n openshift-gitops
 oc get vm -A | grep workshop-gitops
 ```
 
@@ -346,7 +346,7 @@ ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /op
 
 **ArgoCD UI monitoring:**
 ```bash
-oc get applications.argoproj.io -n openshift-gitops
+oc get applications -n openshift-gitops
 oc get vm -A | grep workshop-gitops
 ```
 
@@ -454,13 +454,13 @@ patches:
 1. **ArgoCD Applications Not Syncing**
    ```bash
    # Check application status
-   oc get applications.argoproj.io -n openshift-gitops
+   oc get applications -n openshift-gitops
    
    # Check ArgoCD controller logs
    oc logs -n openshift-gitops deployment/openshift-gitops-application-controller
    
    # Verify repository access
-   oc describe applications.argoproj.io workshop-gitops-vms-dev -n openshift-gitops
+   oc describe applications workshop-gitops-vms-dev -n openshift-gitops
    ```
 
 2. **Virtual Machines Not Starting**
@@ -513,7 +513,7 @@ patches:
 /opt/OpenShift-Virtualization-GitOps/run-demos.sh s
 
 # Verify all workshop components
-oc get applications.argoproj.io -n openshift-gitops | grep workshop-gitops-vms
+oc get applications -n openshift-gitops | grep workshop-gitops-vms
 oc get namespaces | grep workshop-gitops
 oc get vm -A | grep workshop-gitops
 

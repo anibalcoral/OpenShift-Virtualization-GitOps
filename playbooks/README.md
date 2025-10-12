@@ -169,7 +169,7 @@ oc get csv -n openshift-operators | grep -i argocd
 oc get pods -n openshift-gitops
 
 # Check ArgoCD applications created by the workshop
-oc get applications.argoproj.io -n openshift-gitops
+oc get applications -n openshift-gitops
 
 # Check VMs across all environments
 oc get vm -n workshop-gitops-vms-dev
@@ -180,7 +180,7 @@ oc get vm -n workshop-gitops-vms-prd
 After running the removal playbook, verify resources were removed:
 
 ```bash
-oc get applications.argoproj.io -n openshift-gitops || true
+oc get applications -n openshift-gitops || true
 oc get pods -n openshift-gitops || true
 ```
 

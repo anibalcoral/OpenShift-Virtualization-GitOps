@@ -50,7 +50,7 @@ The demo showcases how Kustomize overlays provide environment-specific configura
 
 1. Check all ArgoCD applications status:
 ```bash
-oc get applications.argoproj.io -n openshift-gitops | grep workshop-gitops-vms
+oc get applications -n openshift-gitops | grep workshop-gitops-vms
 ```
 
 2. List VMs in all environments to confirm current state:
@@ -116,7 +116,7 @@ git push origin vms-hml-$GUID
 ```bash
 echo "Waiting for ArgoCD to sync homologation environment..."
 # Monitor the sync status
-watch -n 5 "oc get applications.argoproj.io workshop-gitops-vms-hml -n openshift-gitops -o custom-columns='NAME:.metadata.name,SYNC:.status.sync.status,HEALTH:.status.health.status'"
+watch -n 5 "oc get applications workshop-gitops-vms-hml -n openshift-gitops -o custom-columns='NAME:.metadata.name,SYNC:.status.sync.status,HEALTH:.status.health.status'"
 ```
 
 4. Verify the VM was created in homologation:
@@ -143,7 +143,7 @@ git push origin vms-prd-$GUID
 ```bash
 echo "Waiting for ArgoCD to sync production environment..."
 # Monitor the sync status
-watch -n 5 "oc get applications.argoproj.io workshop-gitops-vms-prd -n openshift-gitops -o custom-columns='NAME:.metadata.name,SYNC:.status.sync.status,HEALTH:.status.health.status'"
+watch -n 5 "oc get applications workshop-gitops-vms-prd -n openshift-gitops -o custom-columns='NAME:.metadata.name,SYNC:.status.sync.status,HEALTH:.status.health.status'"
 ```
 
 4. Verify the VM was created in production:
@@ -205,7 +205,7 @@ git push origin vms-dev-$GUID
 4. Wait for development environment to sync:
 ```bash
 echo "Waiting for development environment to sync..."
-watch -n 5 "oc get applications.argoproj.io workshop-gitops-vms-dev -n openshift-gitops -o custom-columns='NAME:.metadata.name,SYNC:.status.sync.status,HEALTH:.status.health.status'"
+watch -n 5 "oc get applications workshop-gitops-vms-dev -n openshift-gitops -o custom-columns='NAME:.metadata.name,SYNC:.status.sync.status,HEALTH:.status.health.status'"
 ```
 
 5. Verify the annotation was added in development:
@@ -290,7 +290,7 @@ This demo demonstrates several key GitOps and Kustomize concepts:
 
 ```bash
 # Check all ArgoCD applications
-oc get applications.argoproj.io -n openshift-gitops
+oc get applications -n openshift-gitops
 
 # Check VM status across environments
 for ns in workshop-gitops-vms-dev workshop-gitops-vms-hml workshop-gitops-vms-prd; do
