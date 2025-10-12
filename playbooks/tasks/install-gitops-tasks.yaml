@@ -33,26 +33,33 @@
 #      status: "True"
 #    wait_timeout: 300
 
-- name: Patch ArgoCD CR to add VirtualMachine health check via extraConfig
+- name: Apply KubeVirt Health Check Customization to ArgoCD
   kubernetes.core.k8s:
-    state: patched
+    api_version: argoproj.io/v1alpha1
     kind: ArgoCD
-    api_version: argoproj.io/v1beta1
-    name: "openshift-gitops"
-    namespace: "openshift-gitops"
-    merge_type: merge
+    name: openshift-gitops
+    namespace: openshift-gitops
+    state: patched
     definition:
       spec:
         extraConfig:
-          resource.customizations.health.kubevirt.io_VirtualMachine: |
-            hs = {}
-            if obj.status != nil and obj.status.printableStatus == "Running" then
-              hs.status = "Healthy"
-              hs.message = "VM is running"
+          resource.customizations.health.Pod: |
+            local phase = obj.status and obj.status.phase
+            local isVirtLauncher = obj.metadata and obj.metadata.labels and obj.metadata.labels["kubevirt.io/created-by"]
+
+            local hs
+            if phase == "Running" or phase == "Succeeded" then
+              hs = { status = "Healthy", message = "Pod is running or completed." }
+            elseif phase == "Failed" then
+              hs = { status = "Degraded", message = "Pod has failed." }
             else
-              hs.status = "Progressing"
-              hs.message = obj.status.printableStatus
+              hs = { status = "Progressing", message = "Pod is starting or unknown." }
             end
+
+            if isVirtLauncher then
+              hs.message = "VM Pod: " .. hs.message
+            end
+
             return hs
 
 - name: Create cluster role binding for ArgoCD
