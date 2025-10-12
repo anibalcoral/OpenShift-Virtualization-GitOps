@@ -49,11 +49,11 @@
 
             local hs
             if phase == "Running" or phase == "Succeeded" then
-              hs = { status = "Healthy", message = "Pod is running or completed." }
+              hs = { status = "Healthy", message = "Running" }
             elseif phase == "Failed" then
-              hs = { status = "Degraded", message = "Pod has failed." }
+              hs = { status = "Degraded", message = "Failed." }
             else
-              hs = { status = "Progressing", message = "Pod is starting or unknown." }
+              hs = { status = "Progressing", message = "Starting or unknown." }
             end
 
             if isVirtLauncher then
