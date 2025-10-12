@@ -73,22 +73,22 @@ For step-by-step installation or troubleshooting:
 - Apply manual manifests in order
 
 ```bash
-oc apply -f manual-install/01-gitops-operator-subscription.yaml
+oc apply -f manual-install-files/01-gitops-operator-subscription.yaml
 ```
 ```bash
-oc apply -f manual-install/02-cluster-role-binding.yaml
+oc apply -f manual-install-files/02-cluster-role-binding.yaml
 ```
 ```bash
-oc apply -f manual-install/03-namespaces.yaml
+oc apply -f manual-install-files/03-namespaces.yaml
 ```
 ```bash
-oc apply -f manual-install/04-argocd-app-dev.yaml
+oc apply -f manual-install-files/04-argocd-app-dev.yaml
 ```
 ```bash
-oc apply -f manual-install/05-argocd-app-hml.yaml
+oc apply -f manual-install-files/05-argocd-app-hml.yaml
 ```
 ```bash
-oc apply -f manual-install/06-argocd-app-prd.yaml
+oc apply -f manual-install-files/06-argocd-app-prd.yaml
 ```
 
 ## Verification
@@ -378,7 +378,7 @@ OpenShift-Virtualization-GitOps/          # Main workshop repository
 │   ├── cleanup-demo4.yaml              # Demo 4 cleanup
 │   └── templates/                      # Ansible templates
 │       └── ssh-secret.yaml.j2         # SSH secret template
-├── manual-install/                      # Manual installation manifests
+├── manual-install-files/                      # Manual installation manifests
 │   ├── 01-gitops-operator-subscription.yaml
 │   ├── 02-cluster-role-binding.yaml
 │   ├── 03-namespaces.yaml

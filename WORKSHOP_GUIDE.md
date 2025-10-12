@@ -55,32 +55,32 @@ For detailed workshop demonstrations, use the pre-created YAML files:
 
 1. **Install GitOps Operator:**
    ```bash
-   oc apply -f manual-install/01-gitops-operator-subscription.yaml
+   oc apply -f manual-install-files/01-gitops-operator-subscription.yaml
    ```
 
 2. **Create RBAC Permissions:**
    ```bash
-   oc apply -f manual-install/02-cluster-role-binding.yaml
+   oc apply -f manual-install-files/02-cluster-role-binding.yaml
    ```
 
 3. **Create Namespaces:**
    ```bash
-   oc apply -f manual-install/03-namespaces.yaml
+   oc apply -f manual-install-files/03-namespaces.yaml
    ```
 
 4. **Create ArgoCD Applications:**
    ```bash
-   oc apply -f manual-install/04-argocd-app-dev.yaml
-   oc apply -f manual-install/05-argocd-app-hml.yaml
-   oc apply -f manual-install/06-argocd-app-prd.yaml
+   oc apply -f manual-install-files/04-argocd-app-dev.yaml
+   oc apply -f manual-install-files/05-argocd-app-hml.yaml
+   oc apply -f manual-install-files/06-argocd-app-prd.yaml
    ```
    ```bash
-   oc apply -f manual-install/02-cluster-role-binding.yaml
+   oc apply -f manual-install-files/02-cluster-role-binding.yaml
    ```
 
 3. **Create Namespaces:**
    ```bash
-   oc apply -f manual-install/03-namespaces.yaml
+   oc apply -f manual-install-files/03-namespaces.yaml
    ```
 
 4. **Create Repository Secret:**
@@ -96,9 +96,9 @@ For detailed workshop demonstrations, use the pre-created YAML files:
 
 5. **Create ArgoCD Applications:**
    ```bash
-   oc apply -f manual-install/04-argocd-app-dev.yaml
-   oc apply -f manual-install/05-argocd-app-hml.yaml
-   oc apply -f manual-install/06-argocd-app-prd.yaml
+   oc apply -f manual-install-files/04-argocd-app-dev.yaml
+   oc apply -f manual-install-files/05-argocd-app-hml.yaml
+   oc apply -f manual-install-files/06-argocd-app-prd.yaml
    ```
 
 ## Post-Installation: VM Access and Service Verification
@@ -185,7 +185,7 @@ oc describe applications.argoproj.io workshop-gitops-vms-dev -n openshift-gitops
 ```
 
 **Detailed Manual Steps:**
-Follow the instructions below, or use the individual YAML files in `manual-install/` directory for step-by-step execution.
+Follow the instructions below, or use the individual YAML files in `manual-install-files/` directory for step-by-step execution.
 
 ## Prerequisites
 
@@ -384,9 +384,9 @@ If needed, you can remove individual components:
 
 ```bash
 # Remove ArgoCD applications
-oc delete -f manual-install/06-argocd-app-prd.yaml
-oc delete -f manual-install/05-argocd-app-hml.yaml
-oc delete -f manual-install/04-argocd-app-dev.yaml
+oc delete -f manual-install-files/06-argocd-app-prd.yaml
+oc delete -f manual-install-files/05-argocd-app-hml.yaml
+oc delete -f manual-install-files/04-argocd-app-dev.yaml
 
 # Remove namespaces (this removes all VMs)
 oc delete namespace workshop-gitops-vms-dev
@@ -394,10 +394,10 @@ oc delete namespace workshop-gitops-vms-hml
 oc delete namespace workshop-gitops-vms-prd
 
 # Remove RBAC
-oc delete -f manual-install/02-cluster-role-binding.yaml
+oc delete -f manual-install-files/02-cluster-role-binding.yaml
 
 # Remove GitOps operator (optional)
-oc delete -f manual-install/01-gitops-operator-subscription.yaml
+oc delete -f manual-install-files/01-gitops-operator-subscription.yaml
 ```
 
 ## Learning Objectives
