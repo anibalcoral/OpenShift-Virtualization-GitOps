@@ -348,20 +348,20 @@ The workshop creates three environments with different resource allocations:
 
 ### Development Environment (vms-dev-{guid} branch)
 - **Namespace**: `workshop-gitops-vms-dev`
-- **VMs**: `dev-vm-web-01`, `dev-vm-web-02`, `dev-vm-web-09`
-- **Resources**: 1 CPU, 2GB RAM, 30GB disk per VM
+- **VMs**: `dev-vm-web-01`, `dev-vm-web-02`
+- **Resources**: 2 CPU, 2GB RAM, 30GB disk per VM
 - **Purpose**: Development and testing
 
 ### Homologation Environment (vms-hml-{guid} branch)
 - **Namespace**: `workshop-gitops-vms-hml`
-- **VMs**: `hml-vm-web-01`, `hml-vm-web-02`, `hml-vm-web-09`
-- **Resources**: 2 CPU, 3GB RAM, 40GB disk per VM
+- **VMs**: `hml-vm-web-01`, `hml-vm-web-02`
+- **Resources**: 2 CPU, 4GB RAM, 30GB disk per VM
 - **Purpose**: Pre-production testing
 
 ### Production Environment (vms-prd-{guid} branch)
 - **Namespace**: `workshop-gitops-vms-prd`
-- **VMs**: `prd-vm-web-01`, `prd-vm-web-02`, `prd-vm-web-09`
-- **Resources**: 2 CPU, 4GB RAM, 50GB disk per VM
+- **VMs**: `prd-vm-web-01`, `prd-vm-web-02`
+- **Resources**: 4 CPU, 8GB RAM, 50GB disk per VM
 - **Purpose**: Production workloads
 
 ## Cleanup
