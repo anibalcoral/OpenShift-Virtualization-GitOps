@@ -38,13 +38,13 @@
     state: patched
     kind: ArgoCD
     api_version: argoproj.io/v1beta1
-    name: "argocd"
+    name: "openshift-gitops"
     namespace: "openshift-gitops"
     merge_type: merge
     definition:
       spec:
         extraConfig:
-          resource.customizations.health.kubevirt.io_VirtualMachine: |
+          resource.customizations.health.VirtualMachine: |
             hs = {}
             hs.status = "Progressing"
             hs.message = "Waiting for virtual machine status"
