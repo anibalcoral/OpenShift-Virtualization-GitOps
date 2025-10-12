@@ -361,7 +361,6 @@ OpenShift-Virtualization-GitOps/          # Main workshop repository
 ├── run-demos.sh                         # Interactive demo runner
 ├── ansible.cfg                          # Ansible configuration
 ├── requirements.yml                     # Ansible requirements
-├── WORKSHOP_GUIDE.md                    # Detailed workshop instructions
 ├── README.md                            # This file
 ├── inventory/
 │   └── localhost                        # Ansible inventory for localhost
@@ -387,6 +386,7 @@ OpenShift-Virtualization-GitOps/          # Main workshop repository
 │   ├── 06-argocd-app-prd.yaml
 │   └── README.md
 └── demo-guides/                         # Workshop demonstration guides
+    ├── WORKSHOP_GUIDE.md                    # Detailed workshop instructions
     ├── DEMO1-MANUAL-CHANGE.md           # Demo 1 documentation
     ├── DEMO2-VM-RECOVERY.md             # Demo 2 documentation
     ├── DEMO3-ADD-DEVELOPMENT-VM.md      # Demo 3 documentation
@@ -526,7 +526,7 @@ oc get routes -n openshift-gitops
 
 - **Detailed Workshop Guide**: See `WORKSHOP_GUIDE.md` for comprehensive learning objectives and step-by-step instructions
 - **Demo Documentation**: Individual demo guides available in `demo-guides/DEMO*.md` files
- - **Detailed Workshop Guide**: See [WORKSHOP_GUIDE.md](WORKSHOP_GUIDE.md) for comprehensive learning objectives and step-by-step instructions
+ - **Detailed Workshop Guide**: See [WORKSHOP_GUIDE.md](demo-guides/WORKSHOP_GUIDE.md) for comprehensive learning objectives and step-by-step instructions
  - **Demo Documentation**: Individual demo guides available:
     - [DEMO1-MANUAL-CHANGE.md](demo-guides/DEMO1-MANUAL-CHANGE.md)
     - [DEMO2-VM-RECOVERY.md](demo-guides/DEMO2-VM-RECOVERY.md)
