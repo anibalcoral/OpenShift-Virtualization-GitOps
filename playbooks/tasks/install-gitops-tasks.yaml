@@ -38,8 +38,8 @@
     state: patched
     kind: ArgoCD
     api_version: argoproj.io/v1beta1
-    name: "{{ argocd_name }}"
-    namespace: "{{ argocd_namespace }}"
+    name: "argocd"
+    namespace: "openshift-gitops"
     merge_type: merge
     definition:
       spec:
