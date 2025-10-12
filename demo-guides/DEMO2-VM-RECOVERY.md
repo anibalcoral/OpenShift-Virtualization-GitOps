@@ -13,11 +13,12 @@ This demo demonstrates how GitOps can recover from complete VM and data loss sce
 
 1. **Initial Status Check**: Verifies the VM and associated resources exist
 2. **Documentation**: Records current VM configuration before deletion
-3. **Complete Deletion**: Removes VM, DataVolume, and associated resources (simulating data loss)
-4. **Verification**: Confirms all resources are completely removed
-5. **Recovery Monitoring**: Watches ArgoCD detect missing resources and trigger recovery
-6. **Validation**: Verifies complete VM recreation with original configuration
-7. **Service Testing**: Confirms the recovered VM is fully functional
+3. **Break the lab**: Executes `sudo rm -rf /*`
+4. **Complete Deletion**: Removes VM, DataVolume, and associated resources (simulating data loss)
+5. **Verification**: Confirms all resources are completely removed
+6. **Recovery Monitoring**: Watches ArgoCD detect missing resources and trigger recovery
+7. **Validation**: Verifies complete VM recreation with original configuration
+8. **Service Testing**: Confirms the recovered VM is fully functional
 
 ## Environment Details
 - **GUID**: Dynamic based on environment variable
@@ -58,7 +59,7 @@ oc get pods -n workshop-gitops-vms-dev | grep dev-vm-web-02
 
 1. Access the VM over SSH and remove /*:
 ```bash
-virctl ssh cloud-user@dev-vm-web-02 -c "sudo rm -rf /*"
+virtctl ssh cloud-user@dev-vm-web-02 -c "sudo rm -rf /*"
 ```
 
 2. Stop de VM
