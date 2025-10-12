@@ -155,7 +155,7 @@ spec:
             runcmd:
               - systemctl enable httpd
               - systemctl start httpd
-              - echo 'Web Server - VM 09 (Development)' > /var/www/html/index.html
+              - echo 'Web Server - VM 09' > /var/www/html/index.html
               - systemctl enable firewalld
               - systemctl start firewalld
               - firewall-cmd --permanent --add-service=http || true
