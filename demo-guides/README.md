@@ -5,10 +5,11 @@ This directory contains comprehensive guides for the OpenShift GitOps with OpenS
 ## Contents
 
 **Demo Documentation:**
-- `DEMO1-MANUAL-CHANGE.md` - Demo 1 detailed guide and manual instructions
-- `DEMO2-VM-RECOVERY.md` - Demo 2 detailed guide and manual instructions  
-- `DEMO3-ADD-DEVELOPMENT-VM.md` - Demo 3 detailed guide and manual instructions
+- `DEMO1-MANUAL-CHANGE.md`        - Demo 1 detailed guide and manual instructions
+- `DEMO2-VM-RECOVERY.md`          - Demo 2 detailed guide and manual instructions  
+- `DEMO3-ADD-DEVELOPMENT-VM.md`   - Demo 3 detailed guide and manual instructions
 - `DEMO4-MULTI-ENV-MANAGEMENT.md` - Demo 4 detailed guide and manual instructions
+- `WORKSHOP_GUIDE.md`             - Detailed workshop instructions
 
 ## Demo Summaries
 
