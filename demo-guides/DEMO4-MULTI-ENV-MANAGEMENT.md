@@ -171,13 +171,13 @@ oc get vm prd-vm-web-09 -n workshop-gitops-vms-prd --no-headers 2>/dev/null || e
 2. Compare configurations between environments using Kustomize:
 ```bash
 echo "=== Development Configuration ==="
-kubectl kustomize overlays/dev | grep -A 5 -B 5 "vm-web-09"
+oc kustomize overlays/dev | grep -A 5 -B 5 "vm-web-09"
 
 echo "=== Homologation Configuration ==="
-kubectl kustomize overlays/hml | grep -A 5 -B 5 "vm-web-09"
+oc kustomize overlays/hml | grep -A 5 -B 5 "vm-web-09"
 
 echo "=== Production Configuration ==="
-kubectl kustomize overlays/prd | grep -A 5 -B 5 "vm-web-09"
+oc kustomize overlays/prd | grep -A 5 -B 5 "vm-web-09"
 ```
 
 **Expected Result**: All three environments should have their respective VM instances with proper naming prefixes and namespace configurations
