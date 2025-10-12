@@ -208,8 +208,7 @@
         chdir: "{{ apps_repo_path }}"
       register: current_branch
       changed_when: false
-
-    - name: Switch to vms-dev-{guid} branch if needed
+    - name: Switch to vms-dev-GUID branch if needed
       ansible.builtin.command:
         cmd: git checkout vms-dev-{{ guid }}
         chdir: "{{ apps_repo_path }}"
@@ -218,7 +217,7 @@
 
     - name: Show branch switch result
       ansible.builtin.debug:
-        msg: "Switched to vms-dev-{guid} branch"
+        msg: "Switched to vms-dev-GUID branch"
       when: branch_switch is changed
 
     - name: Add changes to Git
@@ -255,7 +254,7 @@
 
     - name: Confirm Git operations
       ansible.builtin.debug:
-        msg: "Changes committed and pushed to vms-dev-{guid} branch"
+      msg: "Changes committed and pushed to vms-dev-GUID branch"
       when: git_commit.rc == 0 and git_push.rc == 0
 
     - name: "Step 5: Triggering ArgoCD sync"
@@ -415,7 +414,7 @@
           =========
           ✓ New VM definition added to Git repository
           ✓ Base kustomization updated to include new resource
-          ✓ Changes committed and pushed to vms-dev-{guid} branch
+          ✓ Changes committed and pushed to vms-dev-GUID branch
           ✓ ArgoCD detected Git changes (OutOfSync state)
           ✓ ArgoCD automatically deployed new VM
           ✓ Development environment now has 3 VMs for expanded testing

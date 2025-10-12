@@ -31,9 +31,9 @@ This demo demonstrates advanced GitOps practices for managing Virtual Machines a
 - **Homologation Namespace**: `workshop-gitops-vms-hml`
 - **Production Namespace**: `workshop-gitops-vms-prd`
 - **ArgoCD Applications**: 
-  - `workshop-gitops-vms-dev` (targets `vms-dev-{guid}` branch)
-  - `workshop-gitops-vms-hml` (targets `vms-hml-{guid}` branch)
-  - `workshop-gitops-vms-prd` (targets `vms-prd-{guid}` branch)
+  - `workshop-gitops-vms-dev` (targets `vms-dev-GUID` branch)
+  - `workshop-gitops-vms-hml` (targets `vms-hml-GUID` branch)
+  - `workshop-gitops-vms-prd` (targets `vms-prd-GUID` branch)
 - **Git Repository**: `OpenShift-Virtualization-GitOps-Apps`
 
 ## Kustomize Environment Strategy
@@ -92,12 +92,12 @@ git branch -a
 git status
 ```
 
-3. Ensure you're on the vms-dev-{guid} branch:
+3. Ensure you're on the vms-dev-GUID branch:
 ```bash
 git checkout vms-dev-$GUID
 ```
 
-**Expected Result**: You should be on vms-dev-{guid} branch with no uncommitted changes
+**Expected Result**: You should be on vms-dev-GUID branch with no uncommitted changes
 
 ### Step 3: Promote Development Changes to Homologation
 

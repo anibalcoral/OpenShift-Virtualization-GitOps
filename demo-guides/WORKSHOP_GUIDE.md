@@ -2,7 +2,73 @@
 
 This workshop demonstrates how to implement GitOps principles for managing Virtual Machines (VMs) in OpenShift Virtualization using OpenShift GitOps (ArgoCD).
 
-## Architecture
+## Table of Contents
+
+- [Workshop Guide: OpenShift GitOps with OpenShift Virtualization](#workshop-guide-openshift-gitops-with-openshift-virtualization)
+  - [Table of Contents](#table-of-contents)
+  - [Overview](#overview)
+    - [Learning Objectives](#learning-objectives)
+    - [Architecture](#architecture)
+    - [Workshop Environments](#workshop-environments)
+   - [Development Environment (vms-dev-GUID branch)](#development-environment-vms-dev-guid-branch)
+   - [Homologation Environment (vms-hml-GUID branch)](#homologation-environment-vms-hml-guid-branch)
+   - [Production Environment (vms-prd-GUID branch)](#production-environment-vms-prd-guid-branch)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+    - [Automated Installation](#automated-installation)
+    - [Manual Installation](#manual-installation)
+    - [Installation Verification](#installation-verification)
+  - [Workshop Demonstrations](#workshop-demonstrations)
+    - [Demo 1: Manual Change Detection and Drift Correction](#demo-1-manual-change-detection-and-drift-correction)
+    - [Demo 2: VM Recovery from Data Loss](#demo-2-vm-recovery-from-data-loss)
+    - [Demo 3: Adding New Development VM via Git Change](#demo-3-adding-new-development-vm-via-git-change)
+    - [Demo 4: Multi-Environment VM Management with Kustomize](#demo-4-multi-environment-vm-management-with-kustomize)
+  - [GitOps Workflow](#gitops-workflow)
+    - [Development Process](#development-process)
+    - [Promotion to Homologation](#promotion-to-homologation)
+    - [Promotion to Production](#promotion-to-production)
+  - [VM Access and Service Verification](#vm-access-and-service-verification)
+    - [SSH Access to VMs](#ssh-access-to-vms)
+    - [Service Verification](#service-verification)
+  - [Monitoring and Troubleshooting](#monitoring-and-troubleshooting)
+    - [Status Checking](#status-checking)
+    - [Common Issues and Solutions](#common-issues-and-solutions)
+      - [SSH Access Issues](#ssh-access-issues)
+      - [ArgoCD Application Issues](#argocd-application-issues)
+      - [GitOps Operator Issues](#gitops-operator-issues)
+      - [Repository Access Issues](#repository-access-issues)
+      - [Application Sync Issues](#application-sync-issues)
+    - [Regular Monitoring Commands](#regular-monitoring-commands)
+      - [Check Application Status](#check-application-status)
+      - [Check Sync Status](#check-sync-status)
+      - [Force Sync](#force-sync)
+      - [Access ArgoCD UI](#access-argocd-ui)
+  - [Cleanup](#cleanup)
+    - [Cleanup Demo 3 or Demo 4](#cleanup-demo-3-or-demo-4)
+    - [Complete Workshop Removal](#complete-workshop-removal)
+    - [Manual Cleanup](#manual-cleanup)
+  - [Best Practices and Technical Details](#best-practices-and-technical-details)
+    - [VM Templates](#vm-templates)
+    - [ArgoCD Configuration Details](#argocd-configuration-details)
+    - [Best Practices Demonstrated](#best-practices-demonstrated)
+
+## Overview
+
+### Learning Objectives
+
+After completing this workshop, participants will understand:
+- How to implement GitOps for VM management
+- ArgoCD configuration and application management
+- Git-based workflow for infrastructure changes
+- Automated drift detection and correction
+- Disaster recovery using GitOps principles
+- Environment promotion strategies
+- Multi-environment deployments using branch-based strategies
+- Kustomize for environment-specific configurations
+- OpenShift Virtualization VM lifecycle management
+- Infrastructure as Code best practices for virtualized workloads
+
+### Architecture
 
 ```bash
 Git Repository Structure
@@ -12,9 +78,9 @@ Git Repository Structure
 │   ├── Manual installation YAML files
 │   └── Workshop documentation
 └── Apps Repository: OpenShift-Virtualization-GitOps-Apps
-    ├── vms-prd-{guid} branch (Production VMs) → overlays/prd
-    ├── vms-hml-{guid} branch (Homologation VMs) → overlays/hml
-    └── vms-dev-{guid} branch (Development VMs) → overlays/dev
+   ├── vms-prd-GUID branch (Production VMs) → overlays/prd
+   ├── vms-hml-GUID branch (Homologation VMs) → overlays/hml
+   └── vms-dev-GUID branch (Development VMs) → overlays/dev
 
 Kustomize Structure (in Apps Repository)
 ├── base/ (Base VM templates)
@@ -27,10 +93,39 @@ Kustomize Structure (in Apps Repository)
     └── prd/ (Production patches)
 
 ArgoCD Applications
-├── workshop-gitops-vms-prd → Apps repo vms-prd-{guid} branch → overlays/prd → workshop-gitops-vms-prd namespace
-├── workshop-gitops-vms-hml → Apps repo vms-hml-{guid} branch → overlays/hml → workshop-gitops-vms-hml namespace
-└── workshop-gitops-vms-dev → Apps repo vms-dev-{guid} branch → overlays/dev → workshop-gitops-vms-dev namespace
+├── workshop-gitops-vms-prd → Apps repo vms-prd-GUID branch → overlays/prd → workshop-gitops-vms-prd namespace
+├── workshop-gitops-vms-hml → Apps repo vms-hml-GUID branch → overlays/hml → workshop-gitops-vms-hml namespace
+└── workshop-gitops-vms-dev → Apps repo vms-dev-GUID branch → overlays/dev → workshop-gitops-vms-dev namespace
 ```
+
+### Workshop Environments
+
+The workshop creates three environments with different resource allocations:
+
+#### Development Environment (vms-dev-GUID branch)
+- **Namespace**: `workshop-gitops-vms-dev`
+- **VMs**: `dev-vm-web-01`, `dev-vm-web-02`
+- **Resources**: 2 CPU, 2GB RAM, 30GB disk per VM
+- **Purpose**: Development and testing
+
+#### Homologation Environment (vms-hml-GUID branch)
+- **Namespace**: `workshop-gitops-vms-hml`
+- **VMs**: `hml-vm-web-01`, `hml-vm-web-02`
+- **Resources**: 2 CPU, 4GB RAM, 30GB disk per VM
+- **Purpose**: Pre-production testing
+
+#### Production Environment (vms-prd-GUID branch)
+- **Namespace**: `workshop-gitops-vms-prd`
+- **VMs**: `prd-vm-web-01`, `prd-vm-web-02`
+- **Resources**: 4 CPU, 8GB RAM, 50GB disk per VM
+- **Purpose**: Production workloads
+
+## Prerequisites
+
+1. OpenShift cluster with OpenShift Virtualization installed
+2. oc CLI configured and logged in
+3. ansible-playbook installed
+4. Git repositories configured
 
 ## Installation
 
@@ -49,9 +144,9 @@ ArgoCD Applications
 5. Creates ArgoCD applications for all environments
 6. Displays ArgoCD credentials for access
 
-### Manual Installation (for Workshop Demonstrations)
+### Manual Installation
 
-For detailed workshop demonstrations, use the pre-created YAML files:
+For detailed workshop demonstrations, you can install components step by step using the pre-created YAML files:
 
 1. **Install GitOps Operator:**
    ```bash
@@ -74,38 +169,10 @@ For detailed workshop demonstrations, use the pre-created YAML files:
    oc apply -f manual-install-files/05-argocd-app-hml.yaml
    oc apply -f manual-install-files/06-argocd-app-prd.yaml
    ```
-   ```bash
-   oc apply -f manual-install-files/02-cluster-role-binding.yaml
-   ```
-
-3. **Create Namespaces:**
-   ```bash
-   oc apply -f manual-install-files/03-namespaces.yaml
-   ```
-
-4. **Create Repository Secret:**
-   ```bash
-   oc create secret generic workshop-gitops-repo \
-     --from-file=sshPrivateKey=$HOME/.ssh/ocpvirt-gitops \
-     --from-literal=url=git@github.com:anibalcoral/OpenShift-Virtualization-GitOps-Apps.git \
-     --from-literal=type=git \
-     -n openshift-gitops --dry-run=client -o yaml | oc apply -f -
-   
-   oc label secret workshop-gitops-repo -n openshift-gitops argocd.argoproj.io/secret-type=repository
-   ```
-
-5. **Create ArgoCD Applications:**
-   ```bash
-   oc apply -f manual-install-files/04-argocd-app-dev.yaml
-   oc apply -f manual-install-files/05-argocd-app-hml.yaml
-   oc apply -f manual-install-files/06-argocd-app-prd.yaml
-   ```
-
-## Post-Installation: VM Access and Service Verification
-
-After installation, you can access and verify your VMs:
 
 ### Installation Verification
+
+After installation, verify everything is working:
 
 ```bash
 # Check ArgoCD Applications
@@ -123,84 +190,45 @@ oc get vmi -A
 /opt/OpenShift-Virtualization-GitOps/run-demos.sh s
 ```
 
-### SSH Access to VMs
+**Expected Results after successful installation:**
 
-VMs are automatically configured with SSH key access:
-
+ArgoCD Applications:
 ```bash
-# Get VM IP addresses
-oc get vmi -A
-
-# SSH to web VM (example for dev environment)
-virtctl ssh cloud-user@<vm-name>
+NAME                        SYNC STATUS   HEALTH STATUS
+workshop-gitops-vms-dev     Synced        Healthy
+workshop-gitops-vms-hml     Synced        Healthy
+workshop-gitops-vms-prd     Synced        Healthy
 ```
 
-### Service Verification
-
-Each environment exposes VM services for external access:
-
+Virtual Machines:
 ```bash
-# Check services in each environment
-oc get svc -n workshop-gitops-vms-dev
-oc get svc -n workshop-gitops-vms-hml
-oc get svc -n workshop-gitops-vms-prd
-
-# Check routes (if created)
-oc get routes -A
-
-# Check endpoints
-oc get endpoints -A
-
-# Services target kubevirt.io/domain labels - verify VM pods have these labels
-oc get pods -A --show-labels | grep kubevirt.io/domain
-
-# Check service selectors match VM pod labels
-oc get svc vm-web-service -n <namespace> -o yaml | grep selector -A 3
+NAMESPACE                   NAME            STATUS
+workshop-gitops-vms-dev     dev-vm-web-01   Running
+workshop-gitops-vms-dev     dev-vm-web-02   Running
+workshop-gitops-vms-hml     hml-vm-web-01   Running
+workshop-gitops-vms-hml     hml-vm-web-02   Running
+workshop-gitops-vms-prd     prd-vm-web-01   Running
+workshop-gitops-vms-prd     prd-vm-web-02   Running
 ```
-
-**SSH Access Issues:**
-```bash
-# Verify SSH secret exists in each namespace
-oc get secret workshop-gitops-vms-dev -n workshop-gitops-vms-dev
-oc get secret workshop-gitops-vms-hml -n workshop-gitops-vms-hml
-oc get secret workshop-gitops-vms-prd -n workshop-gitops-vms-prd
-
-# Check VM accessCredentials configuration
-oc get vm <vm-name> -n <namespace> -o yaml | grep -A 10 accessCredentials
-
-# SSH keys are pre-configured in the Apps repository SSH secret
-# No additional setup needed
-```
-
-**ArgoCD Application Issues:**
-```bash
-# Check application status
-oc get applications -n openshift-gitops
-
-# Force application sync if needed
-oc patch applications workshop-gitops-vms-dev -n openshift-gitops --type merge -p '{"spec":{"syncPolicy":{"automated":null}},"operation":{"sync":{"revision":"HEAD","prune":true,"dryRun":false}}}'
-
-# Check application details
-oc describe applications workshop-gitops-vms-dev -n openshift-gitops
-```
-
-**Detailed Manual Steps:**
-Follow the instructions below, or use the individual YAML files in `manual-install-files/` directory for step-by-step execution.
-
-## Prerequisites
-
-1. OpenShift cluster with OpenShift Virtualization installed
-2. oc CLI configured and logged in
-3. ansible-playbook installed
-4. Git repository configured with your GitHub username
-
-## Setup Instructions
-
-### Option 1: Automated Installation (Recommended for Quick Start)
 
 ## Workshop Demonstrations
 
-The workshop includes four comprehensive demonstrations that showcase GitOps capabilities in action. All demonstrations are automated through Ansible playbooks that provide consistent, reproducible results while including detailed logging and verification steps.
+The workshop includes four comprehensive demonstrations that showcase GitOps capabilities in action. All demonstrations are automated through Ansible playbooks that provide consistent, reproducible results.
+
+**Interactive Demo Runner**
+
+Use the main demo script for a menu-driven interface:
+
+```bash
+/opt/OpenShift-Virtualization-GitOps/run-demos.sh
+```
+
+**Available options**:
+- `1-4`: Execute individual demos with full automation
+- `a`: Run all demos sequentially with validation between each
+- `s`: Check comprehensive workshop status across all environments
+- `c`: Cleanup Demo 4 resources for repeatability
+- `q`: Quit the demo runner
 
 ### Demo 1: Manual Change Detection and Drift Correction
 
@@ -309,149 +337,9 @@ The workshop includes four comprehensive demonstrations that showcase GitOps cap
 - Safe promotion pipelines using Git branch strategies
 - DRY (Don't Repeat Yourself) principles in infrastructure management
 
-### Interactive Demo Runner
-
-The main demo script provides a menu-driven interface for all workshop operations:
-
-```bash
-/opt/OpenShift-Virtualization-GitOps/run-demos.sh
-```
-
-**Available options**:
-- `1-4`: Execute individual demos with full automation
-- `a`: Run all demos sequentially with validation between each
-- `s`: Check comprehensive workshop status across all environments
-- `c`: Cleanup Demo 4 resources for repeatability
-- `q`: Quit the demo runner
-
-### Status Checking
-
-Check the current state of all workshop components across environments:
-
-```bash
-/opt/OpenShift-Virtualization-GitOps/run-demos.sh s
-```
-
-This shows:
-- ArgoCD application status
-- Virtual machines in each environment
-- Sync status and health
-echo "ArgoCD Password: $(oc get secret openshift-gitops-cluster -n openshift-gitops -o jsonpath='{.data.admin\.password}' | base64 -d)"
-
-# Check application status
-oc get applications -n openshift-gitops
-
-# Check workshop status
-## Workshop Environments
-
-The workshop creates three environments with different resource allocations:
-
-### Development Environment (vms-dev-{guid} branch)
-- **Namespace**: `workshop-gitops-vms-dev`
-- **VMs**: `dev-vm-web-01`, `dev-vm-web-02`
-- **Resources**: 2 CPU, 2GB RAM, 30GB disk per VM
-- **Purpose**: Development and testing
-
-### Homologation Environment (vms-hml-{guid} branch)
-- **Namespace**: `workshop-gitops-vms-hml`
-- **VMs**: `hml-vm-web-01`, `hml-vm-web-02`
-- **Resources**: 2 CPU, 4GB RAM, 30GB disk per VM
-- **Purpose**: Pre-production testing
-
-### Production Environment (vms-prd-{guid} branch)
-- **Namespace**: `workshop-gitops-vms-prd`
-- **VMs**: `prd-vm-web-01`, `prd-vm-web-02`
-- **Resources**: 4 CPU, 8GB RAM, 50GB disk per VM
-- **Purpose**: Production workloads
-
-## Cleanup
-
-### Complete Workshop Removal
-
-```bash
-./remove.sh
-```
-
-This will:
-1. Remove all ArgoCD applications
-2. Delete all workshop namespaces and VMs
-3. Remove cluster role bindings
-4. Optionally remove the GitOps operator
-
-### Manual Cleanup
-
-If needed, you can remove individual components:
-
-```bash
-# Remove ArgoCD applications
-oc delete -f manual-install-files/06-argocd-app-prd.yaml
-oc delete -f manual-install-files/05-argocd-app-hml.yaml
-oc delete -f manual-install-files/04-argocd-app-dev.yaml
-
-# Remove namespaces (this removes all VMs)
-oc delete namespace workshop-gitops-vms-dev
-oc delete namespace workshop-gitops-vms-hml
-oc delete namespace workshop-gitops-vms-prd
-
-# Remove RBAC
-oc delete -f manual-install-files/02-cluster-role-binding.yaml
-
-# Remove GitOps operator (optional)
-oc delete -f manual-install-files/01-gitops-operator-subscription.yaml
-```
-
-## Learning Objectives
-
-This workshop teaches:
-- GitOps principles applied to virtual machine management
-- Multi-environment deployments using branch-based strategies
-- Kustomize for environment-specific configurations
-- ArgoCD for continuous deployment and drift detection
-- OpenShift Virtualization VM lifecycle management
-- Infrastructure as Code best practices for virtualized workloads
-
-## Additional Resources
-
-- **ArgoCD Documentation**: https://argo-cd.readthedocs.io/
-- **OpenShift Virtualization**: https://docs.openshift.com/container-platform/latest/virt/about-virt.html
-- **Kustomize**: https://kustomize.io/
-
-Demonstrates the complete GitOps deployment process from scratch.
-
-```bash
-./run-demos.sh 4
-```
-
-**What happens:**
-1. Review VirtualMachine YAML structure in Git
-2. Examine production overlay customizations
-3. Show ArgoCD application in "OutOfSync" state
-4. Trigger manual sync in ArgoCD
-5. Monitor VM creation and startup process
-6. Verify all associated resources (DataVolume, Service, Route)
-
-**What happens:**
-1. Check current VM configuration (2Gi memory)
-2. Edit VM configuration in Git (change to 4Gi memory)
-3. Commit and push changes to vms-hml-{guid} branch
-4. ArgoCD automatically detects Git changes
-5. ArgoCD applies configuration update to running VM
-6. VM restarts with new memory configuration
-7. Configuration automatically restored to baseline after demo
-
-### Running All Demos
-
-Use the interactive demo runner to easily run any demo:
-
-```bash
-/opt/OpenShift-Virtualization-GitOps/run-demos.sh
-```
-
-This script provides a menu-driven interface to run any demo or check workshop status.
-
 ## GitOps Workflow
 
-### 1. Development Process
+### Development Process
 
 ```bash
 # Work on development branch
@@ -468,31 +356,109 @@ git commit -m "Update VM configuration"
 git push origin vms-dev-$GUID
 ```
 
-### 2. Promotion to Homologation
+### Promotion to Homologation
 
 ```bash
-# Create merge request from vms-dev to vms-hml
-# After approval and merge, changes appear in homologation environment automatically
+git checkout vms-hml-$GUID
 ```
-
-### 3. Promotion to Production
 
 ```bash
-# Create merge request from vms-hml to master
-# After approval and merge, changes appear in production environment automatically
+git merge vms-dev-$GUID
 ```
 
-## ArgoCD Configuration Details
+```bash
+git push origin vms-hml-$GUID
+```
 
-Each ArgoCD application is configured with:
-- **Automatic Sync**: Enabled
-- **Self Heal**: Enabled (corrects manual changes)
-- **Prune**: Enabled (removes resources not in Git)
-- **Namespace Creation**: Automatic
+### Promotion to Production
+
+```bash
+git checkout vms-prd-$GUID
+```
+
+```bash
+git merge vms-hml-$GUID
+```
+
+```bash
+git push origin vms-prd-$GUID
+```
+
+## VM Access and Service Verification
+
+### SSH Access to VMs
+
+VMs are automatically configured with SSH key access:
+
+```bash
+virtctl ssh cloud-user@<vm-name>
+```
+
+### Service Verification
+
+Each environment exposes VM services for external access:
+
+```bash
+# Check services in each environment
+oc get svc -n workshop-gitops-vms-dev
+oc get svc -n workshop-gitops-vms-hml
+oc get svc -n workshop-gitops-vms-prd
+
+# Check routes (if created)
+oc get routes -A
+
+# Check endpoints
+oc get endpoints -A
+
+# Services target kubevirt.io/domain labels - verify VM pods have these labels
+oc get pods -A --show-labels | grep kubevirt.io/domain
+
+# Check service selectors match VM pod labels
+oc get svc vm-web-service -n <namespace> -o yaml | grep selector -A 3
+```
 
 ## Monitoring and Troubleshooting
 
-### Manual Installation Troubleshooting
+### Status Checking
+
+Check the current state of all workshop components across environments:
+
+```bash
+/opt/OpenShift-Virtualization-GitOps/run-demos.sh s
+```
+
+This shows:
+- ArgoCD application status
+- Virtual machines in each environment
+- Sync status and health
+
+### Common Issues and Solutions
+
+#### SSH Access Issues
+```bash
+# Verify SSH secret exists in each namespace
+oc get secret workshop-gitops-vms-dev -n workshop-gitops-vms-dev
+oc get secret workshop-gitops-vms-hml -n workshop-gitops-vms-hml
+oc get secret workshop-gitops-vms-prd -n workshop-gitops-vms-prd
+
+# Check VM accessCredentials configuration
+oc get vm <vm-name> -n <namespace> -o yaml | grep -A 10 accessCredentials
+
+# Clean known hosts
+/opt/OpenShift-Virtualization-GitOps/run-demos.sh h
+```
+
+#### ArgoCD Application Issues
+```bash
+# Check application status
+oc get applications -n openshift-gitops
+
+# Force application sync if needed
+oc patch applications workshop-gitops-vms-dev -n openshift-gitops --type merge -p '{"spec":{"syncPolicy":{"automated":null}},"operation":{"sync":{"revision":"HEAD","prune":true,"dryRun":false}}}'
+
+# Check application details
+oc describe applications workshop-gitops-vms-dev -n openshift-gitops
+```
 
 #### GitOps Operator Issues
 ```bash
@@ -529,22 +495,22 @@ oc describe applications workshop-gitops-vms-dev -n openshift-gitops
 
 ### Regular Monitoring Commands
 
-### Check Application Status
+#### Check Application Status
 ```bash
 oc get applications -n openshift-gitops
 ```
 
-### Check Sync Status
+#### Check Sync Status
 ```bash
 oc get applications workshop-gitops-vms-dev -n openshift-gitops -o yaml
 ```
 
-### Force Sync
+#### Force Sync
 ```bash
 oc patch applications workshop-gitops-vms-dev -n openshift-gitops -p '{"operation":{"sync":{}}}' --type merge
 ```
 
-### Access ArgoCD UI
+#### Access ArgoCD UI
 ```bash
 # Get ArgoCD URL
 oc get route openshift-gitops-server -n openshift-gitops
@@ -553,7 +519,48 @@ oc get route openshift-gitops-server -n openshift-gitops
 oc get secret openshift-gitops-cluster -n openshift-gitops -o jsonpath='{.data.admin\.password}' | base64 -d
 ```
 
-## VM Templates
+## Cleanup
+
+### Cleanup Demo 3 or Demo 4
+
+```bash
+./run-demos.sh c
+```
+
+### Complete Workshop Removal
+
+```bash
+./remove.sh
+```
+
+This will:
+1. Remove all ArgoCD applications
+2. Delete all workshop namespaces and VMs
+3. Remove cluster role bindings
+4. Optionally remove the GitOps operator
+
+### Manual Cleanup
+
+If needed, you can remove individual components:
+
+```bash
+# Remove ArgoCD applications
+oc delete -f manual-install-files/06-argocd-app-prd.yaml
+oc delete -f manual-install-files/05-argocd-app-hml.yaml
+oc delete -f manual-install-files/04-argocd-app-dev.yaml
+
+# Remove namespaces (this removes all VMs)
+oc delete namespace workshop-gitops-vms-dev
+oc delete namespace workshop-gitops-vms-hml
+oc delete namespace workshop-gitops-vms-prd
+
+# Remove RBAC
+oc delete -f manual-install-files/02-cluster-role-binding.yaml
+```
+
+## Best Practices and Technical Details
+
+### VM Templates
 
 All VMs use the Fedora template with cloud-init for initial configuration:
 - Default user: `cloud-user`
@@ -561,15 +568,12 @@ All VMs use the Fedora template with cloud-init for initial configuration:
 - SSH access configured
 - Environment-specific applications installed
 
-## Cleanup
+### ArgoCD Configuration Details
 
-To remove all workshop resources:
+Each ArgoCD application is configured with:
+- **Automatic Sync**: Disabled
 
-```bash
-./remove.sh
-```
-
-## Best Practices Demonstrated
+### Best Practices Demonstrated
 
 1. **Infrastructure as Code**: All VM definitions stored in Git
 2. **Environment Separation**: Different branches for different environments
@@ -577,70 +581,3 @@ To remove all workshop resources:
 4. **Drift Detection**: Manual changes detected and corrected
 5. **Disaster Recovery**: Complete environment recovery from Git
 6. **Security**: Proper RBAC and namespace isolation
-
-## Learning Objectives
-
-After completing this workshop, participants will understand:
-- How to implement GitOps for VM management
-- ArgoCD configuration and application management
-- Git-based workflow for infrastructure changes
-- Automated drift detection and correction
-- Disaster recovery using GitOps principles
-- Environment promotion strategies
-
-## Manual Installation Verification
-
-After completing all manual installation steps, verify everything is working:
-
-```bash
-# Check ArgoCD applications
-oc get applications -n openshift-gitops
-
-# Check created VMs
-oc get vm -A | grep workshop
-
-# Check services
-oc get svc -A | grep workshop
-
-```
-
-### Expected Results
-
-After the manual installation, you should see:
-
-**ArgoCD Applications:**
-```bash
-NAME               SYNC STATUS   HEALTH STATUS
-workshop-gitops-vms-dev   Synced        Healthy
-workshop-gitops-vms-hml   Synced        Healthy
-workshop-gitops-vms-prd   Synced        Healthy
-```
-
-**Virtual Machines:**
-```bash
-NAMESPACE                   NAME            STATUS
-workshop-gitops-vms-dev     dev-vm-web-01   Running
-workshop-gitops-vms-dev     dev-vm-web-02   Running
-workshop-gitops-vms-dev     dev-vm-web-03   Running
-workshop-gitops-vms-hml     hml-vm-web-01   Running
-workshop-gitops-vms-hml     hml-vm-web-02   Running
-workshop-gitops-vms-hml     hml-vm-web-03   Running
-workshop-gitops-vms-prd     prd-vm-web-01   Running
-workshop-gitops-vms-prd     prd-vm-web-02   Running
-workshop-gitops-vms-prd     prd-vm-web-03   Running
-```
-
-**Access to ArgoCD:**
-- URL: `https://openshift-gitops-server-openshift-gitops.apps.<your-cluster>`
-- Username: `admin`
-- Password: (obtained with the command in step 10)
-
-### Next Steps in the Demonstration
-
-With the workshop installed manually, you can demonstrate:
-
-1. **GitOps in Action**: Make changes in the branches and show automatic synchronization
-2. **Drift Detection**: Use `ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo1-manual-change.yaml`
-3. **Automatic Recovery**: Use `ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo2-vm-recovery.yaml`
-4. **Git-based Provisioning**: Use `ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/demo3-add-development-vm.yaml`
-5. **ArgoCD Interface**: Show the web UI with synchronized applications

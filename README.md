@@ -2,6 +2,49 @@
 
 This workshop demonstrates how to use OpenShift GitOps (ArgoCD) to manage Virtual Machines in OpenShift Virtualization using a GitOps approach. The workshop includes automated installation, multiple environment configurations, and practical demos showing GitOps capabilities.
 
+## Table of Contents
+
+- [OpenShift GitOps with OpenShift Virtualization Workshop](#openshift-gitops-with-openshift-virtualization-workshop)
+  - [Table of Contents](#table-of-contents)
+  - [Prerequisites](#prerequisites)
+- [Workshop Architecture](#workshop-architecture)
+    - [Repository Structure](#repository-structure)
+    - [Environment Strategy](#environment-strategy)
+  - [Security Considerations](#security-considerations)
+  - [Installation](#installation)
+    - [Automated Installation](#automated-installation)
+    - [Manual Installation (for Learning)](#manual-installation-for-learning)
+  - [Verification](#verification)
+  - [Workshop Demonstrations](#workshop-demonstrations)
+    - [Demo 1: Manual Change Detection and Drift Correction](#demo-1-manual-change-detection-and-drift-correction)
+    - [Demo 2: VM Recovery from Data Loss](#demo-2-vm-recovery-from-data-loss)
+    - [Demo 3: Adding New Development VM via Git Change](#demo-3-adding-new-development-vm-via-git-change)
+    - [Demo 4: Multi-Environment VM Management with Kustomize](#demo-4-multi-environment-vm-management-with-kustomize)
+    - [Demo 3 and Demo 4 Cleanup](#demo-3-and-demo-4-cleanup)
+    - [Status Monitoring](#status-monitoring)
+    - [Run All Demos (TODO: Fix demo3)](#run-all-demos-todo-fix-demo3)
+  - [ArgoCD Applications](#argocd-applications)
+  - [Environment Details](#environment-details)
+    - [Development Environment (vms-dev-GUID branch)](#development-environment-vms-dev-guid-branch)
+    - [Homologation Environment (vms-hml-GUID branch)](#homologation-environment-vms-hml-guid-branch)
+    - [Production Environment (vms-prd-GUID branch)](#production-environment-vms-prd-guid-branch)
+  - [Virtual Machine Configuration](#virtual-machine-configuration)
+    - [VM Templates](#vm-templates)
+    - [Resource Scaling by Environment](#resource-scaling-by-environment)
+    - [Accessing Virtual Machines](#accessing-virtual-machines)
+  - [Cleanup and Maintenance](#cleanup-and-maintenance)
+    - [Complete Workshop Removal](#complete-workshop-removal)
+    - [Status Monitoring](#status-monitoring-1)
+  - [Repository Structure and Files](#repository-structure-and-files)
+  - [GitOps Workflow and Kustomize Strategy](#gitops-workflow-and-kustomize-strategy)
+    - [Kustomize Configuration Pattern](#kustomize-configuration-pattern)
+    - [Example Environment Customization](#example-environment-customization)
+  - [Troubleshooting](#troubleshooting)
+    - [Common Issues and Solutions](#common-issues-and-solutions)
+    - [Workshop Validation Commands](#workshop-validation-commands)
+  - [Additional Resources](#additional-resources)
+  - [Workshop Learning Objectives](#workshop-learning-objectives)
+
 ## Prerequisites
 
 Before starting the workshop, ensure you have:
@@ -20,7 +63,7 @@ Before starting the workshop, ensure you have:
 - To run this lab you will need a playbook called `setup-workshop-repos.yaml` that is not included in this repository. If you would like to run this lab, please contact [@anibalcoral](https://github.com/anibalcoral) or [@lgchiaretto](https://github.com/lgchiaretto).
 
 
-**Note**: The Apps repository is cloned and the install cluster will change the branches to `-$GUID` to be unique to prevent conflicts with other workshops participants.
+**Note**: The Apps repository is cloned and the install cluster will change the branches to `-GUID` to be unique to prevent conflicts with other workshops participants.
 
 # Workshop Architecture
 
@@ -31,9 +74,9 @@ This workshop uses a **dual-repository strategy** with **multi-branch environmen
 - **Applications Repository**: Contains VM definitions and Kustomize configurations for each environment
 
 ### Environment Strategy
-- **vms-dev-{GUID} branch**: Development VMs (workshop-gitops-vms-dev namespace)
-- **vms-hml-{GUID} branch**: Homologation/Staging VMs (workshop-gitops-vms-hml namespace)  
-- **vms-prd-{GUID} branch**: Production VMs (workshop-gitops-vms-prd namespace)
+- **vms-dev-GUID branch**: Development VMs (workshop-gitops-vms-dev namespace)
+- **vms-hml-GUID branch**: Homologation/Staging VMs (workshop-gitops-vms-hml namespace)  
+- **vms-prd-GUID branch**: Production VMs (workshop-gitops-vms-prd namespace)
 
 Each GUID gets its own set of branches to ensure isolation between workshops participants.
 Each environment uses Kustomize overlays for environment-specific resource configurations (CPU, memory, disk, naming prefixes).
@@ -69,7 +112,7 @@ ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /op
 For step-by-step installation or troubleshooting:
 
 
-- Before applying you have to edit and replace {GUID} on all playbooks
+- Before applying you have to edit and replace GUID on all playbooks
 - Apply manual manifests in order
 
 ```bash
@@ -211,7 +254,7 @@ Using the doc [DEMO4-MULTI-ENV-MANAGEMENT.md](demo-guides/DEMO4-MULTI-ENV-MANAGE
 - Centralized base template management across environments
 - GitOps promotion strategies and multi-environment consistency
 
-### Demo 4 Cleanup
+### Demo 3 and Demo 4 Cleanup
 ```bash
 # Using demo runner
 /opt/OpenShift-Virtualization-GitOps/run-demos.sh d
@@ -219,25 +262,6 @@ Using the doc [DEMO4-MULTI-ENV-MANAGEMENT.md](demo-guides/DEMO4-MULTI-ENV-MANAGE
 ```bash
 # Using Ansible playbook
 ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/cleanup-demo4.yaml
-```
-
-## Cleanup
-
-**Complete Workshop Removal**
-```bash
-export GUID=user01  # Not necessary if you are running at bastion lab
-```
-```bash
-./remove.sh
-```
-
-**Or use Ansible playbooks directly:**
-```bash
-# Remove workshop resources only
-export GUID=user01  # Not necessary if you are running at bastion lab
-```
-```bash
-ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/remove-workshop.yaml
 ```
 
 ### Status Monitoring
@@ -273,21 +297,21 @@ Each application:
 
 ## Environment Details
 
-### Development Environment (vms-dev-{guid} branch)
+### Development Environment (vms-dev-GUID branch)
 - **Namespace**: `workshop-gitops-vms-dev`
 - **VMs**: 
   - `dev-vm-web-01` (1 CPU, 2GB RAM)
   - `dev-vm-web-02` (1 CPU, 2GB RAM)
 - **Route**: `https://dev-workshop-gitops-vms.<cluster-domain>`
 
-### Homologation Environment (vms-hml-{guid} branch)
+### Homologation Environment (vms-hml-GUID branch)
 - **Namespace**: `workshop-gitops-vms-hml`
 - **VMs**: 
   - `hml-vm-web-01` (1 CPU, 2GB RAM)
   - `hml-vm-web-02` (1 CPU, 2GB RAM)
 - **Route**: `https://hml-workshop-gitops-vms.<cluster-domain>`
 
-### Production Environment (vmd-prd-{guid} branch)
+### Production Environment (vms-prd-GUID branch)
 - **Namespace**: `workshop-gitops-vms-prd`
 - **VMs**: 
   - `prd-vm-web-01` (2 CPU, 4GB RAM)

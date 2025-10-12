@@ -27,7 +27,7 @@ This demo demonstrates how to add new Virtual Machines to the environment using 
 - **New VM Name**: `dev-vm-web-09`
 - **ArgoCD Application**: `workshop-gitops-vms-dev`
 - **Git Repository**: `OpenShift-Virtualization-GitOps-Apps`
-- **Target Branch**: `vms-dev-{guid}` (GUID-specific development branch)
+-- **Target Branch**: `vms-dev-GUID` (GUID-specific development branch)
 
 ## Step-by-Step Manual Instructions
 
@@ -62,7 +62,7 @@ cd /opt/OpenShift-Virtualization-GitOps-Apps
 git branch --show-current
 ```
 
-3. Switch to vms-dev-{guid} branch if needed:
+3. Switch to vms-dev-GUID branch if needed:
 ```bash
 git checkout vms-dev-$GUID
 ```
@@ -233,7 +233,7 @@ git push origin vms-dev-$GUID
 git log --oneline -1
 ```
 
-**Expected Result**: Changes should be committed and pushed to the vms-dev-{guid} branch
+**Expected Result**: Changes should be committed and pushed to the vms-dev-GUID branch
 
 ### Step 6: Return to OpenShift and Monitor ArgoCD
 

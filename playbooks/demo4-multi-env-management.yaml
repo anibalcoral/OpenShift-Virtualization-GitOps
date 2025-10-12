@@ -123,7 +123,7 @@
           Current branch: {{ current_branch.stdout }}
           Git status: {{ 'Clean working directory' if not git_status.stdout else 'Uncommitted changes detected' }}
 
-    - name: Ensure we're on vms-dev-{guid} branch
+    - name: Ensure we're on vms-dev-GUID branch
       ansible.builtin.shell:
         cmd: git checkout vms-dev-{{ guid }}
         chdir: "{{ apps_repo_path }}"
@@ -137,14 +137,14 @@
           Step 3: Promoting to homologation environment
           ============================================
 
-    - name: Checkout homologation branch
+    - name: Checkout homologation branch (vms-hml-GUID)
       ansible.builtin.shell:
         cmd: git checkout vms-hml-{{ guid }}
         chdir: "{{ apps_repo_path }}"
       register: checkout_hml
       changed_when: "'Switched to branch' in checkout_hml.stdout or 'Already on' in checkout_hml.stdout"
 
-    - name: Merge development changes to homologation
+    - name: Merge development changes to homologation (from vms-dev-GUID)
       ansible.builtin.shell:
         cmd: git merge vms-dev-{{ guid }}
         chdir: "{{ apps_repo_path }}"

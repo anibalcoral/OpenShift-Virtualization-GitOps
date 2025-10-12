@@ -4,7 +4,7 @@ metadata:
   name: workshop-gitops-vms-dev
   namespace: openshift-gitops
   labels:
-    guid: "{GUID}"
+    guid: "GUID"
 spec:
   destination:
     namespace: workshop-gitops-vms-dev
@@ -13,4 +13,4 @@ spec:
   source:
     path: overlays/dev
     repoURL: git@github.com:anibalcoral/OpenShift-Virtualization-GitOps-Apps.git
-    targetRevision: vms-dev-{GUID}
+  targetRevision: vms-dev-GUID
