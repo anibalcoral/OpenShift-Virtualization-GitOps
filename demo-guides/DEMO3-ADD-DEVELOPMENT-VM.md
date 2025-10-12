@@ -113,8 +113,8 @@ spec:
     spec:
       domain:
         cpu:
-          cores: 2
-          sockets: 2
+          cores: 1
+          sockets: 1
           threads: 1
         devices:
           disks:
