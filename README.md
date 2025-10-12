@@ -243,7 +243,7 @@ ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /op
 ### Status Monitoring
 ```bash
 # Using demo runner
-/opt/OpenShift-Virtualization-GitOps/run-demos.sh 2
+/opt/OpenShift-Virtualization-GitOps/run-demos.sh s
 
 # Direct Ansible playbook
 ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/check-workshop-status.yaml
