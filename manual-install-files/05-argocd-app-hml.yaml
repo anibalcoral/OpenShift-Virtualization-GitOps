@@ -1,0 +1,16 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: workshop-gitops-vms-hml
+  namespace: openshift-gitops
+  labels:
+    guid: "{GUID}"
+spec:
+  destination:
+    namespace: workshop-gitops-vms-hml
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    path: overlays/hml
+    repoURL: git@github.com:anibalcoral/OpenShift-Virtualization-GitOps-Apps.git
+    targetRevision: vms-hml-{GUID}

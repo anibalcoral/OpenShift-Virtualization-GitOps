@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: workshop-gitops-vms-dev
+  labels:
+    name: workshop-gitops-vms-dev
+    workshop: "gitops-ocpvirt"
+    environment: "dev"
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: workshop-gitops-vms-hml
+  labels:
+    name: workshop-gitops-vms-hml
+    workshop: "gitops-ocpvirt"
+    environment: "hml"
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: workshop-gitops-vms-prd
+  labels:
+    name: workshop-gitops-vms-prd
+    workshop: "gitops-ocpvirt"
+    environment: "prd"
