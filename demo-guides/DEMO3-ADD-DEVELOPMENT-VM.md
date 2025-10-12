@@ -62,7 +62,7 @@ cd /opt/OpenShift-Virtualization-GitOps-Apps
 git branch --show-current
 ```
 
-3. Switch to vms-dev branch if needed:
+3. Switch to vms-dev-{guid} branch if needed:
 ```bash
 git checkout vms-dev-$GUID
 ```
@@ -233,7 +233,7 @@ git push origin vms-dev-$GUID
 git log --oneline -1
 ```
 
-**Expected Result**: Changes should be committed and pushed to the vms-dev branch
+**Expected Result**: Changes should be committed and pushed to the vms-dev-{guid} branch
 
 ### Step 6: Return to OpenShift and Monitor ArgoCD
 

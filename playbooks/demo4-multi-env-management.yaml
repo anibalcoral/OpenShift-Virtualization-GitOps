@@ -123,7 +123,7 @@
           Current branch: {{ current_branch.stdout }}
           Git status: {{ 'Clean working directory' if not git_status.stdout else 'Uncommitted changes detected' }}
 
-    - name: Ensure we're on vms-dev branch
+    - name: Ensure we're on vms-dev-{guid} branch
       ansible.builtin.shell:
         cmd: git checkout vms-dev-{{ guid }}
         chdir: "{{ apps_repo_path }}"
@@ -470,60 +470,60 @@
           =================================================================
 
           Summary of what was demonstrated:
-          
+
           1. ✅ Branch-based Environment Promotion
-             - Promoted vm-web-09 from vms-dev → vms-hml → main branches
-          
+             - Promoted vm-web-09 from vms-dev → vms-hml → vms-prd-{{ guid }} branches
+
           2. ✅ Kustomize Overlays
              - Same base template deployed with environment-specific configurations
              - Automatic naming prefixes (dev-, hml-, prd-)
              - Environment-specific namespaces
-          
+
           3. ✅ Centralized Base Management
              - Added timestamp annotation to base template
              - Change automatically propagated to all environments
-          
+
           4. ✅ GitOps Automation
              - ArgoCD automatically synced changes across all environments
              - No manual OpenShift intervention required
-          
+
           5. ✅ Multi-Environment Consistency
              - Same VM configuration deployed consistently across environments
              - Environment-specific customizations applied automatically
-          
+
           Key GitOps Benefits Demonstrated:
           - DRY principle: Don't Repeat Yourself
           - Safe promotion pipeline using Git branches
           - Automated synchronization across environments
           - Centralized configuration management
           - Environment isolation with namespace separation
-          
+
           Next Steps:
           - Verify VMs are running in all environments
           - Access applications via environment-specific routes
           - Explore Kustomize configurations in overlays/
-          
+
           =================================================================
 
     - name: Provide verification commands
       ansible.builtin.debug:
         msg: |
-          
+
           Verification Commands:
-          
+
           # Check all VMs across environments
           oc get vm -n workshop-gitops-vms-dev | grep vm-web-09
           oc get vm -n workshop-gitops-vms-hml | grep vm-web-09
           oc get vm -n workshop-gitops-vms-prd | grep vm-web-09
-          
+
           # Check ArgoCD application status
           oc get applications -n openshift-gitops | grep workshop-gitops-vms
-          
+
           # Verify annotations across environments
           oc get vm dev-vm-web-09 -n workshop-gitops-vms-dev -o yaml | grep demo4-timestamp
           oc get vm hml-vm-web-09 -n workshop-gitops-vms-hml -o yaml | grep demo4-timestamp
           oc get vm prd-vm-web-09 -n workshop-gitops-vms-prd -o yaml | grep demo4-timestamp
-          
+
           # Check Git branch history
           cd {{ apps_repo_path }}
           git checkout vms-dev-{{ guid }}

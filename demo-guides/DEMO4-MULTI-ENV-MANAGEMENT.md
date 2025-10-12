@@ -92,12 +92,12 @@ git branch -a
 git status
 ```
 
-3. Ensure you're on the vms-dev branch:
+3. Ensure you're on the vms-dev-{guid} branch:
 ```bash
 git checkout vms-dev-$GUID
 ```
 
-**Expected Result**: You should be on vms-dev branch with no uncommitted changes
+**Expected Result**: You should be on vms-dev-{guid} branch with no uncommitted changes
 
 ### Step 3: Promote Development Changes to Homologation
 

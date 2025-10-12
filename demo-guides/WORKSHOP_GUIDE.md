@@ -12,9 +12,9 @@ Git Repository Structure
 │   ├── Manual installation YAML files
 │   └── Workshop documentation
 └── Apps Repository: OpenShift-Virtualization-GitOps-Apps
-    ├── main branch (Production VMs) → overlays/prd
-    ├── vms-hml branch (Homologation VMs) → overlays/hml
-    └── vms-dev branch (Development VMs) → overlays/dev
+    ├── vms-prd-{guid} branch (Production VMs) → overlays/prd
+    ├── vms-hml-{guid} branch (Homologation VMs) → overlays/hml
+    └── vms-dev-{guid} branch (Development VMs) → overlays/dev
 
 Kustomize Structure (in Apps Repository)
 ├── base/ (Base VM templates)
@@ -27,9 +27,9 @@ Kustomize Structure (in Apps Repository)
     └── prd/ (Production patches)
 
 ArgoCD Applications
-├── workshop-gitops-vms-prd → Apps repo main branch → overlays/prd → workshop-gitops-vms-prd namespace
-├── workshop-gitops-vms-hml → Apps repo vms-hml branch → overlays/hml → workshop-gitops-vms-hml namespace
-└── workshop-gitops-vms-dev → Apps repo vms-dev branch → overlays/dev → workshop-gitops-vms-dev namespace
+├── workshop-gitops-vms-prd → Apps repo vms-prd-{guid} branch → overlays/prd → workshop-gitops-vms-prd namespace
+├── workshop-gitops-vms-hml → Apps repo vms-hml-{guid} branch → overlays/hml → workshop-gitops-vms-hml namespace
+└── workshop-gitops-vms-dev → Apps repo vms-dev-{guid} branch → overlays/dev → workshop-gitops-vms-dev namespace
 ```
 
 ## Installation
@@ -346,19 +346,19 @@ oc get applications -n openshift-gitops
 
 The workshop creates three environments with different resource allocations:
 
-### Development Environment (vms-dev branch)
+### Development Environment (vms-dev-{guid} branch)
 - **Namespace**: `workshop-gitops-vms-dev`
 - **VMs**: `dev-vm-web-01`, `dev-vm-web-02`, `dev-vm-web-09`
 - **Resources**: 1 CPU, 2GB RAM, 30GB disk per VM
 - **Purpose**: Development and testing
 
-### Homologation Environment (vms-hml branch)
+### Homologation Environment (vms-hml-{guid} branch)
 - **Namespace**: `workshop-gitops-vms-hml`
 - **VMs**: `hml-vm-web-01`, `hml-vm-web-02`, `hml-vm-web-09`
 - **Resources**: 2 CPU, 3GB RAM, 40GB disk per VM
 - **Purpose**: Pre-production testing
 
-### Production Environment (main branch)
+### Production Environment (vms-prd-{guid} branch)
 - **Namespace**: `workshop-gitops-vms-prd`
 - **VMs**: `prd-vm-web-01`, `prd-vm-web-02`, `prd-vm-web-09`
 - **Resources**: 2 CPU, 4GB RAM, 50GB disk per VM
@@ -433,7 +433,7 @@ Demonstrates the complete GitOps deployment process from scratch.
 **What happens:**
 1. Check current VM configuration (2Gi memory)
 2. Edit VM configuration in Git (change to 4Gi memory)
-3. Commit and push changes to vms-hml branch
+3. Commit and push changes to vms-hml-{guid} branch
 4. ArgoCD automatically detects Git changes
 5. ArgoCD applies configuration update to running VM
 6. VM restarts with new memory configuration

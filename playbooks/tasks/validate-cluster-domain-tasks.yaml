@@ -120,7 +120,7 @@
           register: git_commit
           changed_when: git_changes.stdout != ""
 
-        - name: Push changes to vms-dev branch
+        - name: Push changes to vms-dev-{guid} branch
           ansible.builtin.shell:
             cmd: git push origin vms-dev-{{ guid }}
           args:
@@ -133,7 +133,7 @@
     - name: Merge and push changes through environment branches
       when: update_needed and auto_commit and git_changes is defined and git_changes.stdout != ""
       block:
-        - name: Switch to vms-hml branch and merge from dev
+        - name: Switch to vms-hml-{guid} branch and merge from dev
           ansible.builtin.git:
             repo: "{{ apps_repo_url }}"
             dest: "{{ apps_repo_path }}"
@@ -145,12 +145,12 @@
             cmd: git merge vms-dev-{{ guid }}
             chdir: "{{ apps_repo_path }}"
 
-        - name: Push changes to vms-hml branch
+        - name: Push changes to vms-hml-{guid} branch
           ansible.builtin.shell:
             cmd: git push origin vms-hml-{{ guid }}
             chdir: "{{ apps_repo_path }}"
 
-        - name: Switch to main branch and merge from hml
+        - name: Switch to vms-prd-{guid} branch and merge from hml
           ansible.builtin.git:
             repo: "{{ apps_repo_url }}"
             dest: "{{ apps_repo_path }}"
@@ -167,7 +167,7 @@
             cmd: git push origin vms-prd-{{ guid }}
             chdir: "{{ apps_repo_path }}"
 
-        - name: Switch back to vms-dev branch
+        - name: Switch back to vms-dev-{guid} branch
           ansible.builtin.git:
             repo: "{{ apps_repo_url }}"
             dest: "{{ apps_repo_path }}"

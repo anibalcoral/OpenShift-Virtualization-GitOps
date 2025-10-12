@@ -312,8 +312,8 @@
           Actions Performed:
           1. ✅ Removed vm-web-09.yaml from base directory
           2. ✅ Updated base/kustomization.yaml to remove reference
-          3. ✅ Committed changes to vms-dev branch
-          4. ✅ Promoted removal through vms-hml to main branches
+          3. ✅ Committed changes to vms-dev-{{ guid }} branch
+          4. ✅ Promoted removal through vms-hml to vms-prd-{{ guid }} branches
           5. ✅ ArgoCD automatically removed VMs from all environments
 
           GitOps Benefits Demonstrated in Cleanup:

@@ -13,7 +13,7 @@
 
 - name: Remove GUID-specific branches
   block:
-    - name: Switch to main branch
+    - name: Switch to vms-prd-{guid} branch
       ansible.builtin.command:
         cmd: git checkout main
         chdir: "{{ apps_repo_path }}"
