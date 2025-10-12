@@ -44,25 +44,16 @@
     definition:
       spec:
         extraConfig:
-          resource.customizations.health.VirtualMachine: |
+          resource.customizations.health.kubevirt.io_VirtualMachine: |
             hs = {}
-            hs.status = "Progressing"
-            hs.message = "Waiting for virtual machine status"
-            if obj.status and obj.status.printableStatus then
-              if obj.status.printableStatus == "Running" then
-                hs.status = "Healthy"
-                hs.message = "Virtual machine is running"
-              elseif obj.status.printableStatus == "Stopped" then
-                hs.status = "Healthy"
-                hs.message = "Virtual machine is stopped"
-              elseif obj.status.printableStatus == "Provisioning" then
-                hs.status = "Progressing"
-                hs.message = "Virtual machine is provisioning"
-              else
-                hs.status = "Degraded"
-                hs.message = "Virtual machine status is: " .. obj.status.printableStatus
-              end
+            if obj.status != nil and obj.status.printableStatus == "Running" then
+              hs.status = "Healthy"
+              hs.message = "VM is running"
+            else
+              hs.status = "Progressing"
+              hs.message = obj.status.printableStatus
             end
+            return hs
 
 - name: Create cluster role binding for ArgoCD
   kubernetes.core.k8s:
