@@ -273,21 +273,25 @@ Each application:
 
 ## Environment Details
 
-### Development Environment (vms-dev branch)
+### Development Environment (vms-dev-{guid} branch)
 - **Namespace**: `workshop-gitops-vms-dev`
 - **VMs**: 
-  - `dev-vm-web-01` (1 CPU, 2GB RAM, 30GB disk)
-  - `dev-vm-web-02` (1 CPU, 2GB RAM, 30GB disk)
+  - `dev-vm-web-01` (1 CPU, 2GB RAM)
+  - `dev-vm-web-02` (1 CPU, 2GB RAM)
 - **Route**: `https://dev-workshop-gitops-vms.<cluster-domain>`
 
-### Homologation Environment (vms-hml branch)
+### Homologation Environment (vms-hml-{guid} branch)
+- **Namespace**: `workshop-gitops-vms-hml`
+- **VMs**: 
+  - `hml-vm-web-01` (1 CPU, 2GB RAM)
+  - `hml-vm-web-02` (1 CPU, 2GB RAM)
 - **Route**: `https://hml-workshop-gitops-vms.<cluster-domain>`
 
-### Production Environment (main branch)
+### Production Environment (vmd-prd-{guid} branch)
 - **Namespace**: `workshop-gitops-vms-prd`
 - **VMs**: 
-  - `prd-vm-web-01` (2 CPU, 4GB RAM, 50GB disk)
-  - `prd-vm-web-02` (2 CPU, 4GB RAM, 50GB disk)
+  - `prd-vm-web-01` (2 CPU, 4GB RAM)
+  - `prd-vm-web-02` (2 CPU, 4GB RAM)
 - **Route**: `https://workshop-gitops-vms.<cluster-domain>`
 
 ## Virtual Machine Configuration
@@ -295,7 +299,7 @@ Each application:
 Each environment deploys identical VMs with environment-specific resource allocations:
 
 ### VM Templates
-- **Base Image**: RHEL 9 cloud image
+- **Base Image**: Fedora cloud image
 - **Default User**: `cloud-user` 
 - **Default Password**: `redhat123`
 - **Applications**: Environment-specific web applications

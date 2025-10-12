@@ -555,7 +555,7 @@ oc get secret openshift-gitops-cluster -n openshift-gitops -o jsonpath='{.data.a
 
 ## VM Templates
 
-All VMs use the RHEL 9 template with cloud-init for initial configuration:
+All VMs use the Fedora template with cloud-init for initial configuration:
 - Default user: `cloud-user`
 - Default password: `redhat123`
 - SSH access configured
