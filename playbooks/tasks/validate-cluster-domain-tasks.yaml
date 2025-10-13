@@ -45,7 +45,7 @@
       ansible.builtin.set_fact:
         expected_dev_domain: "dev-workshop-gitops-vms.{{ cluster_domain }}"
         expected_hml_domain: "hml-workshop-gitops-vms.{{ cluster_domain }}"
-        expected_prd_domain: "workshop-gitops-vms.{{ cluster_domain }}"
+        expected_prd_domain: "prd-workshop-gitops-vms.{{ cluster_domain }}"
 
     - name: Display current and expected domain configurations
       ansible.builtin.debug:
