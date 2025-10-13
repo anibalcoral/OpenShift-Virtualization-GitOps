@@ -102,7 +102,7 @@
           Application URLs (after deployment):
           - Development: https://dev-workshop-gitops-vms.{{ cluster_domain }}
           - Homologation: https://hml-workshop-gitops-vms.{{ cluster_domain }}
-          - Production: https://workshop-gitops-vms.{{ cluster_domain }}
+          - Production: https://prd-workshop-gitops-vms.{{ cluster_domain }}
 
           Next steps:
           1. Access ArgoCD UI using the credentials above

@@ -309,7 +309,7 @@ Each application:
 - **VMs**: 
   - `prd-vm-web-01` (2 CPU, 4GB RAM)
   - `prd-vm-web-02` (2 CPU, 4GB RAM)
-- **Route**: `https://workshop-gitops-vms.<cluster-domain>`
+- **Route**: `https://prd-workshop-gitops-vms.<cluster-domain>`
 
 ## Virtual Machine Configuration
 
