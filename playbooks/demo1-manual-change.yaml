@@ -99,9 +99,9 @@
               prune: true
               dryRun: false
 
-    - name: Display self-heal completion
+    - name: Display manual sync completion
       ansible.builtin.debug:
-        msg: "ArgoCD self-heal completed - Application is back to Synced"
+        msg: "ArgoCD manual sync completed - Application is back to Synced"
 
     - name: Verify VM run strategy is corrected
       kubernetes.core.k8s_info:
@@ -136,5 +136,5 @@
         msg: |
           Demo 1 completed successfully!
           ==============================
-          Manual drift was detected and automatically corrected by ArgoCD
+          Manual drift was detected and corrected by ArgoCD through manual sync
           VM is now running with the correct configuration from Git

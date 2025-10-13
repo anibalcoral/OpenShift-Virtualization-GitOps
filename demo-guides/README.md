@@ -1,6 +1,6 @@
 # Demo Guides
 
-This directory contains comprehensive guides for the OpenShift GitOps with OpenShift Virtualization workshop demos. All demos are executed through Ansible playbooks that provide automated and reproducible demonstrations of ArgoCD behaviors (drift detection, recovery, and Git-based provisioning).
+This directory contains comprehensive guides for the OpenShift GitOps with OpenShift Virtualization workshop demos. All demos are executed through Ansible playbooks that provide automated and reproducible demonstrations of ArgoCD behaviors (drift detection, recovery, and Git-based provisioning) through manual sync operations.
 
 ## Contents
 
@@ -15,8 +15,8 @@ This directory contains comprehensive guides for the OpenShift GitOps with OpenS
 
 **Demo 1: Manual Change Detection and Drift Correction**
 - Manually modifies a VM's runStrategy using Kubernetes API
-- Shows ArgoCD detecting configuration drift automatically
-- Demonstrates automatic self-healing correction through Git sync
+- Shows ArgoCD detecting configuration drift through status monitoring
+- Demonstrates manual sync correction through Git sync operations
 - Verifies VM returns to desired state defined in Git repository
 
 **Demo 2: VM Recovery from Data Loss**  
@@ -28,8 +28,8 @@ This directory contains comprehensive guides for the OpenShift GitOps with OpenS
 **Demo 3: Adding New Development VM via Git Change**
 - Adds a new VM definition to the development environment through Git workflow
 - Shows git-based infrastructure as code workflow for VM management
-- Demonstrates automatic deployment through ArgoCD Git polling and sync
-- Includes automated cleanup utilities for demo repeatability
+- Demonstrates manual deployment through ArgoCD Git monitoring and manual sync
+- Includes manual cleanup utilities for demo repeatability
 
 **Demo 4: Multi-Environment VM Management with Kustomize**
 - Promotes VM changes through development → homologation → production environments

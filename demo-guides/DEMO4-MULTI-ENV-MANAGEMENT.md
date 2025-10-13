@@ -1,7 +1,7 @@
 # Demo 4: Multi-Environment VM Management with Kustomize
 
 ## Overview
-This demo demonstrates advanced GitOps practices for managing Virtual Machines across multiple environments (development, homologation, and production) using Kustomize overlays and Git branch promotion strategies. It showcases how to efficiently manage environment-specific configurations while maintaining consistency across environments. The demo is automated through Ansible playbooks but includes manual step-by-step instructions for educational purposes.
+This demo demonstrates advanced GitOps practices for managing Virtual Machines across multiple environments (development, homologation, and production) using Kustomize overlays and Git branch promotion strategies. It showcases how to efficiently manage environment-specific configurations while maintaining consistency across environments through manual sync operations. The demo is automated through Ansible playbooks but includes manual step-by-step instructions for educational purposes.
 
 ## Prerequisites
 - OpenShift GitOps Workshop installed and configured
@@ -270,16 +270,16 @@ This demo demonstrates several key GitOps and Kustomize concepts:
 
 1. **Branch-based Environment Promotion**: Changes flow from `vms-dev` → `vms-hml` → `main` (production)
 2. **Kustomize Overlays**: Environment-specific configurations without code duplication
-3. **Centralized Base Management**: Common changes applied once in base templates automatically propagate to all environments
+3. **Centralized Base Management**: Common changes applied once in base templates manually propagate to all environments
 4. **Consistent Multi-Environment Deployment**: Same base configuration with environment-specific customizations
-5. **GitOps Automation**: ArgoCD automatically detects and applies changes across all environments
+5. **GitOps Control**: ArgoCD detects and applies changes across all environments through manual sync operations
 
 ## Key Learning Points
 
 - **DRY Principle**: Don't Repeat Yourself - manage common configurations in base templates
 - **Safe Promotion**: Use Git branches to control promotion flow between environments
 - **Environment Isolation**: Each environment maintains its own namespace and configurations
-- **Automated Synchronization**: ArgoCD ensures environments stay in sync with their respective Git branches
+- **Manual Synchronization**: ArgoCD ensures environments stay in sync with their respective Git branches through manual sync operations
 - **Configuration Management**: Kustomize provides a declarative way to manage environment differences
 
 ### Verification Commands
@@ -324,4 +324,4 @@ git merge vms-hml-$GUID -m "Remove vm-web-09 from production"
 git push origin vms-prd-$GUID
 ```
 
-Wait for ArgoCD to sync and remove the VMs from all environments automatically.
+Wait for ArgoCD to sync and remove the VMs from all environments through manual sync operations.

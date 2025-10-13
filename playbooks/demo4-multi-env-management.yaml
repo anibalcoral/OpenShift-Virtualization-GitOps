@@ -476,20 +476,16 @@
 
           2. ✅ Kustomize Overlays
              - Same base template deployed with environment-specific configurations
-             - Automatic naming prefixes (dev-, hml-, prd-)
+             - Manual naming prefixes (dev-, hml-, prd-)
              - Environment-specific namespaces
 
-          3. ✅ Centralized Base Management
-             - Added timestamp annotation to base template
-             - Change automatically propagated to all environments
+          - Change propagated to all environments through manual sync
 
-          4. ✅ GitOps Automation
-             - ArgoCD automatically synced changes across all environments
-             - No manual OpenShift intervention required
+             ✅ Key Learning Points:
+             - ArgoCD synced changes across all environments through manual sync operations
 
-          5. ✅ Multi-Environment Consistency
-             - Same VM configuration deployed consistently across environments
-             - Environment-specific customizations applied automatically
+             ✅ Environment-specific Configuration:
+             - Environment-specific customizations applied through manual sync
 
           Key GitOps Benefits Demonstrated:
           - DRY principle: Don't Repeat Yourself

@@ -1,7 +1,7 @@
 # Demo 3: Adding New Development VM via Git Change
 
 ## Overview
-This demo demonstrates how to add new Virtual Machines to the environment using GitOps workflow. By adding a new VM definition to Git and updating the kustomization, ArgoCD automatically deploys the new infrastructure without manual OpenShift intervention. The demo is automated through Ansible playbooks but includes manual step-by-step instructions for educational purposes.
+This demo demonstrates how to add new Virtual Machines to the environment using GitOps workflow. By adding a new VM definition to Git and updating the kustomization, ArgoCD deploys the new infrastructure through manual sync operations without direct OpenShift intervention. The demo is automated through Ansible playbooks but includes manual step-by-step instructions for educational purposes.
 
 ## Prerequisites
 - OpenShift GitOps Workshop installed and configured
@@ -17,7 +17,7 @@ This demo demonstrates how to add new Virtual Machines to the environment using 
 3. **VM Definition Creation**: Creates a new VM definition file (`vm-web-09.yaml`) based on existing templates
 4. **Kustomization Update**: Updates the kustomization.yaml to include the new VM
 5. **Git Workflow**: Commits and pushes changes to the development branch
-6. **ArgoCD Sync**: Monitors ArgoCD for automatic sync and deployment
+6. **ArgoCD Sync**: Monitors ArgoCD for manual sync and deployment
 7. **Deployment Verification**: Confirms the new VM is created and operational
 8. **Cleanup**: Provides option to remove the VM for demo repeatability
 
@@ -256,7 +256,7 @@ oc get applications workshop-gitops-vms-dev -n openshift-gitops -o jsonpath='{.s
 
 ### Step 7: Trigger ArgoCD Sync
 
-1. Trigger automatic sync (or wait for auto-sync if enabled):
+1. Trigger manual sync:
 ```bash
 oc patch applications workshop-gitops-vms-dev -n openshift-gitops --type merge -p '{"operation":{"sync":{"syncStrategy":{"hook":{}}}}}'
 ```
@@ -350,8 +350,8 @@ oc get vm dev-vm-web-09 -n workshop-gitops-vms-dev -o jsonpath='{.metadata.label
 ✓ **Infrastructure as Code**: New VM defined in Git repository  
 ✓ **Kustomization Update**: Base configuration updated to include new resource  
 ✓ **Git Workflow**: Changes committed and pushed through proper Git workflow  
-✓ **Automatic Detection**: ArgoCD detected Git changes automatically  
-✓ **Automatic Deployment**: New VM deployed without manual OpenShift commands  
+✓ **Manual Detection**: ArgoCD detected Git changes after manual sync  
+✓ **Controlled Deployment**: New VM deployed through manual sync operations  
 ✓ **Environment Expansion**: Development environment scaled from 3 to 4 VMs  
 ✓ **Configuration Consistency**: New VM follows same patterns as existing VMs  
 

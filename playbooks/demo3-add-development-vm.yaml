@@ -416,6 +416,6 @@
           ✓ Base kustomization updated to include new resource
           ✓ Changes committed and pushed to vms-dev-GUID branch
           ✓ ArgoCD detected Git changes (OutOfSync state)
-          ✓ ArgoCD automatically deployed new VM
+          ✓ ArgoCD deployed new VM through manual sync
           ✓ Development environment now has 3 VMs for expanded testing
           ✓ Application returned to Synced state

@@ -51,7 +51,7 @@ ansible-galaxy install -r requirements.yml
   - Purpose: Demo 1 - Manual Change Detection and Drift Correction
   - Actions:
     - Manually modifies a VM's runStrategy to simulate configuration drift
-    - Monitors ArgoCD detection of drift and automatic correction
+    - Monitors ArgoCD detection of drift and Correction
     - Verifies VM returns to desired state
 
 - `demo2-vm-recovery.yaml`
@@ -67,7 +67,7 @@ ansible-galaxy install -r requirements.yml
   - Actions:
     - Creates new VM definition (vm-web-09) in Git repository
     - Commits and pushes changes to development branch
-    - Monitors ArgoCD automatic deployment
+    - Monitors ArgoCD manual deployment
     - Verifies new VM creation and functionality
 
 - `demo4-multi-env-management.yaml`
@@ -85,7 +85,7 @@ ansible-galaxy install -r requirements.yml
   - Actions:
     - Removes vm-web-09 from all environments through Git branch promotion
     - Uses the same promotion flow (dev → hml → prod) for consistent cleanup
-    - ArgoCD automatically removes VMs from all namespaces
+    - ArgoCD removes VMs from all namespaces through manual sync
 
 ## Support Tasks and Templates
 

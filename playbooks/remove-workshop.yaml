@@ -21,7 +21,7 @@
           GUID: {{ guid }}
           This will remove all workshop resources for GUID {{ guid }}
 
-#    - name: Change applications to automaticly sync and prune before deletion
+#    - name: Change applications to manually sync and prune before deletion
 #      kubernetes.core.k8s:
 #        state: present
 #        definition:

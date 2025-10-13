@@ -314,12 +314,12 @@
           2. ✅ Updated base/kustomization.yaml to remove reference
           3. ✅ Committed changes to vms-dev-{{ guid }} branch
           4. ✅ Promoted removal through vms-hml to vms-prd-{{ guid }} branches
-          5. ✅ ArgoCD automatically removed VMs from all environments
+          5. ✅ ArgoCD removed VMs from all environments through manual sync
 
           GitOps Benefits Demonstrated in Cleanup:
           - Centralized removal: One change removes from all environments
           - Safe promotion: Changes flow through the same pipeline
-          - Automated cleanup: ArgoCD handles VM deletion automatically
+          - Manual cleanup: ArgoCD handles VM deletion through manual sync operations
           - Consistent state: All environments maintain consistency
 
           Environment Status:

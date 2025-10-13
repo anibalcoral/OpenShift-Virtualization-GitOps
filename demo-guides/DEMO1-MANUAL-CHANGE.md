@@ -1,7 +1,7 @@
 # Demo 1: Manual Change Detection and Drift Correction
 
 ## Overview
-This demo demonstrates how ArgoCD detects manual changes made directly to OpenShift resources and automatically corrects the configuration drift by reverting to the state defined in Git. The demo is automated through Ansible playbooks but includes manual step-by-step instructions for educational purposes.
+This demo demonstrates how ArgoCD detects manual changes made directly to OpenShift resources and corrects the configuration drift by reverting to the state defined in Git through manual sync operations. The demo is automated through Ansible playbooks but includes manual step-by-step instructions for educational purposes.
 
 ## Prerequisites
 - OpenShift GitOps Workshop installed and configured
@@ -14,7 +14,7 @@ This demo demonstrates how ArgoCD detects manual changes made directly to OpenSh
 1. **Initial Status Check**: Verifies the VM exists and is in the correct initial state
 2. **Manual Change**: Patches the VM to change `runStrategy` from `Always` to `Halted`
 3. **Drift Detection**: Monitors ArgoCD application for drift detection
-4. **Self-Healing Verification**: Confirms ArgoCD automatically corrects the drift
+4. **Manual Sync Verification**: Confirms ArgoCD corrects the drift through manual sync
 5. **Final Validation**: Ensures the VM returns to the desired Git-defined state
 
 ## Environment Details
@@ -136,14 +136,14 @@ oc get vm -n workshop-gitops-vms-dev
 
 ✓ **Manual Change**: Made a direct change to VM configuration (stopped the VM)  
 ✓ **Drift Detection**: ArgoCD detected the configuration drift (OutOfSync status)  
-✓ **Automatic Correction**: ArgoCD automatically reverted the change  
+✓ **Correction**: ArgoCD reverted the change  
 ✓ **State Restoration**: VM was restarted with the correct Git-defined configuration  
 ✓ **GitOps Enforcement**: Demonstrated that Git is the single source of truth  
 
 ## Key Learning Points
 
 - **Configuration Drift**: Manual changes to resources are detected by ArgoCD
-- **Self-Healing**: GitOps automatically corrects unauthorized changes
+- **Manual Correction**: GitOps corrects unauthorized changes through manual sync operations
 - **Audit Trail**: All changes and corrections are logged in ArgoCD
 - **Consistency**: Git repository remains the authoritative source of configuration
 - **Operational Safety**: Prevents configuration drift in production environments

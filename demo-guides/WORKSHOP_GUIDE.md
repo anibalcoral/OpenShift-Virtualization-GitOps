@@ -60,7 +60,7 @@ After completing this workshop, participants will understand:
 - How to implement GitOps for VM management
 - ArgoCD configuration and application management
 - Git-based workflow for infrastructure changes
-- Automated drift detection and correction
+- Manual drift detection and correction
 - Disaster recovery using GitOps principles
 - Environment promotion strategies
 - Multi-environment deployments using branch-based strategies
@@ -248,12 +248,12 @@ Use the main demo script for a menu-driven interface:
 **What the demo does**:
 - Shows current VM configuration (runStrategy: Always)
 - Makes a manual change to stop the VM (runStrategy: Halted)
-- ArgoCD detects the drift and automatically corrects it
+- ArgoCD detects the drift and corrects it through manual sync
 - VM returns to desired state defined in Git
 
 **Learning Objectives**:
 - Configuration drift detection through ArgoCD monitoring
-- Automatic self-healing and remediation capabilities
+- Manual sync and remediation capabilities
 - GitOps principles ensuring desired state convergence
 
 ### Demo 2: VM Recovery from Data Loss
@@ -301,13 +301,13 @@ Use the main demo script for a menu-driven interface:
 - Creates new VM definition in Git repository
 - Updates Kustomize configuration to include new VM
 - Commits and pushes changes to development branch
-- ArgoCD automatically detects and deploys the new VM
+- ArgoCD detects and deploys the new VM through manual sync
 - Provides cleanup automation for demo repeatability
 
 **Learning Objectives**:
 - Git-based infrastructure provisioning workflows
 - Code review and approval processes for infrastructure changes
-- Automated deployment through continuous synchronization
+- Manual deployment through controlled synchronization
 
 ### Demo 4: Multi-Environment VM Management with Kustomize
 
@@ -577,7 +577,7 @@ Each ArgoCD application is configured with:
 
 1. **Infrastructure as Code**: All VM definitions stored in Git
 2. **Environment Separation**: Different branches for different environments
-3. **Automated Deployment**: Changes automatically deployed via ArgoCD
+3. **Manual Deployment**: Changes deployed via ArgoCD manual sync operations
 4. **Drift Detection**: Manual changes detected and corrected
 5. **Disaster Recovery**: Complete environment recovery from Git
 6. **Security**: Proper RBAC and namespace isolation

@@ -170,12 +170,12 @@ Using the doc [DEMO1-MANUAL-CHANGE.md](demo-guides/DEMO1-MANUAL-CHANGE.md)
 
 - Manual modifications to VM resources
 - ArgoCD detecting "OutOfSync" status
-- Automatic drift correction and resource recreation
+- Correction and resource recreation
 
 **Demonstrates:**
 - Manual configuration changes to VMs
 - ArgoCD detecting configuration drift (OutOfSync status)
-- Automatic self-healing and drift correction
+- Manual sync and drift correction
 - VM returning to desired state from Git
 
 ### Demo 2: VM Recovery from Data Loss
@@ -222,7 +222,7 @@ Using the doc [DEMO3-ADD-DEVELOPMENT-VM.md](demo-guides/DEMO3-ADD-DEVELOPMENT-VM
 **Demonstrates:**
 - Git-based workflow for infrastructure changes
 - Adding new VM definitions via Git commits
-- Automatic deployment through ArgoCD
+- Deployment through ArgoCD
 - Environment-specific customizations
 
 ### Demo 4: Multi-Environment VM Management with Kustomize
@@ -286,7 +286,7 @@ The workshop creates three ArgoCD applications:
 Each application:
 - Points to a specific branch in the Apps repository
 - Uses **Kustomize overlays** for environment-specific configurations
-- Has **automated sync** disabled
+- Requires **manual sync** for all changes
 
 ## Environment Details
 

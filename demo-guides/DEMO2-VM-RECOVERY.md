@@ -1,7 +1,7 @@
 # Demo 2: VM Recovery from Data Loss
 
 ## Overview
-This demo demonstrates how GitOps can recover from complete VM and data loss scenarios. By deleting both the VM and its persistent storage, we simulate catastrophic data corruption or hardware failure, then show how ArgoCD automatically recreates the entire VM infrastructure from Git definitions. The demo is automated through Ansible playbooks but includes manual step-by-step instructions for educational purposes.
+This demo demonstrates how GitOps can recover from complete VM and data loss scenarios. By deleting both the VM and its persistent storage, we simulate catastrophic data corruption or hardware failure, then show how ArgoCD recreates the entire VM infrastructure from Git definitions through manual sync operations. The demo is automated through Ansible playbooks but includes manual step-by-step instructions for educational purposes.
 
 ## Prerequisites
 - OpenShift GitOps Workshop installed and configured
@@ -216,18 +216,18 @@ oc describe dv dev-vm-web-02 -n workshop-gitops-vms-dev | grep -A 5 "Source:"
 
 ✓ **Complete Data Loss**: Simulated catastrophic failure by deleting VM and storage  
 ✓ **Detection**: ArgoCD detected missing critical resources (OutOfSync status)  
-✓ **Automatic Recovery**: ArgoCD automatically recreated all missing resources  
+✓ **Manual Recovery**: ArgoCD recreated all missing resources after manual sync  
 ✓ **Fresh Storage**: New DataVolume created with clean base image  
 ✓ **Full Restoration**: Complete infrastructure recovered from Git definitions  
 ✓ **Disaster Recovery**: Demonstrated GitOps-based disaster recovery capabilities  
 
 ## Key Learning Points
 
-- **Disaster Recovery**: GitOps provides automatic disaster recovery capabilities
+- **Disaster Recovery**: GitOps provides disaster recovery capabilities through manual sync
 - **Infrastructure as Code**: VM definitions in Git enable complete recreation
 - **No Data Loss Prevention**: While data is lost, infrastructure is quickly restored
 - **Consistency**: Recovered VM matches exact Git specification
-- **Automation**: No manual intervention required for infrastructure recovery
+- **Manual Control**: Sync operations require explicit manual trigger for controlled recovery
 - **Audit Trail**: Recovery process is logged and traceable
 
 ## Use Cases
