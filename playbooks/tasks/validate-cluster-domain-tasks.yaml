@@ -91,7 +91,7 @@
         - name: Update prd environment domain
           ansible.builtin.replace:
             path: "{{ apps_repo_path }}/overlays/prd/kustomization.yaml"
-            regexp: '(\s+value:\s+)workshop-gitops-vms\.[^\s]*'
+            regexp: '(\s+value:\s+)prd-workshop-gitops-vms\.[^\s]*'
             replace: '\1{{ expected_prd_domain }}'
 
     - name: Commit and push domain configuration changes
