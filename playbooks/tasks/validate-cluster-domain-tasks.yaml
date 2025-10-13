@@ -39,7 +39,7 @@
         current_hml_domain: >-
           {{ (kustomization_hml_raw.content | b64decode) | regex_search('value:\s+(hml-workshop-gitops-vms\.[^\s]+)', '\1') | first | default('') }}
         current_prd_domain: >-
-          {{ (kustomization_prd_raw.content | b64decode) | regex_search('value:\s+(workshop-gitops-vms\.[^\s]+)', '\1') | first | default('') }}
+          {{ (kustomization_prd_raw.content | b64decode) | regex_search('value:\s+(prd-workshop-gitops-vms\.[^\s]+)', '\1') | first | default('') }}
 
     - name: Set expected domain variables
       ansible.builtin.set_fact:
