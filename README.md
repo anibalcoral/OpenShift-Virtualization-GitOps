@@ -78,7 +78,7 @@ This workshop uses a **dual-repository strategy** with **multi-branch environmen
 - **vms-prd-GUID branch**: Production VMs (workshop-gitops-vms-prd namespace)
 
 Each GUID gets its own set of branches to ensure isolation between workshops participants.
-Each environment uses Kustomize overlays for environment-specific resource configurations (CPU, memory, disk, naming prefixes).
+The environment uses Kustomize overlays for environment-specific resource configurations (CPU, memory, disk, naming prefixes).
 
 ## Installation
 
@@ -167,10 +167,6 @@ ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /op
 **Step By Step to run Demo 1**
 
 Using the doc [DEMO1-MANUAL-CHANGE.md](demo-guides/DEMO1-MANUAL-CHANGE.md)
-
-- Manual modifications to VM resources
-- ArgoCD detecting "OutOfSync" status
-- Correction and resource recreation
 
 **Demonstrates:**
 - Manual configuration changes to VMs
@@ -279,9 +275,9 @@ oc get vm -A | grep workshop-gitops
 
 The workshop creates three ArgoCD applications:
 
-- **workshop-gitops-vms-dev**: Manages development VMs from the `vms-dev` branch
-- **workshop-gitops-vms-hml**: Manages homologation VMs from the `vms-hml` branch  
-- **workshop-gitops-vms-prd**: Manages production VMs from the `main` branch
+- **workshop-gitops-vms-dev**: Manages development VMs from the `vms-dev-GUID` branch
+- **workshop-gitops-vms-hml**: Manages homologation VMs from the `vms-hml-GUID` branch  
+- **workshop-gitops-vms-prd**: Manages production VMs from the `vms-prd-GUID` branch
 
 Each application:
 - Points to a specific branch in the Apps repository
@@ -327,7 +323,6 @@ Each environment deploys identical VMs with environment-specific resource alloca
 - **Development**: 1 vCPU, 2Gi RAM, 30Gi storage per VM
 - **Homologation**: 2 vCPU, 4Gi RAM, 30Gi storage per VM  
 - **Production**: 4 vCPU, 8Gi RAM, 50Gi storage per VM
-- **Storage**: Persistent volumes with environment-specific sizes
 
 ### Accessing Virtual Machines
 
@@ -500,7 +495,7 @@ patches:
 3. **Domain Configuration Issues**
    ```bash
    # Re-run domain validation
-   ./validate-cluster-domain.sh
+   ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/check-workshop-status.yaml
    
    # Check current cluster domain
    oc get ingress.config.openshift.io/cluster -o jsonpath='{.spec.domain}'

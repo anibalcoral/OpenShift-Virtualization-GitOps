@@ -472,7 +472,7 @@
           Summary of what was demonstrated:
 
           1. ✅ Branch-based Environment Promotion
-             - Promoted vm-web-09 from vms-dev → vms-hml → vms-prd-{{ guid }} branches
+             - Promoted vm-web-09 from vms-dev-{{ guid }} → vms-hml-{{ guid }} → vms-prd-{{ guid }} branches
 
           2. ✅ Kustomize Overlays
              - Same base template deployed with environment-specific configurations
