@@ -439,12 +439,32 @@ The workshop uses Kustomize to manage environment-specific configurations:
 ```yaml
 patches:
   - patch: |-
+      - op: replace  
+        path: /spec/template/spec/domain/cpu/sockets
+        value: 2
       - op: replace
         path: /spec/template/spec/domain/resources/requests/memory
         value: 2Gi
-      - op: replace  
-        path: /spec/template/spec/domain/cpu/sockets
-        value: 1
+      - op: replace
+        path: /spec/dataVolumeTemplates/0/spec/storage/resources/requests/storage
+        value: 30Gi
+    target:
+      kind: VirtualMachine
+```
+
+**Homologation Overlay** (`overlays/hml/kustomization.yaml`):
+```yaml
+patches:
+  - patch: |-
+      - op: replace
+        path: /spec/template/spec/domain/cpu/sockets  
+        value: 2
+      - op: replace
+        path: /spec/template/spec/domain/resources/requests/memory
+        value: 4Gi
+      - op: replace
+        path: /spec/dataVolumeTemplates/0/spec/storage/resources/requests/storage
+        value: 50Gi
     target:
       kind: VirtualMachine
 ```
@@ -454,11 +474,14 @@ patches:
 patches:
   - patch: |-
       - op: replace
-        path: /spec/template/spec/domain/resources/requests/memory
-        value: 4Gi
-      - op: replace
         path: /spec/template/spec/domain/cpu/sockets  
-        value: 2
+        value: 4
+      - op: replace
+        path: /spec/template/spec/domain/resources/requests/memory
+        value: 8Gi
+      - op: replace
+        path: /spec/dataVolumeTemplates/0/spec/storage/resources/requests/storage
+        value: 50Gi
     target:
       kind: VirtualMachine
 ```
