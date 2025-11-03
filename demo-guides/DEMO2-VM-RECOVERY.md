@@ -144,7 +144,7 @@ watch oc get vm dev-vm-web-02 -n workshop-gitops-vms-dev -o custom-columns="NAME
 
 3. Check for DataVolume recreation:
 ```bash
-oc get dv -n workshop-gitops-vms-dev | grep dev-vm-web-02
+oc get dv -n workshop-gitops-vms-dev | grep vm-web-02
 ```
 
 **Expected Result**: VM should be recreated and start initializing
