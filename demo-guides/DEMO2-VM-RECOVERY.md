@@ -207,7 +207,7 @@ oc get applications workshop-gitops-vms-dev -n openshift-gitops -o custom-column
 
 3. Verify the recreated VM has fresh storage:
 ```bash
-oc describe dv dev-vm-web-02 -n workshop-gitops-vms-dev | grep -A 5 "Source:"
+oc describe dv vm-web-02 -n workshop-gitops-vms-dev | grep -A 5 "Source:"
 ```
 
 **Expected Result**: All resources should be recreated and application should be healthy
