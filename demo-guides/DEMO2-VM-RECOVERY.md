@@ -57,12 +57,12 @@ oc get pods -n workshop-gitops-vms-dev | grep dev-vm-web-02
 
 1. Access the VM over SSH and remove /*:
 ```bash
-virtctl ssh cloud-user@dev-vm-web-02 -c "sudo rm -rf /*"
+virtctl ssh cloud-user@dev-vm-web-02 -n workshop-gitops-vms-dev -c "sudo rm -rf /*"
 ```
 
 2. Stop de VM
 ```bash
-virtctl stop dev-vm-web-02 --force --grace-period 0
+virtctl stop dev-vm-web-02 -n workshop-gitops-vms-dev --force --grace-period 0
 ```
 
 3. Delete the VM:
