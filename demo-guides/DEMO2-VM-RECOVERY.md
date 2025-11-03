@@ -172,7 +172,7 @@ oc get vm dev-vm-web-02 -n workshop-gitops-vms-dev -o custom-columns="NAME:.meta
 
 2. Check DataVolume status:
 ```bash
-oc get dv -n workshop-gitops-vms-dev | grep dev-vm-web-02
+oc get dv -n workshop-gitops-vms-dev | grep vm-web-02
 ```
 
 3. Verify VM configuration matches Git definition:
