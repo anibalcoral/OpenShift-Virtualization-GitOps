@@ -119,7 +119,7 @@ oc annotate applications workshop-gitops-vms-dev -n openshift-gitops argocd.argo
 
 1. Trigger manual sync to recreate the missing resources:
 ```bash
-oc patch applications $app_name -n $namespace --type merge -p '{"operation":{"sync":{"syncStrategy":{"hook":{}}}}}' &>/dev/null
+oc patch applications workshop-gitops-vms-dev -n openshift-gitops --type merge -p '{"operation":{"sync":{"syncStrategy":{"hook":{}}}}}' &>/dev/null
 ```
 
 2. Monitor the sync process:
