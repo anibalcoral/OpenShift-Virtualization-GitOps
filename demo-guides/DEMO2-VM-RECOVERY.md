@@ -86,17 +86,17 @@ sleep 5
 
 2. Check if DataVolume still exists:
 ```bash
-oc get dv dev-vm-web-02 -n workshop-gitops-vms-dev
+oc get dv vm-web-02 -n workshop-gitops-vms-dev
 ```
 
 3. Delete the DataVolume to simulate complete data loss:
 ```bash
-oc delete dv dev-vm-web-02 -n workshop-gitops-vms-dev
+oc delete dv vm-web-02 -n workshop-gitops-vms-dev
 ```
 
 4. Verify DataVolume deletion:
 ```bash
-oc get dv dev-vm-web-02 -n workshop-gitops-vms-dev
+oc get dv vm-web-02 -n workshop-gitops-vms-dev
 ```
 
 **Expected Result**: Both VM and DataVolume should be completely removed
