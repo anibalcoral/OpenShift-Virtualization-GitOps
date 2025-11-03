@@ -43,7 +43,7 @@ oc get vm dev-vm-web-02 -n workshop-gitops-vms-dev
 
 3. Check associated DataVolume:
 ```bash
-oc get dv -n workshop-gitops-vms-dev | grep dev-vm-web-02
+oc get dv -n workshop-gitops-vms-dev | grep vm-web-02
 ```
 
 4. Check VM pod if running:
