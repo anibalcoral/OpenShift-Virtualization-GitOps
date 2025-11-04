@@ -282,7 +282,7 @@ watch oc get vm dev-vm-web-09 -n workshop-gitops-vms-dev -o custom-columns="NAME
 
 3. Check DataVolume creation:
 ```bash
-oc get dv -n workshop-gitops-vms-dev | grep dev-vm-web-09
+oc get dv -n workshop-gitops-vms-dev | grep vm-web-09
 ```
 
 **Expected Result**: New VM should be created and begin provisioning
