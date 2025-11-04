@@ -129,7 +129,7 @@ oc get vm -n workshop-gitops-vms-hml | grep hml-vm-web-09
 1. Merge homologation to main (production):
 ```bash
 git checkout vms-prd-$GUID
-git merge vms-hml-$GUID
+git merge vms-prd-$GUID
 ```
 
 2. Push the changes:
