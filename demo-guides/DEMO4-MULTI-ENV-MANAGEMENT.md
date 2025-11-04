@@ -200,7 +200,7 @@ git push origin vms-dev-$GUID
 
 4. Force ArgoCD to detect and sync the changes:
 ```bash
-oc patch applications workshop-gitops-vms-hml -n openshift-gitops --type merge -p '{"operation":{"sync":{"syncStrategy":{"hook":{}}}}}' &>/dev/null
+oc patch applications workshop-gitops-vms-dev -n openshift-gitops --type merge -p '{"operation":{"sync":{"syncStrategy":{"hook":{}}}}}'
 ```
 
 5. Wait for development environment to sync:
