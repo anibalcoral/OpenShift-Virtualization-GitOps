@@ -198,13 +198,18 @@ git commit -m "Add demo4 timestamp annotation to vm-web-09 base template"
 git push origin vms-dev-$GUID
 ```
 
-4. Wait for development environment to sync:
+4. Force ArgoCD to detect and sync the changes:
+```bash
+oc patch applications workshop-gitops-vms-hml -n openshift-gitops --type merge -p '{"operation":{"sync":{"syncStrategy":{"hook":{}}}}}' &>/dev/null
+```
+
+5. Wait for development environment to sync:
 ```bash
 echo "Waiting for development environment to sync..."
 watch -n 5 "oc get applications workshop-gitops-vms-dev -n openshift-gitops -o custom-columns='NAME:.metadata.name,SYNC:.status.sync.status,HEALTH:.status.health.status'"
 ```
 
-5. Verify the annotation was added in development:
+6. Verify the annotation was added in development:
 ```bash
 oc get vm dev-vm-web-09 -n workshop-gitops-vms-dev -o yaml | grep -A 3 -B 3 "demo4-timestamp"
 ```
