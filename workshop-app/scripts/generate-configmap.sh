@@ -18,6 +18,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: workshop-guides
+  namespace: workshop-gitops
   labels:
     app: gitops-workshop
 data:

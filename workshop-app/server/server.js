@@ -117,20 +117,12 @@ wss.on('connection', (ws) => {
       console.log('[DEBUG] Sending bash configuration commands');
       // Configure PS1 to show container name
       ptyProcess.write(`export PS1='\\[\\033[01;32m\\]${containerName}\\[\\033[00m\\]:\\[\\033[01;34m\\]\\w\\[\\033[00m\\]\\$ '\n`);
-      
-      // Auto-configure OpenShift project if NAMESPACE is set (non-blocking)
-      if (namespace) {
-        ptyProcess.write(`(oc project ${namespace} &>/dev/null &)\n`);
-      }
     }, 100);
   } else {
-    // For tmux, just configure the project silently
+    // For tmux, just clear the screen
     setTimeout(() => {
       console.log('[DEBUG] Sending tmux configuration commands');
-      if (namespace) {
-        ptyProcess.write(`(oc project ${namespace} &>/dev/null &)\n`);
-        ptyProcess.write('clear\n');
-      }
+      ptyProcess.write('clear\n');
     }, 200);
   }
 

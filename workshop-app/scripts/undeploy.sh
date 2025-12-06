@@ -1,44 +1,27 @@
 #!/bin/bash
 # Undeploy script for GitOps Virtualization Workshop
-# This script removes all OpenShift resources but keeps the container image in the registry
+# This script removes all OpenShift resources including the namespace
 
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 DEPLOY_DIR="${SCRIPT_DIR}/../deploy"
+NAMESPACE="workshop-gitops"
 
 echo "Removing GitOps Virtualization Workshop resources..."
+echo "Namespace: ${NAMESPACE}"
 echo ""
 
-# Check if resources exist before attempting to delete
-NAMESPACE=$(oc project -q 2>/dev/null || echo "")
-if [ -z "$NAMESPACE" ]; then
-    echo "Error: Not connected to OpenShift cluster or no project selected"
-    exit 1
+# Delete ClusterRoleBinding first (cluster-scoped resource)
+if [ -f "${DEPLOY_DIR}/03-clusterrolebinding.yaml" ]; then
+    echo "Deleting: 03-clusterrolebinding.yaml"
+    oc delete -f "${DEPLOY_DIR}/03-clusterrolebinding.yaml" --ignore-not-found=true
 fi
 
-echo "Current namespace: $NAMESPACE"
+# Delete the namespace (this will delete all resources within it)
 echo ""
-
-# Delete resources in reverse order (opposite of deployment)
-MANIFESTS=(
-    "07-route.yaml"
-    "06-service.yaml"
-    "05-deployment.yaml"
-    "04-configmap-guides.yaml"
-    "03-clusterrolebinding.yaml"
-    "02-serviceaccount.yaml"
-)
-
-for manifest in "${MANIFESTS[@]}"; do
-    file="${DEPLOY_DIR}/${manifest}"
-    if [ -f "$file" ]; then
-        echo "Deleting: $manifest"
-        oc delete -f "$file" --ignore-not-found=true
-    else
-        echo "Skipping: $manifest (file not found)"
-    fi
-done
+echo "Deleting namespace: ${NAMESPACE}"
+oc delete namespace ${NAMESPACE} --ignore-not-found=true
 
 echo ""
 echo "Cleanup complete!"

@@ -40,8 +40,9 @@ workshop-app/
 │   └── server.js        # Express + WebSocket server
 ├── tmux-config/         # Terminal configuration
 ├── deploy/              # Kubernetes manifests
+│   ├── 00-namespace.yaml
 │   ├── 02-serviceaccount.yaml
-│   ├── 03-rolebinding.yaml
+│   ├── 03-clusterrolebinding.yaml
 │   ├── 04-configmap-guides.yaml
 │   ├── 05-deployment.yaml
 │   ├── 06-service.yaml
@@ -68,11 +69,15 @@ podman push quay.io/chiaretto/gitops-virtualization-workshop:latest
 ### Deploy to OpenShift
 
 ```bash
-# Create namespace (if needed)
-oc new-project workshop-gitops
-
-# Deploy the application
+# Deploy the application (creates namespace workshop-gitops)
 ./scripts/deploy.sh
+```
+
+### Undeploy from OpenShift
+
+```bash
+# Remove all resources and the namespace
+./scripts/undeploy.sh
 ```
 
 ### Or Build and Deploy in One Step
