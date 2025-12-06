@@ -39,19 +39,17 @@ export function Terminal({ className }: TerminalProps) {
       if (xtermRef.current) {
         xtermRef.current.write('\r\n\x1b[32m✓ Connected to OpenShift cluster\x1b[0m\r\n')
         
-        // Send terminal size right after connecting
-        setTimeout(() => {
-          if (fitAddonRef.current) {
-            fitAddonRef.current.fit()
-          }
-          if (ws.readyState === WebSocket.OPEN && xtermRef.current) {
-            ws.send(JSON.stringify({
-              type: 'resize',
-              cols: xtermRef.current.cols,
-              rows: xtermRef.current.rows,
-            }))
-          }
-        }, 200)
+        // Send terminal size immediately
+        if (fitAddonRef.current) {
+          fitAddonRef.current.fit()
+        }
+        if (ws.readyState === WebSocket.OPEN && xtermRef.current) {
+          ws.send(JSON.stringify({
+            type: 'resize',
+            cols: xtermRef.current.cols,
+            rows: xtermRef.current.rows,
+          }))
+        }
       }
     }
 
@@ -73,7 +71,7 @@ export function Terminal({ className }: TerminalProps) {
       
       reconnectTimeoutRef.current = setTimeout(() => {
         connect()
-      }, 3000)
+      }, 2000)
     }
   }
 
@@ -136,6 +134,7 @@ export function Terminal({ className }: TerminalProps) {
       }
     })
 
+    // Connect immediately without delay
     connect()
 
     const handleResize = () => {

@@ -12,6 +12,14 @@ const wss = new WebSocket.Server({ server, path: '/terminal' });
 const PORT = process.env.PORT || 8080;
 const GUIDES_DIR = process.env.GUIDES_DIR || '/app/guides';
 
+// Enable detailed debug logging
+console.log('[DEBUG] Server starting with configuration:');
+console.log('[DEBUG] PORT:', PORT);
+console.log('[DEBUG] GUIDES_DIR:', GUIDES_DIR);
+console.log('[DEBUG] USE_TMUX:', process.env.USE_TMUX);
+console.log('[DEBUG] NAMESPACE:', process.env.NAMESPACE);
+console.log('[DEBUG] HOME:', process.env.HOME);
+
 app.use(express.static('dist'));
 app.use(express.json());
 
@@ -63,13 +71,16 @@ app.get('*', (req, res) => {
 });
 
 wss.on('connection', (ws) => {
-  console.log('New terminal connection');
+  const startTime = Date.now();
+  console.log('[DEBUG] New terminal connection at', new Date().toISOString());
   
   // Check if tmux should be used (via env var)
   const useTmux = process.env.USE_TMUX === 'true';
   const shell = useTmux ? '/usr/local/bin/tmux' : (process.env.SHELL || '/bin/bash');
   const shellArgs = useTmux ? ['new-session', '-A', '-s', 'workshop', '/bin/bash', '-l'] : [];
   const namespace = process.env.NAMESPACE || '';
+  
+  console.log('[DEBUG] Configuration:', { useTmux, shell, shellArgs, namespace, timeElapsed: `${Date.now() - startTime}ms` });
   
   // Configure environment to use ServiceAccount token from pod
   const env = { ...process.env };
@@ -79,15 +90,12 @@ wss.on('connection', (ws) => {
   
   // Set HOME
   if (!env.HOME) {
-    env.HOME = '/home/default';
-  }
-  
-  // Ensure HOME directory exists
-  const fs = require('fs');
-  if (!fs.existsSync(env.HOME)) {
-    fs.mkdirSync(env.HOME, { recursive: true, mode: 0o755 });
+    env.HOME = '/tmp';
   }
 
+  console.log('[DEBUG] Starting PTY with shell:', shell, ', args:', JSON.stringify(shellArgs), ', cwd:', env.HOME);
+  const spawnStartTime = Date.now();
+  
   const ptyProcess = spawn(shell, shellArgs, {
     name: 'xterm-256color',
     cols: 120,
@@ -95,30 +103,35 @@ wss.on('connection', (ws) => {
     cwd: env.HOME,
     env: env,
   });
+  
+  console.log('[DEBUG] PTY spawned successfully, took', `${Date.now() - spawnStartTime}ms`);
 
   // Configure initial environment
   const containerName = process.env.HOSTNAME || 'workshop';
   
+  console.log('[DEBUG] Setting up initial configuration, useTmux:', useTmux);
+  
   if (!useTmux) {
-    // Only for bash (not tmux)
+    // Only for bash (not tmux) - fast configuration
     setTimeout(() => {
+      console.log('[DEBUG] Sending bash configuration commands');
       // Configure PS1 to show container name
       ptyProcess.write(`export PS1='\\[\\033[01;32m\\]${containerName}\\[\\033[00m\\]:\\[\\033[01;34m\\]\\w\\[\\033[00m\\]\\$ '\n`);
       
-      // Auto-configure OpenShift project if NAMESPACE is set
+      // Auto-configure OpenShift project if NAMESPACE is set (non-blocking)
       if (namespace) {
-        // Clear any corrupted kubeconfig and set project
-        ptyProcess.write(`rm -f ~/.kube/config 2>/dev/null; oc project ${namespace} > /dev/null 2>&1\n`);
+        ptyProcess.write(`(oc project ${namespace} &>/dev/null &)\n`);
       }
-    }, 500);
+    }, 100);
   } else {
     // For tmux, just configure the project silently
     setTimeout(() => {
+      console.log('[DEBUG] Sending tmux configuration commands');
       if (namespace) {
-        ptyProcess.write(`oc project ${namespace} > /dev/null 2>&1\n`);
+        ptyProcess.write(`(oc project ${namespace} &>/dev/null &)\n`);
         ptyProcess.write('clear\n');
       }
-    }, 1000);
+    }, 200);
   }
 
   ptyProcess.onData((data) => {
@@ -165,11 +178,12 @@ wss.on('connection', (ws) => {
   });
 
   ws.on('close', () => {
-    console.log('Terminal connection closed');
+    console.log('[DEBUG] Terminal connection closed at', new Date().toISOString());
     ptyProcess.kill();
   });
 
   ptyProcess.onExit(() => {
+    console.log('[DEBUG] PTY process exited');
     try {
       ws.close();
     } catch (err) {

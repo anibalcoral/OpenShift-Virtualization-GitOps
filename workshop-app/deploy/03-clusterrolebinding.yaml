@@ -7,7 +7,6 @@ metadata:
 subjects:
 - kind: ServiceAccount
   name: workshop-terminal-sa
-  namespace: workshop-gitops
 roleRef:
   kind: ClusterRole
   name: cluster-admin
