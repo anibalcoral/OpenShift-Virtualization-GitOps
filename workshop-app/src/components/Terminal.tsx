@@ -81,23 +81,23 @@ export function Terminal({ className }: TerminalProps) {
     const term = new XTerm({
       cursorBlink: true,
       fontSize: 13,
-      fontFamily: 'Red Hat Mono, Consolas, monospace',
+      fontFamily: "'Red Hat Mono', 'JetBrains Mono', Consolas, monospace",
       lineHeight: 1.4,
       theme: {
-        background: '#0f1419',
+        background: '#191919',
         foreground: '#f0f0f0',
-        cursor: '#0066cc',
+        cursor: '#ee0000',
         cursorAccent: '#ffffff',
-        selectionBackground: '#264f78',
+        selectionBackground: '#424242',
         black: '#000000',
-        red: '#c91b00',
-        green: '#00c200',
-        yellow: '#c7c400',
-        blue: '#0066cc',
-        magenta: '#ca30c7',
+        red: '#ee0000',
+        green: '#41af46',
+        yellow: '#e18114',
+        blue: '#217ee7',
+        magenta: '#a0439c',
         cyan: '#00c5c7',
         white: '#c7c7c7',
-        brightBlack: '#676767',
+        brightBlack: '#5d5d5d',
         brightRed: '#ff6d67',
         brightGreen: '#5ff967',
         brightYellow: '#fefb67',
@@ -209,16 +209,11 @@ export function Terminal({ className }: TerminalProps) {
 
   return (
     <div className={className}>
-      <div className="h-full flex flex-col bg-card rounded-sm overflow-hidden border border-border shadow-sm">
-        <div className="flex items-center justify-between px-4 py-2.5 bg-muted/50 border-b border-border">
-          <div className="flex items-center gap-3">
-            <div className="w-7 h-7 rounded-sm bg-primary flex items-center justify-center">
-              <TerminalIcon size={16} weight="bold" className="text-primary-foreground" />
-            </div>
-            <div className="flex flex-col">
-              <span className="text-sm font-semibold text-foreground">OpenShift Terminal</span>
-              <span className="text-xs text-muted-foreground">cluster-admin</span>
-            </div>
+      <div className="h-full flex flex-col overflow-hidden">
+        <div className="flex items-center justify-between px-4 py-2 bg-[var(--toolbar-bg)] border-b border-border">
+          <div className="flex items-center gap-2">
+            <TerminalIcon size={16} weight="bold" className="text-[var(--toolbar-fg)]" />
+            <span className="text-sm font-medium text-foreground">OpenShift Terminal</span>
           </div>
           <div className="flex items-center gap-3">
             {getStatusBadge()}
@@ -246,7 +241,7 @@ export function Terminal({ className }: TerminalProps) {
             </div>
           </div>
         </div>
-        <div ref={terminalRef} className="flex-1 p-3 overflow-hidden bg-[#0f1419]" />
+        <div ref={terminalRef} className="flex-1 p-2 overflow-hidden bg-[var(--terminal-bg)]" />
       </div>
     </div>
   )
