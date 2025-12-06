@@ -1,0 +1,497 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: workshop-guides
+  labels:
+    app: gitops-workshop
+data:
+  01-DEMO1-MANUAL-CHANGE.md: |
+    # Demo 1: Manual Change Detection and Drift Correction
+
+    ## Overview
+    This demo demonstrates how ArgoCD detects manual changes made directly to OpenShift resources and corrects the configuration drift by reverting to the state defined in Git through manual sync operations. The demo is automated through Ansible playbooks but includes manual step-by-step instructions for educational purposes.
+
+    ## Prerequisites
+    - OpenShift GitOps Workshop installed and configured
+    - GUID environment variable set (`export GUID=user01`)
+    - Workshop GitOps VMs development environment deployed
+    - Access to OpenShift cluster with `oc` CLI and cluster admin privileges
+
+    ## What the Demo Does
+
+    1. **Initial Status Check**: Verifies the VM exists and is in the correct initial state
+    2. **Manual Change**: Patches the VM to change `runStrategy` from `Always` to `Halted`
+    3. **Drift Detection**: Monitors ArgoCD application for drift detection
+    4. **Manual Sync Verification**: Confirms ArgoCD corrects the drift through manual sync
+    5. **Final Validation**: Ensures the VM returns to the desired Git-defined state
+
+    ## Environment Details
+    - **GUID**: Dynamic based on environment variable
+    - **Namespace**: `workshop-gitops-vms-dev`
+    - **VM Name**: `dev-vm-web-01`
+    - **ArgoCD Application**: `workshop-gitops-vms-dev`
+    - **Git Run Strategy**: `Always` (VM should be running)
+    - **Manual Change**: Set `runStrategy` to `Halted` (stop the VM)
+
+    ## Step-by-Step Manual Instructions
+
+    ### Step 1: Check Current VM State and Application Status
+
+    1. Check the ArgoCD application status:
+    ```bash
+    oc get applications workshop-gitops-vms-dev -n openshift-gitops -o jsonpath='{.status.sync.status}' ; echo
+    ```
+
+    ```bash
+    oc get applications workshop-gitops-vms-dev -n openshift-gitops -o jsonpath='{.status.health.status}' ; echo
+    ```
+
+    2. Verify the VM exists and is running:
+    ```bash
+    oc get vm dev-vm-web-01 -n workshop-gitops-vms-dev
+    ```
+
+    ```bash
+    oc get vmi dev-vm-web-01 -n workshop-gitops-vms-dev
+    ```
+
+    3. Check the current runStrategy (should be "Always"):
+    ```bash
+    oc get vm dev-vm-web-01 -n workshop-gitops-vms-dev -o jsonpath='{.spec.runStrategy}' ; echo
+    ```
+
+    **Expected Result**: VM should exist and be running with `runStrategy: Always`
+
+    ### Step 2: Make Manual Change to Stop the VM
+
+    1. Apply a manual change to halt the VM:
+    ```bash
+    oc patch vm dev-vm-web-01 -n workshop-gitops-vms-dev --type merge -p '{"spec":{"runStrategy":"Halted"}}'
+    ```
+
+    2. Verify the change was applied:
+    ```bash
+    oc get vm dev-vm-web-01 -n workshop-gitops-vms-dev -o jsonpath='{.spec.runStrategy}' ; echo
+    ```
+
+    **Expected Result**: `runStrategy` should now be "Halted"
+
+    ### Step 3: Wait for VM to Shut Down
+
+    1. Monitor the VirtualMachineInstance deletion:
+    ```bash
+    oc get vmi dev-vm-web-01 -n workshop-gitops-vms-dev
+    ```
+
+    2. Wait for the VMI to be completely removed:
+    ```bash
+    oc get vmi dev-vm-web-01 -n workshop-gitops-vms-dev
+    ```
+
+    **Expected Result**: The VirtualMachineInstance should be deleted, confirming the VM has stopped
+
+    ### Step 4: Force ArgoCD to Detect the Drift
+
+    1. Force application refresh to detect changes:
+    ```bash
+    oc patch applications workshop-gitops-vms-dev -n openshift-gitops --type merge -p '{"operation":{"initiatedBy":{"username":"admin"},"sync":{"revision":"HEAD"}}}'
+    ```
+
+    2. Check application status repeatedly until drift is detected:
+    ```bash
+    oc get applications workshop-gitops-vms-dev -n openshift-gitops -o jsonpath='{.status.sync.status}' ; echo
+    ```
+
+    **Expected Result**: Sync status should return to "Synced"
+
+    ### Step 5: Verify Configuration Restoration
+
+    1. Check that the VM runStrategy has been restored:
+    ```bash
+    oc get vm dev-vm-web-01 -n workshop-gitops-vms-dev -o jsonpath='{.spec.runStrategy}' ; echo
+    ```
+
+    2. Verify the VM is running again:
+    ```bash
+    oc get vmi dev-vm-web-01 -n workshop-gitops-vms-dev
+    ```
+
+    **Expected Result**: VM should be back to `runStrategy: Always` and running
+
+  02-DEMO2-VM-RECOVERY.md: |
+    # Demo 2: VM Recovery from Data Loss
+
+    ## Overview
+    This demo demonstrates how GitOps can recover from complete system-level data loss scenarios. By forcing an rm -rf / on the VM, we simulate catastrophic data corruption or accidental mass deletion, then show how ArgoCD recreates the entire VM infrastructure from Git definitions through manual sync operations.
+
+    ## Prerequisites
+    - OpenShift GitOps Workshop installed and configured
+    - GUID environment variable set (`export GUID=user01`)
+    - Workshop GitOps VMs development environment deployed
+    - Access to OpenShift cluster with `oc` CLI and cluster admin privileges
+
+    ## What the Demo Does
+
+    1. **Initial Status Check**: Verifies the VM and associated resources exist
+    2. **Documentation**: Records current VM configuration before deletion
+    3. **Break the lab**: Executes `sudo rm -rf /*`
+    4. **Complete Deletion**: Removes VM, DataVolume, and associated resources (simulating data loss)
+    5. **Verification**: Confirms all resources are completely removed
+    6. **Recovery Monitoring**: Watches ArgoCD detect missing resources and trigger recovery
+    7. **Validation**: Verifies complete VM recreation with original configuration
+    8. **Service Testing**: Confirms the recovered VM is fully functional
+
+    ## Environment Details
+    - **GUID**: Dynamic based on environment variable
+    - **Namespace**: `workshop-gitops-vms-dev`
+    - **VM Name**: `dev-vm-web-02`
+    - **ArgoCD Application**: `workshop-gitops-vms-dev`
+    - **Scenario**: Complete VM and storage deletion (simulating data corruption)
+
+    ## Step-by-Step Manual Instructions
+
+    ### Step 1: Check Current VM State and Application Status
+
+    1. Check the ArgoCD application status:
+    ```bash
+    oc get applications workshop-gitops-vms-dev -n openshift-gitops -o custom-columns="NAME:.metadata.name,SYNC:.status.sync.status,HEALTH:.status.health.status"
+    ```
+
+    2. Verify the VM exists and its current state:
+    ```bash
+    oc get vm dev-vm-web-02 -n workshop-gitops-vms-dev
+    ```
+
+    3. Check associated DataVolume:
+    ```bash
+    oc get dv -n workshop-gitops-vms-dev | grep vm-web-02
+    ```
+
+    4. Check VM pod if running:
+    ```bash
+    oc get pods -n workshop-gitops-vms-dev | grep dev-vm-web-02
+    ```
+
+    **Expected Result**: VM should exist and be properly configured with associated storage
+
+    ### Step 2: Simulate Data Corruption Scenario
+
+    1. Access the VM over SSH and remove /*:
+    ```bash
+    virtctl ssh cloud-user@dev-vm-web-02 -n workshop-gitops-vms-dev -c "sudo rm -rf /*"
+    ```
+
+    2. Stop the VM:
+    ```bash
+    virtctl stop dev-vm-web-02 -n workshop-gitops-vms-dev --force --grace-period 0
+    ```
+
+    3. Delete the VM:
+    ```bash
+    oc delete vm dev-vm-web-02 -n workshop-gitops-vms-dev
+    ```
+
+    4. Verify VM deletion:
+    ```bash
+    oc get vm dev-vm-web-02 -n workshop-gitops-vms-dev
+    ```
+
+    **Expected Result**: VM should be deleted (command should return "not found")
+
+    ### Step 3: Delete Persistent Storage
+
+    1. Wait a moment for VM deletion to propagate:
+    ```bash
+    sleep 5
+    ```
+
+    2. Check if DataVolume still exists:
+    ```bash
+    oc get dv vm-web-02 -n workshop-gitops-vms-dev
+    ```
+
+    3. Delete the DataVolume to simulate complete data loss:
+    ```bash
+    oc delete dv vm-web-02 -n workshop-gitops-vms-dev
+    ```
+
+    4. Verify DataVolume deletion:
+    ```bash
+    oc get dv vm-web-02 -n workshop-gitops-vms-dev
+    ```
+
+    **Expected Result**: DataVolume should be deleted
+
+    ### Step 4: Force ArgoCD Recovery
+
+    1. Force ArgoCD to sync and recover the resources:
+    ```bash
+    oc patch applications workshop-gitops-vms-dev -n openshift-gitops --type merge -p '{"operation":{"initiatedBy":{"username":"admin"},"sync":{"revision":"HEAD"}}}'
+    ```
+
+    2. Monitor recovery progress:
+    ```bash
+    oc get applications workshop-gitops-vms-dev -n openshift-gitops -o jsonpath='{.status.sync.status}' ; echo
+    ```
+
+    ### Step 5: Verify Complete Recovery
+
+    1. Check VM was recreated:
+    ```bash
+    oc get vm dev-vm-web-02 -n workshop-gitops-vms-dev
+    ```
+
+    2. Check DataVolume was recreated:
+    ```bash
+    oc get dv -n workshop-gitops-vms-dev | grep vm-web-02
+    ```
+
+    3. Wait for VM to be running:
+    ```bash
+    oc get vmi dev-vm-web-02 -n workshop-gitops-vms-dev
+    ```
+
+    **Expected Result**: VM and all associated resources should be fully recovered
+
+  03-DEMO3-ADD-DEVELOPMENT-VM.md: |
+    # Demo 3: Adding New Development VM via Git Change
+
+    ## Overview
+    This demo demonstrates how to add new Virtual Machines to the environment using GitOps workflow. By adding a new VM definition to Git and updating the kustomization, ArgoCD deploys the new infrastructure through manual sync operations without direct OpenShift intervention.
+
+    ## Prerequisites
+    - OpenShift GitOps Workshop installed and configured
+    - GUID environment variable set (`export GUID=user01`)
+    - Workshop GitOps VMs development environment deployed
+    - Access to Git repository: `OpenShift-Virtualization-GitOps-Apps`
+    - Git configured for commits and push access to the repository
+
+    ## What the Demo Does
+
+    1. **Initial Status Check**: Verifies current VMs in development environment
+    2. **Git Repository Setup**: Navigates to the Apps repository and ensures correct branch
+    3. **VM Definition Creation**: Creates a new VM definition file (`vm-web-09.yaml`) based on existing templates
+    4. **Kustomization Update**: Updates the kustomization.yaml to include the new VM
+    5. **Git Workflow**: Commits and pushes changes to the development branch
+    6. **ArgoCD Sync**: Monitors ArgoCD for manual sync and deployment
+    7. **Deployment Verification**: Confirms the new VM is created and operational
+    8. **Cleanup**: Provides option to remove the VM for demo repeatability
+
+    ## Environment Details
+    - **GUID**: Dynamic based on environment variable
+    - **Namespace**: `workshop-gitops-vms-dev`
+    - **New VM Name**: `dev-vm-web-09`
+    - **ArgoCD Application**: `workshop-gitops-vms-dev`
+    - **Git Repository**: `OpenShift-Virtualization-GitOps-Apps`
+    - **Target Branch**: `vms-dev-GUID` (GUID-specific development branch)
+
+    ## Step-by-Step Manual Instructions
+
+    ### Step 1: Check Current State
+
+    1. Check current ArgoCD application status:
+    ```bash
+    oc get applications workshop-gitops-vms-dev -n openshift-gitops -o custom-columns="NAME:.metadata.name,SYNC:.status.sync.status,HEALTH:.status.health.status"
+    ```
+
+    2. List existing VMs in development environment:
+    ```bash
+    oc get vm -n workshop-gitops-vms-dev | grep -E "(NAME|dev-vm-web)"
+    ```
+
+    3. Verify the new VM doesn't exist yet:
+    ```bash
+    oc get vm dev-vm-web-09 -n workshop-gitops-vms-dev
+    ```
+
+    **Expected Result**: Should show only existing VMs (typically vm-web-01, vm-web-02, vm-web-03), and dev-vm-web-09 should not exist
+
+    ### Step 2: Navigate to Git Repository
+
+    1. Change to your Git repository directory:
+    ```bash
+    cd /opt/OpenShift-Virtualization-GitOps-Apps
+    ```
+
+    2. Ensure you're on the correct branch:
+    ```bash
+    git branch --show-current
+    ```
+
+    3. Switch to vms-dev-GUID branch if needed:
+    ```bash
+    git checkout vms-dev-$GUID
+    ```
+
+    4. Pull latest changes:
+    ```bash
+    git pull origin vms-dev-$GUID
+    ```
+
+    **Expected Result**: You should be on the `vms-dev-$GUID` branch with latest changes
+
+    ### Step 3: Create New VM Definition
+
+    1. Create the new VM file based on existing template (see full demo guide for YAML content)
+
+    2. Update kustomization.yaml to include the new VM
+
+    3. Commit and push changes:
+    ```bash
+    git add .
+    git commit -m "Add new development VM web-09"
+    git push origin vms-dev-$GUID
+    ```
+
+    ### Step 4: Trigger ArgoCD Sync
+
+    1. Force ArgoCD to sync the new VM:
+    ```bash
+    oc patch applications workshop-gitops-vms-dev -n openshift-gitops --type merge -p '{"operation":{"initiatedBy":{"username":"admin"},"sync":{"revision":"HEAD"}}}'
+    ```
+
+    2. Monitor sync progress:
+    ```bash
+    oc get applications workshop-gitops-vms-dev -n openshift-gitops -o jsonpath='{.status.sync.status}' ; echo
+    ```
+
+    ### Step 5: Verify New VM Deployment
+
+    1. Check if the new VM was created:
+    ```bash
+    oc get vm dev-vm-web-09 -n workshop-gitops-vms-dev
+    ```
+
+    2. Wait for VM to be running:
+    ```bash
+    oc get vmi dev-vm-web-09 -n workshop-gitops-vms-dev
+    ```
+
+    **Expected Result**: New VM should be created and running
+
+  04-DEMO4-MULTI-ENV-MANAGEMENT.md: |
+    # Demo 4: Multi-Environment VM Management with Kustomize
+
+    ## Overview
+    This demo demonstrates advanced GitOps practices for managing Virtual Machines across multiple environments (development, homologation, and production) using Kustomize overlays and Git branch promotion strategies. It showcases how to efficiently manage environment-specific configurations while maintaining consistency across environments through manual sync operations.
+
+    ## Prerequisites
+    - OpenShift GitOps Workshop installed and configured
+    - GUID environment variable set (`export GUID=user01`)
+    - Workshop GitOps VMs deployed in all environments (dev, hml, prd)
+    - Access to Git repository: `OpenShift-Virtualization-GitOps-Apps`
+    - Git configured for commits and push access to the repository
+    - Demo 3 completed (dev-vm-web-09 exists in development environment)
+
+    ## What the Demo Does
+
+    1. **Environment Status Check**: Verifies all ArgoCD applications and current VMs in each environment
+    2. **Development to Homologation Promotion**: 
+       - Merges development branch changes into homologation branch
+       - Updates Kustomize overlays for environment-specific configurations
+       - Monitors ArgoCD sync for homologation environment
+    3. **Homologation to Production Promotion**:
+       - Merges homologation branch changes into production branch
+       - Applies production-specific Kustomize patches
+       - Monitors ArgoCD sync for production environment
+    4. **Verification**: Confirms VMs are deployed in all environments with correct configurations
+    5. **Environment Comparison**: Shows differences in VM configurations across environments (CPU, memory, naming)
+
+    ## Environment Details
+    - **GUID**: Dynamic based on environment variable
+    - **Development Namespace**: `workshop-gitops-vms-dev`
+    - **Homologation Namespace**: `workshop-gitops-vms-hml`
+    - **Production Namespace**: `workshop-gitops-vms-prd`
+    - **ArgoCD Applications**: 
+      - `workshop-gitops-vms-dev` (targets `vms-dev-GUID` branch)
+      - `workshop-gitops-vms-hml` (targets `vms-hml-GUID` branch)
+      - `workshop-gitops-vms-prd` (targets `vms-prd-GUID` branch)
+    - **Git Repository**: `OpenShift-Virtualization-GitOps-Apps`
+
+    ## Kustomize Environment Strategy
+
+    The demo showcases how Kustomize overlays provide environment-specific configurations:
+
+    - **Development**: Lower resource allocation, development naming prefix
+    - **Homologation**: Medium resource allocation, homologation naming prefix  
+    - **Production**: Higher resource allocation, production naming prefix, enhanced monitoring
+
+    ## Step-by-Step Manual Instructions
+
+    ### Step 1: Verify Current State
+
+    1. Check all ArgoCD applications status:
+    ```bash
+    oc get applications -n openshift-gitops | grep workshop-gitops-vms
+    ```
+
+    2. List VMs in all environments to confirm current state:
+    ```bash
+    echo "=== Development Environment ==="
+    oc get vm -n workshop-gitops-vms-dev | grep -E "(NAME|vm-web)"
+
+    echo "=== Homologation Environment ==="
+    oc get vm -n workshop-gitops-vms-hml | grep -E "(NAME|vm-web)"
+
+    echo "=== Production Environment ==="
+    oc get vm -n workshop-gitops-vms-prd | grep -E "(NAME|vm-web)"
+    ```
+
+    3. Verify that dev-vm-web-09 exists only in development:
+    ```bash
+    echo "Checking dev-vm-web-09 in development:"
+    oc get vm dev-vm-web-09 -n workshop-gitops-vms-dev --no-headers 2>/dev/null || echo "Not found"
+
+    echo "Checking hml-vm-web-09 in homologation:"
+    oc get vm hml-vm-web-09 -n workshop-gitops-vms-hml --no-headers 2>/dev/null || echo "Not found (expected)"
+
+    echo "Checking prd-vm-web-09 in production:"
+    oc get vm prd-vm-web-09 -n workshop-gitops-vms-prd --no-headers 2>/dev/null || echo "Not found (expected)"
+    ```
+
+    **Expected Result**: dev-vm-web-09 should exist only in development environment
+
+    ### Step 2: Promote to Homologation
+
+    1. Navigate to Git repository:
+    ```bash
+    cd /opt/OpenShift-Virtualization-GitOps-Apps
+    ```
+
+    2. Merge development to homologation:
+    ```bash
+    git checkout vms-hml-$GUID
+    git merge vms-dev-$GUID
+    git push origin vms-hml-$GUID
+    ```
+
+    3. Trigger ArgoCD sync for homologation:
+    ```bash
+    oc patch applications workshop-gitops-vms-hml -n openshift-gitops --type merge -p '{"operation":{"initiatedBy":{"username":"admin"},"sync":{"revision":"HEAD"}}}'
+    ```
+
+    ### Step 3: Promote to Production
+
+    1. Merge homologation to production:
+    ```bash
+    git checkout vms-prd-$GUID
+    git merge vms-hml-$GUID
+    git push origin vms-prd-$GUID
+    ```
+
+    2. Trigger ArgoCD sync for production:
+    ```bash
+    oc patch applications workshop-gitops-vms-prd -n openshift-gitops --type merge -p '{"operation":{"initiatedBy":{"username":"admin"},"sync":{"revision":"HEAD"}}}'
+    ```
+
+    ### Step 4: Verify Multi-Environment Deployment
+
+    1. Check VMs in all environments:
+    ```bash
+    echo "=== All VMs Across Environments ==="
+    oc get vm -n workshop-gitops-vms-dev | grep vm-web-09
+    oc get vm -n workshop-gitops-vms-hml | grep vm-web-09
+    oc get vm -n workshop-gitops-vms-prd | grep vm-web-09
+    ```
+
+    **Expected Result**: VM web-09 should exist in all three environments with environment-specific naming prefixes

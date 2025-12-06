@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gitops-workshop
+  labels:
+    app: gitops-workshop
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gitops-workshop
+  template:
+    metadata:
+      labels:
+        app: gitops-workshop
+    spec:
+      serviceAccountName: workshop-terminal-sa
+      containers:
+      - name: workshop
+        image: quay.io/chiaretto/gitops-virtualization-workshop:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        env:
+        - name: PORT
+          value: "8080"
+        - name: GUIDES_DIR
+          value: "/app/guides"
+        - name: USE_TMUX
+          value: "true"
+        - name: NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        volumeMounts:
+        - name: guides
+          mountPath: /app/guides
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
+      volumes:
+      - name: guides
+        configMap:
+          name: workshop-guides
