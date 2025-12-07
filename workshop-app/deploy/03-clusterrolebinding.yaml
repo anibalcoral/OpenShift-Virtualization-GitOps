@@ -1,0 +1,14 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: workshop-terminal-cluster-admin
+  labels:
+    app: gitops-workshop
+subjects:
+- kind: ServiceAccount
+  name: workshop-terminal-sa
+  namespace: workshop-gitops
+roleRef:
+  kind: ClusterRole
+  name: cluster-admin
+  apiGroup: rbac.authorization.k8s.io

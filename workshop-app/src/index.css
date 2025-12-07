@@ -1,0 +1,371 @@
+@import 'tailwindcss';
+@import "tw-animate-css";
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Red Hat Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    line-height: 1.6;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Red Hat Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    line-height: 1.3;
+  }
+
+  code, pre {
+    font-family: 'Red Hat Mono', 'JetBrains Mono', 'Courier New', monospace;
+  }
+}
+
+:root {
+  /* Red Hat Design System Colors */
+  --rh-red: #ee0000;
+  --rh-red-dark: #c00;
+  --rh-black: #131313;
+  --rh-gray-100: #f0f0f0;
+  --rh-gray-200: #e1e1e1;
+  --rh-gray-300: #ededed;
+  --rh-gray-400: #c1c1c1;
+  --rh-gray-500: #8e8e8e;
+  --rh-gray-600: #5d5d5d;
+  --rh-gray-700: #424242;
+  --rh-gray-800: #333;
+  --rh-gray-900: #191919;
+  --rh-white: #fff;
+
+  --background: var(--rh-white);
+  --foreground: var(--rh-gray-800);
+  
+  --card: var(--rh-white);
+  --card-foreground: var(--rh-gray-800);
+  
+  --popover: var(--rh-white);
+  --popover-foreground: var(--rh-gray-800);
+  
+  --primary: var(--rh-black);
+  --primary-foreground: var(--rh-white);
+  
+  --secondary: var(--rh-gray-300);
+  --secondary-foreground: var(--rh-gray-800);
+  
+  --muted: var(--rh-gray-100);
+  --muted-foreground: var(--rh-gray-600);
+  
+  --accent: var(--rh-red);
+  --accent-foreground: var(--rh-white);
+  
+  --destructive: #d32f2f;
+  --destructive-foreground: var(--rh-white);
+  
+  --success: #41af46;
+  --success-foreground: var(--rh-white);
+  
+  --warning: #e18114;
+  --warning-foreground: var(--rh-white);
+
+  --info: #217ee7;
+  --info-foreground: var(--rh-white);
+  
+  --border: var(--rh-gray-200);
+  --input: var(--rh-gray-200);
+  --ring: var(--rh-red);
+  
+  --radius: 0.25rem;
+  
+  --terminal-bg: var(--rh-gray-900);
+  --terminal-fg: var(--rh-gray-100);
+  --terminal-selection: var(--rh-gray-700);
+  --terminal-cursor: var(--rh-red);
+  
+  --sidebar-bg: var(--rh-gray-300);
+  --sidebar-fg: var(--rh-gray-800);
+  --sidebar-hover: var(--rh-gray-200);
+  --sidebar-active: var(--rh-red);
+  
+  --navbar-bg: var(--rh-black);
+  --navbar-fg: var(--rh-white);
+
+  --toolbar-bg: var(--rh-gray-300);
+  --toolbar-fg: var(--rh-gray-600);
+}
+
+@theme {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --radius-sm: calc(var(--radius) * 0.5);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) * 1.5);
+  --radius-xl: calc(var(--radius) * 2);
+  --radius-2xl: calc(var(--radius) * 3);
+  --radius-full: 9999px;
+}
+
+/* Navigation Menu Styles - Red Hat Design System */
+.nav-menu {
+  flex-grow: 1;
+  min-height: 0;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  line-height: 1.35;
+  position: relative;
+}
+
+.nav-menu a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.nav-menu a:hover {
+  color: var(--rh-red);
+}
+
+.nav-list {
+  margin: 0 0 0 0.75rem;
+  padding: 0;
+  list-style: none;
+}
+
+.nav-item {
+  margin-top: 0.5em;
+}
+
+.nav-link {
+  display: block;
+  padding: 0.25rem 0;
+  color: var(--rh-gray-800);
+  transition: color 0.15s ease;
+}
+
+.nav-link:hover {
+  color: var(--rh-red);
+  text-decoration: none;
+}
+
+.nav-link.is-active {
+  font-weight: 500;
+  color: var(--rh-red);
+}
+
+/* Markdown Content Styles - Red Hat Design System */
+.markdown-content h1 {
+  @apply text-2xl font-normal mb-4 mt-6 text-foreground;
+  font-family: 'Red Hat Display', sans-serif;
+  color: var(--rh-gray-900);
+  hyphens: none;
+}
+
+.markdown-content h2 {
+  @apply text-xl font-normal mb-3 mt-5 text-foreground;
+  font-family: 'Red Hat Display', sans-serif;
+  color: var(--rh-gray-900);
+  border-bottom: 1px solid var(--rh-gray-200);
+  padding-bottom: 0.1rem;
+  margin-left: -1rem;
+  margin-right: -1rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.markdown-content h3 {
+  @apply text-lg font-medium mb-2 mt-4 text-foreground;
+  font-family: 'Red Hat Display', sans-serif;
+  color: var(--rh-gray-900);
+}
+
+.markdown-content h4 {
+  @apply text-base font-medium mb-2 mt-3 text-foreground;
+  font-family: 'Red Hat Display', sans-serif;
+}
+
+.markdown-content p {
+  @apply mb-4 leading-relaxed text-foreground;
+  margin: 0;
+}
+
+.markdown-content p + p {
+  margin-top: 1rem;
+}
+
+.markdown-content ul, .markdown-content ol {
+  @apply mb-4 ml-6;
+  margin: 1rem 0 0;
+  padding: 0 0 0 2rem;
+}
+
+.markdown-content li {
+  @apply leading-relaxed;
+  margin-bottom: 0.5rem;
+}
+
+.markdown-content code {
+  @apply px-1.5 py-0.5 rounded text-sm;
+  font-family: 'Red Hat Mono', 'JetBrains Mono', monospace;
+  background: var(--rh-gray-300);
+  color: var(--rh-gray-800);
+  font-size: 0.95em;
+}
+
+.markdown-content pre {
+  @apply p-4 rounded-md overflow-x-auto mb-4 relative;
+  background: var(--rh-gray-300);
+  box-shadow: inset 0 0 1.75px var(--rh-gray-200);
+  font-size: 0.88889rem;
+  line-height: 1.5;
+  margin: 1rem 0 0;
+}
+
+.markdown-content pre code {
+  @apply bg-transparent p-0 text-inherit;
+  color: var(--rh-gray-800);
+}
+
+.markdown-content a {
+  color: var(--rh-red);
+  text-decoration: none;
+}
+
+.markdown-content a:hover {
+  text-decoration: underline;
+}
+
+.markdown-content blockquote {
+  @apply pl-4 italic mb-4 py-2;
+  border-left: 5px solid var(--rh-gray-600);
+  background: var(--rh-gray-300);
+  color: var(--rh-gray-600);
+  margin: 1rem 0 0;
+}
+
+.markdown-content img {
+  @apply rounded-md mb-4 max-w-full border border-border;
+  height: auto;
+}
+
+.markdown-content table {
+  @apply w-full mb-4 border-collapse;
+  font-size: 0.83333rem;
+  margin: 2rem 0;
+}
+
+.markdown-content th, .markdown-content td {
+  @apply border border-border px-4 py-2;
+}
+
+.markdown-content th {
+  @apply font-medium text-left;
+  border-bottom: 2.5px solid var(--rh-gray-200);
+}
+
+.markdown-content td {
+  border-top: 1px solid var(--rh-gray-200);
+  border-bottom: 1px solid var(--rh-gray-200);
+}
+
+/* Admonition Blocks - Red Hat Style */
+.markdown-content .admonition,
+.markdown-content blockquote.note,
+.markdown-content blockquote.tip,
+.markdown-content blockquote.warning,
+.markdown-content blockquote.important,
+.markdown-content blockquote.caution {
+  position: relative;
+  margin: 1.4rem 0 0;
+  padding: 1rem 1rem 0.75rem;
+  background: var(--rh-gray-300);
+  border-radius: 0.25rem;
+}
+
+.markdown-content .admonition-title {
+  position: absolute;
+  top: 0;
+  left: 0;
+  font-size: 0.83333rem;
+  padding: 0 0.5rem;
+  height: 1.25rem;
+  line-height: 1;
+  font-weight: 500;
+  text-transform: uppercase;
+  border-radius: 0.45rem;
+  transform: translate(-0.5rem, -50%);
+}
+
+.code-block-wrapper {
+  @apply relative;
+}
+
+.code-block-wrapper:hover .copy-button {
+  opacity: 1;
+}
+
+.copy-button {
+  @apply absolute top-2 right-2 opacity-0 transition-opacity;
+}
+
+/* Custom scrollbar styling - Red Hat Style */
+.overflow-y-auto,
+[data-radix-scroll-area-viewport],
+.xterm-viewport {
+  scrollbar-width: thin !important;
+  scrollbar-color: var(--rh-gray-400) transparent !important;
+}
+
+.overflow-y-auto::-webkit-scrollbar,
+[data-radix-scroll-area-viewport]::-webkit-scrollbar,
+.xterm-viewport::-webkit-scrollbar {
+  width: 0.25rem !important;
+  display: block !important;
+}
+
+.overflow-y-auto::-webkit-scrollbar-track,
+[data-radix-scroll-area-viewport]::-webkit-scrollbar-track,
+.xterm-viewport::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb,
+[data-radix-scroll-area-viewport]::-webkit-scrollbar-thumb,
+.xterm-viewport::-webkit-scrollbar-thumb {
+  background: var(--rh-gray-400) !important;
+  border-radius: 0.125rem;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb:hover,
+[data-radix-scroll-area-viewport]::-webkit-scrollbar-thumb:hover,
+.xterm-viewport::-webkit-scrollbar-thumb:hover {
+  background: var(--rh-gray-500) !important;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb:active,
+[data-radix-scroll-area-viewport]::-webkit-scrollbar-thumb:active,
+.xterm-viewport::-webkit-scrollbar-thumb:active {
+  background: var(--rh-gray-600) !important;
+}

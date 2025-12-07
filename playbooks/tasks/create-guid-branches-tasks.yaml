@@ -93,8 +93,8 @@
 
 - name: Display branch creation summary
   ansible.builtin.debug:
-    msg: |
-      GUID-specific branches created successfully:
-      - Development: {{ dev_branch }}
-      - Homologation: {{ hml_branch }}
-      - Production: {{ prd_branch }}
+    msg:
+      - "GUID-specific branches created successfully:"
+      - "- Development: {{ dev_branch }}"
+      - "- Homologation: {{ hml_branch }}"
+      - "- Production: {{ prd_branch }}"

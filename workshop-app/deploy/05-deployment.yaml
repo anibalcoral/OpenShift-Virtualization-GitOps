@@ -1,0 +1,129 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gitops-workshop
+  namespace: workshop-gitops
+  labels:
+    app: gitops-workshop
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gitops-workshop
+  template:
+    metadata:
+      labels:
+        app: gitops-workshop
+    spec:
+      serviceAccountName: workshop-terminal-sa
+      initContainers:
+      - name: setup-ssh
+        image: quay.io/chiaretto/gitops-virtualization-workshop:latest
+        command:
+        - /bin/bash
+        - -c
+        - |
+          # Setup SSH key
+          mkdir -p /ssh-setup
+          cp /ssh-readonly/ocpvirt-gitops /ssh-setup/id_rsa
+          chmod 600 /ssh-setup/id_rsa
+          chown 1001:0 /ssh-setup/id_rsa
+          
+          # Configure git to use SSH without host verification
+          mkdir -p /root/.ssh
+          cp /ssh-setup/id_rsa /root/.ssh/id_rsa
+          chmod 600 /root/.ssh/id_rsa
+          ssh-keyscan github.com >> /root/.ssh/known_hosts 2>/dev/null
+          
+          # Clone repositories
+          mkdir -p /opt
+          cd /opt
+          
+          if [ ! -d "/opt/OpenShift-Virtualization-GitOps" ]; then
+            git clone git@github.com:anibalcoral/OpenShift-Virtualization-GitOps.git
+          fi
+          
+          if [ ! -d "/opt/OpenShift-Virtualization-GitOps-Apps" ]; then
+            git clone git@github.com:anibalcoral/OpenShift-Virtualization-GitOps-Apps.git
+          fi
+          
+          # Set correct permissions
+          chown -R 1001:0 /opt/OpenShift-Virtualization-GitOps
+          chown -R 1001:0 /opt/OpenShift-Virtualization-GitOps-Apps
+          chmod -R g+w /opt/OpenShift-Virtualization-GitOps
+          chmod -R g+w /opt/OpenShift-Virtualization-GitOps-Apps
+        volumeMounts:
+        - name: ssh-key
+          mountPath: /ssh-readonly
+          readOnly: true
+        - name: ssh-writable
+          mountPath: /ssh-setup
+        - name: git-repos
+          mountPath: /opt
+        securityContext:
+          runAsUser: 0
+      containers:
+      - name: workshop
+        image: quay.io/chiaretto/gitops-virtualization-workshop:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        env:
+        - name: PORT
+          value: "8080"
+        - name: GUIDES_DIR
+          value: "/app/guides"
+        - name: USE_TMUX
+          value: "true"
+        - name: NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: GUID
+          valueFrom:
+            configMapKeyRef:
+              name: workshop-config
+              key: guid
+              optional: true
+        volumeMounts:
+        - name: guides
+          mountPath: /app/guides
+        - name: ssh-writable
+          mountPath: /opt/app-root/src/.ssh
+        - name: git-repos
+          mountPath: /opt
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
+      volumes:
+      - name: guides
+        configMap:
+          name: workshop-guides
+      - name: ssh-key
+        secret:
+          secretName: workshop-ssh-private-key
+          defaultMode: 0600
+          items:
+          - key: id_rsa
+            path: ocpvirt-gitops
+      - name: ssh-writable
+        emptyDir: {}
+      - name: git-repos
+        emptyDir: {}

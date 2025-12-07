@@ -36,6 +36,7 @@ oc label secret workshop-gitops-repo argocd.argoproj.io/secret-type=repository -
 ### Step 3: Configure RBAC
 ```bash
 oc apply -f 02-cluster-role-binding.yaml
+oc apply -f 02b-cluster-admins-group.yaml
 ```
 
 ### Step 4: Create Namespaces

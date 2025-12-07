@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: workshop-config
+  namespace: workshop-gitops
+data:
+  guid: "REPLACE_WITH_GUID"
