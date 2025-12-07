@@ -6,6 +6,7 @@ import { Button } from './ui/button'
 import { Check, CopySimple } from '@phosphor-icons/react'
 import { useState, ReactNode } from 'react'
 import { cn } from '@/lib/utils'
+import { copyToClipboard } from '@/lib/clipboard'
 
 interface MarkdownViewerProps {
   content: string
@@ -32,7 +33,7 @@ function CodeBlock({ children, className, rawText }: { children: ReactNode; clas
   const [copied, setCopied] = useState(false)
 
   const handleCopy = async () => {
-    await navigator.clipboard.writeText(rawText)
+    await copyToClipboard(rawText)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }

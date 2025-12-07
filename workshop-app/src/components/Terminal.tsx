@@ -134,6 +134,16 @@ export function Terminal({ className }: TerminalProps) {
       }
     })
 
+    // Listen for OSC 52 copy events from the markdown viewer
+    const handleOSC52Copy = (event: Event) => {
+      const customEvent = event as CustomEvent<{ osc52: string }>
+      if (wsRef.current?.readyState === WebSocket.OPEN && customEvent.detail?.osc52) {
+        wsRef.current.send(customEvent.detail.osc52)
+      }
+    }
+
+    document.addEventListener('osc52-copy', handleOSC52Copy)
+
     // Connect immediately without delay
     connect()
 
@@ -162,6 +172,7 @@ export function Terminal({ className }: TerminalProps) {
     return () => {
       resizeObserver.disconnect()
       window.removeEventListener('resize', handleResize)
+      document.removeEventListener('osc52-copy', handleOSC52Copy)
       if (reconnectTimeoutRef.current) {
         clearTimeout(reconnectTimeoutRef.current)
       }

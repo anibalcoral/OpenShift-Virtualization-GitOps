@@ -70,7 +70,20 @@ podman push quay.io/chiaretto/gitops-virtualization-workshop:latest
 
 ```bash
 # Deploy the application (creates namespace workshop-gitops)
+# Note: Requires SSH private key at ~/.ssh/ocpvirt-gitops
 ./scripts/deploy.sh
+```
+
+**SSH Key Requirements:**
+The deployment automatically mounts your SSH private key (`~/.ssh/ocpvirt-gitops`) into the container to enable `virtctl ssh` access to workshop VMs. The key is:
+- Mounted as a Kubernetes Secret with restrictive permissions (0600)
+- Only accessible to the container user (UID 1001)
+- Read-only mount to prevent modification
+- Automatically cleaned up during undeploy
+
+This allows the workshop terminal to execute commands like:
+```bash
+virtctl ssh cloud-user@dev-vm-web-02 -n workshop-gitops-vms-dev
 ```
 
 ### Undeploy from OpenShift

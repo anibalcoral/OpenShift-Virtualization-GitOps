@@ -149,6 +149,33 @@ wss.on('connection', (ws) => {
         return;
       }
       
+      // Check if this is an OSC 52 sequence (clipboard copy)
+      const osc52Match = data.match(/\x1b\]52;c;([A-Za-z0-9+/=]+)\x07/);
+      if (osc52Match) {
+        try {
+          // Decode base64 clipboard data
+          const clipboardText = Buffer.from(osc52Match[1], 'base64').toString('utf8');
+          console.log('[DEBUG] OSC 52 clipboard detected, length:', clipboardText.length);
+          
+          // Load into tmux buffer for middle-click paste
+          if (useTmux) {
+            const { execSync } = require('child_process');
+            // Write to a temporary file and load into tmux buffer
+            const tmpFile = `/tmp/tmux-clipboard-${Date.now()}`;
+            require('fs').writeFileSync(tmpFile, clipboardText);
+            try {
+              execSync(`tmux load-buffer ${tmpFile}`, { timeout: 1000 });
+              execSync(`rm -f ${tmpFile}`, { timeout: 1000 });
+              console.log('[DEBUG] Loaded into tmux buffer successfully');
+            } catch (err) {
+              console.error('[DEBUG] Failed to load into tmux buffer:', err.message);
+            }
+          }
+        } catch (err) {
+          console.error('[DEBUG] Error processing OSC 52:', err);
+        }
+      }
+      
       // Try to parse as JSON for resize commands
       try {
         const parsed = JSON.parse(data);

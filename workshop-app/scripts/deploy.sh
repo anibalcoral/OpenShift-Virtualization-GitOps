@@ -11,8 +11,24 @@ echo "Deploying GitOps Virtualization Workshop..."
 echo "Namespace: ${NAMESPACE}"
 echo ""
 
+# Check for SSH private key
+SSH_KEY_PATH="${HOME}/.ssh/ocpvirt-gitops"
+if [ ! -f "${SSH_KEY_PATH}" ]; then
+    echo "ERROR: SSH private key not found at ${SSH_KEY_PATH}"
+    echo "Please ensure the workshop installation has created the SSH key."
+    exit 1
+fi
+
+echo "Creating SSH private key secret..."
+oc create secret generic workshop-ssh-private-key \
+    --from-file=id_rsa="${SSH_KEY_PATH}" \
+    --namespace="${NAMESPACE}" \
+    --dry-run=client -o yaml | oc apply -f -
+
+echo ""
+
 # Apply all manifests in order
-for file in $(ls "${DEPLOY_DIR}"/*.yaml 2>/dev/null | grep -v '.example' | sort); do
+for file in $(ls "${DEPLOY_DIR}"/*.yaml 2>/dev/null | grep -v '.example' | grep -v '03b-ssh-private-key-secret.yaml' | sort); do
     echo "Applying: $(basename "$file")"
     oc apply -f "$file"
 done

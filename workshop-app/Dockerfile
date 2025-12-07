@@ -49,9 +49,17 @@ RUN curl -LO "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/stable/o
     rm openshift-client-linux.tar.gz && \
     chmod +x /usr/local/bin/oc
 
+# Download virtctl CLI
+RUN curl -L -o /usr/local/bin/virtctl "https://github.com/kubevirt/kubevirt/releases/download/v1.5.3/virtctl-v1.5.3-linux-amd64" && \
+    chmod +x /usr/local/bin/virtctl
+
 # Download and install static tmux binary
 RUN curl -L -o /usr/local/bin/tmux "https://github.com/lgchiaretto/tmux/releases/download/v3.6/tmux.linux-amd64.stripped" && \
     chmod +x /usr/local/bin/tmux
+
+# Copy clipboard helper script
+COPY --chown=1001:0 tmux-config/clipboard-helper.sh /usr/local/bin/clipboard-helper
+RUN chmod +x /usr/local/bin/clipboard-helper
 
 # Copy tmux configuration files
 COPY --chown=1001:0 tmux-config/tmux.conf /etc/skel/.tmux.conf
@@ -63,10 +71,11 @@ COPY --chown=1001:0 tmux-config/bash_functions /etc/skel/.bash_functions
 COPY --chown=1001:0 tmux-config/plug.vim /etc/skel/.vim/autoload/plug.vim
 
 # Setup user home with tmux config
-RUN mkdir -p /home/default/.tmux /home/default/.vim/autoload && \
+RUN mkdir -p /home/default/.tmux /home/default/.vim/autoload /home/default/.ssh && \
     cp -r /etc/skel/.* /home/default/ 2>/dev/null || true && \
     chown -R 1001:0 /home/default && \
-    chmod -R g=u /home/default
+    chmod -R g=u /home/default && \
+    chmod 700 /home/default/.ssh
 
 RUN chown -R 1001:0 /app && \
     chmod -R g=u /app

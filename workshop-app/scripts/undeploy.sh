@@ -18,6 +18,11 @@ if [ -f "${DEPLOY_DIR}/03-clusterrolebinding.yaml" ]; then
     oc delete -f "${DEPLOY_DIR}/03-clusterrolebinding.yaml" --ignore-not-found=true
 fi
 
+# Delete SSH secret if it exists
+echo ""
+echo "Deleting SSH private key secret..."
+oc delete secret workshop-ssh-private-key -n ${NAMESPACE} --ignore-not-found=true
+
 # Delete the namespace (this will delete all resources within it)
 echo ""
 echo "Deleting namespace: ${NAMESPACE}"
