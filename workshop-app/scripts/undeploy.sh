@@ -25,7 +25,7 @@ oc delete secret workshop-ssh-private-key -n ${NAMESPACE} --ignore-not-found=tru
 
 # Delete the namespace (this will delete all resources within it)
 echo ""
-echo "Deleting namespace: ${NAMESPACE}"
+echo "Deleting namespace: ${NAMESPACE} (this may take a few minutes)..."
 oc delete namespace ${NAMESPACE} --ignore-not-found=true
 
 echo ""

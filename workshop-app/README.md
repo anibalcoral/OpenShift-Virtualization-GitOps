@@ -68,6 +68,15 @@ podman push quay.io/chiaretto/gitops-virtualization-workshop:latest
 
 ### Deploy to OpenShift
 
+The workshop web application is automatically deployed when running the main installation:
+
+```bash
+# From repository root - deploys everything including workshop app
+./install.sh
+```
+
+Alternatively, deploy manually:
+
 ```bash
 # Deploy the application (creates namespace workshop-gitops)
 # Note: Requires SSH private key at ~/.ssh/ocpvirt-gitops
@@ -87,6 +96,15 @@ virtctl ssh cloud-user@dev-vm-web-02 -n workshop-gitops-vms-dev
 ```
 
 ### Undeploy from OpenShift
+
+The workshop web application is automatically removed when running the main removal script:
+
+```bash
+# From repository root - removes everything including workshop app
+./remove.sh
+```
+
+Alternatively, undeploy manually:
 
 ```bash
 # Remove all resources and the namespace

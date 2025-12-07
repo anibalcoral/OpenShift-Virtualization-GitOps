@@ -52,3 +52,8 @@ fi
 
 log "Running Ansible playbook installation..."
 ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/install-workshop.yaml
+
+log "Deploying Workshop Web Application..."
+/opt/OpenShift-Virtualization-GitOps/workshop-app/scripts/deploy.sh
+
+log_success "Workshop installation completed successfully!"

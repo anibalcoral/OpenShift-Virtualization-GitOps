@@ -47,12 +47,12 @@
 
 - name: Display SSH cleanup completion
   ansible.builtin.debug:
-    msg: |
-      SSH known_hosts cleanup completed
-      =================================
-      Removed potentially conflicting SSH host keys for:
-      - Workshop VM hostnames (dev-vm-web-*, hml-vm-web-*, vm-web-*)
-      - localhost entries from virtctl ssh connections
-      - Workshop route patterns
-
-      This should resolve SSH host key verification issues when connecting to VMs.
+    msg:
+      - "SSH known_hosts cleanup completed"
+      - "================================="
+      - "Removed potentially conflicting SSH host keys for:"
+      - "- Workshop VM hostnames (dev-vm-web-*, hml-vm-web-*, vm-web-*)"
+      - "- localhost entries from virtctl ssh connections"
+      - "- Workshop route patterns"
+      - ""
+      - "This should resolve SSH host key verification issues when connecting to VMs."

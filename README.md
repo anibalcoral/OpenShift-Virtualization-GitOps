@@ -92,6 +92,10 @@ export GUID=user01  # Not necessary if you are running at bastion lab
 ./install.sh
 ```
 
+The installation script will:
+1. Run the Ansible playbook to configure GitOps and VMs
+2. Deploy the Workshop Web Application to `workshop-gitops` namespace
+
 **Individual Ansible playbooks:**
 ```bash
 export GUID=user01  # Not necessary if you are running at bastion lab
@@ -346,6 +350,10 @@ Each environment deploys identical VMs with environment-specific resource alloca
 ```bash
 ./remove.sh
 ```
+
+The removal script will:
+1. Undeploy the Workshop Web Application from `workshop-gitops` namespace
+2. Run the Ansible playbook to remove GitOps resources and VMs
 
 **Or use Ansible playbooks directly:**
 ```bash

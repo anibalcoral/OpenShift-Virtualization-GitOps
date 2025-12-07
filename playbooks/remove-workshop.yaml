@@ -15,11 +15,11 @@
   tasks:
     - name: Display removal start
       ansible.builtin.debug:
-        msg: |
-          Starting OpenShift GitOps Workshop Removal
-          ==========================================
-          GUID: {{ guid }}
-          This will remove all workshop resources for GUID {{ guid }}
+        msg:
+          - "Starting OpenShift GitOps Workshop Removal"
+          - "=========================================="
+          - "GUID: {{ guid }}"
+          - "This will remove all workshop resources for GUID {{ guid }}"
 
 #    - name: Change applications to manually sync and prune before deletion
 #      kubernetes.core.k8s:
@@ -96,6 +96,7 @@
         kind: VirtualMachine
         namespace: ''
       register: remaining_vms
+      ignore_errors: true
       until: remaining_vms.resources | length == 0
       retries: 30
       delay: 10
@@ -135,6 +136,14 @@
         api_version: rbac.authorization.k8s.io/v1
         kind: ClusterRoleBinding
         name: argocd-workshop-admin
+      failed_when: false
+
+    - name: Remove cluster-admins group
+      kubernetes.core.k8s:
+        state: absent
+        api_version: user.openshift.io/v1
+        kind: Group
+        name: cluster-admins
       failed_when: false
 
     - name: Remove ArgoCD repository secret
@@ -194,8 +203,8 @@
 
     - name: Display removal completion
       ansible.builtin.debug:
-        msg: |
-          Workshop removal completed successfully!
-          =======================================
-          GUID: {{ guid }}
-          All workshop resources for GUID {{ guid }} have been removed
+        msg:
+          - "Workshop removal completed successfully!"
+          - "======================================="
+          - "GUID: {{ guid }}"
+          - "All workshop resources for GUID {{ guid }} have been removed"

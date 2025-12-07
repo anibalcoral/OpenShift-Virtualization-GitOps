@@ -17,17 +17,17 @@
   tasks:
     - name: Display installation start
       ansible.builtin.debug:
-        msg: |
-          Starting OpenShift GitOps Workshop Installation
-          ==============================================
-          GUID: {{ guid }}
-          Branches: {{ dev_branch }}, {{ hml_branch }}, {{ prd_branch }}
-          This playbook will:
-          1. Create GUID-specific branches
-          2. Validate and configure cluster domain
-          3. Setup SSH keys for VMs
-          4. Install GitOps operator and applications
-          5. Validate installation
+        msg:
+          - "Starting OpenShift GitOps Workshop Installation"
+          - "=============================================="
+          - "GUID: {{ guid }}"
+          - "Branches: {{ dev_branch }}, {{ hml_branch }}, {{ prd_branch }}"
+          - "This playbook will:"
+          - "1. Create GUID-specific branches"
+          - "2. Validate and configure cluster domain"
+          - "3. Setup SSH keys for VMs"
+          - "4. Install GitOps operator and applications"
+          - "5. Validate installation"
 
     - name: Export GUID on .bashrc file
       ansible.builtin.lineinfile:
@@ -85,26 +85,26 @@
 
     - name: Display installation completion
       ansible.builtin.debug:
-        msg: |
-          Installation completed successfully!
-          ===================================
-
-          Workshop Information:
-          ArgoCD URL: {{ argocd_url }}
-          ArgoCD Username: admin
-          ArgoCD Password: {{ argocd_password }}
-
-          Workshop Applications:
-          - workshop-gitops-vms-dev (Development VMs)
-          - workshop-gitops-vms-hml (Homologation VMs)
-          - workshop-gitops-vms-prd (Production VMs)
-
-          Application URLs (after deployment):
-          - Development: https://dev-workshop-gitops-vms.{{ cluster_domain }}
-          - Homologation: https://hml-workshop-gitops-vms.{{ cluster_domain }}
-          - Production: https://prd-workshop-gitops-vms.{{ cluster_domain }}
-
-          Next steps:
-          1. Access ArgoCD UI using the credentials above
-          2. Check workshop status
-          3. Run demo playbooks
+        msg:
+          - "Installation completed successfully!"
+          - "==================================="
+          - ""
+          - "Workshop Information:"
+          - "ArgoCD URL: {{ argocd_url }}"
+          - "ArgoCD Username: admin"
+          - "ArgoCD Password: {{ argocd_password }}"
+          - ""
+          - "Workshop Applications:"
+          - "- workshop-gitops-vms-dev (Development VMs)"
+          - "- workshop-gitops-vms-hml (Homologation VMs)"
+          - "- workshop-gitops-vms-prd (Production VMs)"
+          - ""
+          - "Application URLs (after deployment):"
+          - "- Development: https://dev-workshop-gitops-vms.{{ cluster_domain }}"
+          - "- Homologation: https://hml-workshop-gitops-vms.{{ cluster_domain }}"
+          - "- Production: https://prd-workshop-gitops-vms.{{ cluster_domain }}"
+          - ""
+          - "Next steps:"
+          - "1. Access ArgoCD UI using the credentials above"
+          - "2. Check workshop status"
+          - "3. Run demo playbooks"

@@ -11,6 +11,10 @@ echo "Deploying GitOps Virtualization Workshop..."
 echo "Namespace: ${NAMESPACE}"
 echo ""
 
+# Apply namespace first
+echo "Creating namespace..."
+oc apply -f "${DEPLOY_DIR}/00-namespace.yaml"
+
 # Check for SSH private key
 SSH_KEY_PATH="${HOME}/.ssh/ocpvirt-gitops"
 if [ ! -f "${SSH_KEY_PATH}" ]; then
@@ -27,8 +31,8 @@ oc create secret generic workshop-ssh-private-key \
 
 echo ""
 
-# Apply all manifests in order
-for file in $(ls "${DEPLOY_DIR}"/*.yaml 2>/dev/null | grep -v '.example' | grep -v '03b-ssh-private-key-secret.yaml' | sort); do
+# Apply remaining manifests in order
+for file in $(ls "${DEPLOY_DIR}"/*.yaml 2>/dev/null | grep -v '.example' | grep -v '00-namespace.yaml' | grep -v '03b-ssh-private-key-secret.yaml' | sort); do
     echo "Applying: $(basename "$file")"
     oc apply -f "$file"
 done

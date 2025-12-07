@@ -117,11 +117,16 @@ wss.on('connection', (ws) => {
       console.log('[DEBUG] Sending bash configuration commands');
       // Configure PS1 to show container name
       ptyProcess.write(`export PS1='\\[\\033[01;32m\\]${containerName}\\[\\033[00m\\]:\\[\\033[01;34m\\]\\w\\[\\033[00m\\]\\$ '\n`);
+      // Configure Git identity if not already set
+      ptyProcess.write(`git config --global user.name "Workshop User" 2>/dev/null || true\n`);
+      ptyProcess.write(`git config --global user.email "workshop@gitops.local" 2>/dev/null || true\n`);
     }, 100);
   } else {
-    // For tmux, just clear the screen
+    // For tmux, configure git and clear the screen
     setTimeout(() => {
       console.log('[DEBUG] Sending tmux configuration commands');
+      ptyProcess.write('git config --global user.name "Workshop User" 2>/dev/null || true\n');
+      ptyProcess.write('git config --global user.email "workshop@gitops.local" 2>/dev/null || true\n');
       ptyProcess.write('clear\n');
     }, 200);
   }

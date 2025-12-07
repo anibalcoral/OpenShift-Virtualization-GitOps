@@ -75,10 +75,10 @@
 
     - name: Display branch removal summary
       ansible.builtin.debug:
-        msg: |
-          GUID-specific branches removal completed:
-          - Development: {{ dev_branch }}
-          - Homologation: {{ hml_branch }}
-          - Production: {{ prd_branch }}
+        msg:
+          - "GUID-specific branches removal completed:"
+          - "- Development: {{ dev_branch }}"
+          - "- Homologation: {{ hml_branch }}"
+          - "- Production: {{ prd_branch }}"
 
   when: apps_repo_stat.stat.exists

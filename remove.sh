@@ -52,5 +52,10 @@ fi
 
 echo ""
 
+log "Removing Workshop Web Application..."
+/opt/OpenShift-Virtualization-GitOps/workshop-app/scripts/undeploy.sh || log_warning "Workshop app undeploy returned non-zero (may already be removed)"
+
 log "Running Ansible playbook removal..."
 ansible-playbook -i /opt/OpenShift-Virtualization-GitOps/inventory/localhost /opt/OpenShift-Virtualization-GitOps/playbooks/remove-workshop.yaml
+
+log_success "Workshop removal completed successfully!"

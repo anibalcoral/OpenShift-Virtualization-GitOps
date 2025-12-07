@@ -77,6 +77,13 @@ RUN mkdir -p /home/default/.tmux /home/default/.vim/autoload /home/default/.ssh 
     chmod -R g=u /home/default && \
     chmod 700 /home/default/.ssh
 
+# Configure Git globally
+RUN git config --system user.name "Workshop User" && \
+    git config --system user.email "workshop@gitops.local" && \
+    git config --system init.defaultBranch main && \
+    git config --system core.editor vim && \
+    git config --system pull.rebase false
+
 RUN chown -R 1001:0 /app && \
     chmod -R g=u /app
 

@@ -78,6 +78,16 @@
         kind: ClusterRole
         name: cluster-admin
 
+- name: Create cluster-admins group for ArgoCD access
+  kubernetes.core.k8s:
+    definition:
+      apiVersion: user.openshift.io/v1
+      kind: Group
+      metadata:
+        name: cluster-admins
+      users:
+        - admin
+
 - name: Create workshop namespaces for all environments
   kubernetes.core.k8s:
     state: present
