@@ -18,6 +18,7 @@ console.log('[DEBUG] PORT:', PORT);
 console.log('[DEBUG] GUIDES_DIR:', GUIDES_DIR);
 console.log('[DEBUG] USE_TMUX:', process.env.USE_TMUX);
 console.log('[DEBUG] NAMESPACE:', process.env.NAMESPACE);
+console.log('[DEBUG] GUID:', process.env.GUID);
 console.log('[DEBUG] HOME:', process.env.HOME);
 
 app.use(express.static('dist'));
@@ -79,8 +80,9 @@ wss.on('connection', (ws) => {
   const shell = useTmux ? '/usr/local/bin/tmux' : (process.env.SHELL || '/bin/bash');
   const shellArgs = useTmux ? ['new-session', '-A', '-s', 'workshop', '/bin/bash', '-l'] : [];
   const namespace = process.env.NAMESPACE || '';
+  const guid = process.env.GUID || '';
   
-  console.log('[DEBUG] Configuration:', { useTmux, shell, shellArgs, namespace, timeElapsed: `${Date.now() - startTime}ms` });
+  console.log('[DEBUG] Configuration:', { useTmux, shell, shellArgs, namespace, guid, timeElapsed: `${Date.now() - startTime}ms` });
   
   // Configure environment to use ServiceAccount token from pod
   const env = { ...process.env };
@@ -117,6 +119,10 @@ wss.on('connection', (ws) => {
       console.log('[DEBUG] Sending bash configuration commands');
       // Configure PS1 to show container name
       ptyProcess.write(`export PS1='\\[\\033[01;32m\\]${containerName}\\[\\033[00m\\]:\\[\\033[01;34m\\]\\w\\[\\033[00m\\]\\$ '\n`);
+      // Export GUID if available
+      if (guid) {
+        ptyProcess.write(`export GUID='${guid}'\n`);
+      }
       // Configure Git identity if not already set
       ptyProcess.write(`git config --global user.name "Workshop User" 2>/dev/null || true\n`);
       ptyProcess.write(`git config --global user.email "workshop@gitops.local" 2>/dev/null || true\n`);
@@ -125,6 +131,10 @@ wss.on('connection', (ws) => {
     // For tmux, configure git and clear the screen
     setTimeout(() => {
       console.log('[DEBUG] Sending tmux configuration commands');
+      // Export GUID if available
+      if (guid) {
+        ptyProcess.write(`export GUID='${guid}'\n`);
+      }
       ptyProcess.write('git config --global user.name "Workshop User" 2>/dev/null || true\n');
       ptyProcess.write('git config --global user.email "workshop@gitops.local" 2>/dev/null || true\n');
       ptyProcess.write('clear\n');

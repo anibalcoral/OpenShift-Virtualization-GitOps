@@ -6,9 +6,11 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 DEPLOY_DIR="${SCRIPT_DIR}/../deploy"
 NAMESPACE="workshop-gitops"
+GUID="${GUID:-${USER}}"
 
 echo "Deploying GitOps Virtualization Workshop..."
 echo "Namespace: ${NAMESPACE}"
+echo "GUID: ${GUID}"
 echo ""
 
 # Apply namespace first
@@ -30,9 +32,16 @@ oc create secret generic workshop-ssh-private-key \
     --dry-run=client -o yaml | oc apply -f -
 
 echo ""
+echo "Creating workshop config ConfigMap with GUID..."
+oc create configmap workshop-config \
+    --from-literal=guid="${GUID}" \
+    --namespace="${NAMESPACE}" \
+    --dry-run=client -o yaml | oc apply -f -
+
+echo ""
 
 # Apply remaining manifests in order
-for file in $(ls "${DEPLOY_DIR}"/*.yaml 2>/dev/null | grep -v '.example' | grep -v '00-namespace.yaml' | grep -v '03b-ssh-private-key-secret.yaml' | sort); do
+for file in $(ls "${DEPLOY_DIR}"/*.yaml 2>/dev/null | grep -v '.example' | grep -v '00-namespace.yaml' | grep -v '03b-ssh-private-key-secret.yaml' | grep -v '04b-configmap-config.yaml' | sort); do
     echo "Applying: $(basename "$file")"
     oc apply -f "$file"
 done
