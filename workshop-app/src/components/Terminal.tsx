@@ -83,6 +83,7 @@ export function Terminal({ className }: TerminalProps) {
       fontSize: 13,
       fontFamily: "'Red Hat Mono', 'JetBrains Mono', Consolas, monospace",
       lineHeight: 1.4,
+      rightClickSelectsWord: false,
       theme: {
         background: '#191919',
         foreground: '#f0f0f0',
@@ -134,15 +135,24 @@ export function Terminal({ className }: TerminalProps) {
       }
     })
 
-    // Listen for OSC 52 copy events from the markdown viewer
-    const handleOSC52Copy = (event: Event) => {
-      const customEvent = event as CustomEvent<{ osc52: string }>
-      if (wsRef.current?.readyState === WebSocket.OPEN && customEvent.detail?.osc52) {
-        wsRef.current.send(customEvent.detail.osc52)
+    // Prevent default paste behavior and handle manually to avoid duplication
+    const handlePaste = (event: ClipboardEvent) => {
+      event.preventDefault()
+      const text = event.clipboardData?.getData('text')
+      if (text && wsRef.current?.readyState === WebSocket.OPEN) {
+        wsRef.current.send(text)
       }
     }
 
-    document.addEventListener('osc52-copy', handleOSC52Copy)
+    // Prevent Ctrl+W from closing browser tab and let bash handle it
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.ctrlKey && event.key === 'w') {
+        event.preventDefault()
+      }
+    }
+
+    terminalRef.current.addEventListener('paste', handlePaste)
+    terminalRef.current.addEventListener('keydown', handleKeyDown)
 
     // Connect immediately without delay
     connect()
@@ -170,9 +180,12 @@ export function Terminal({ className }: TerminalProps) {
     window.addEventListener('resize', handleResize)
 
     return () => {
+      if (terminalRef.current) {
+        terminalRef.current.removeEventListener('paste', handlePaste)
+        terminalRef.current.removeEventListener('keydown', handleKeyDown)
+      }
       resizeObserver.disconnect()
       window.removeEventListener('resize', handleResize)
-      document.removeEventListener('osc52-copy', handleOSC52Copy)
       if (reconnectTimeoutRef.current) {
         clearTimeout(reconnectTimeoutRef.current)
       }

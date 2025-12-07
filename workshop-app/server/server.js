@@ -123,22 +123,15 @@ wss.on('connection', (ws) => {
       if (guid) {
         ptyProcess.write(`export GUID='${guid}'\n`);
       }
-      // Configure Git identity if not already set
-      ptyProcess.write(`git config --global user.name "Workshop User" 2>/dev/null || true\n`);
-      ptyProcess.write(`git config --global user.email "workshop@gitops.local" 2>/dev/null || true\n`);
     }, 100);
   } else {
-    // For tmux, configure git and clear the screen
-    setTimeout(() => {
-      console.log('[DEBUG] Sending tmux configuration commands');
-      // Export GUID if available
-      if (guid) {
+    // For tmux, export GUID if available
+    if (guid) {
+      setTimeout(() => {
+        console.log('[DEBUG] Exporting GUID variable');
         ptyProcess.write(`export GUID='${guid}'\n`);
-      }
-      ptyProcess.write('git config --global user.name "Workshop User" 2>/dev/null || true\n');
-      ptyProcess.write('git config --global user.email "workshop@gitops.local" 2>/dev/null || true\n');
-      ptyProcess.write('clear\n');
-    }, 200);
+      }, 200);
+    }
   }
 
   ptyProcess.onData((data) => {
@@ -162,33 +155,6 @@ wss.on('connection', (ws) => {
       } else {
         console.error('Unexpected message type:', typeof message);
         return;
-      }
-      
-      // Check if this is an OSC 52 sequence (clipboard copy)
-      const osc52Match = data.match(/\x1b\]52;c;([A-Za-z0-9+/=]+)\x07/);
-      if (osc52Match) {
-        try {
-          // Decode base64 clipboard data
-          const clipboardText = Buffer.from(osc52Match[1], 'base64').toString('utf8');
-          console.log('[DEBUG] OSC 52 clipboard detected, length:', clipboardText.length);
-          
-          // Load into tmux buffer for middle-click paste
-          if (useTmux) {
-            const { execSync } = require('child_process');
-            // Write to a temporary file and load into tmux buffer
-            const tmpFile = `/tmp/tmux-clipboard-${Date.now()}`;
-            require('fs').writeFileSync(tmpFile, clipboardText);
-            try {
-              execSync(`tmux load-buffer ${tmpFile}`, { timeout: 1000 });
-              execSync(`rm -f ${tmpFile}`, { timeout: 1000 });
-              console.log('[DEBUG] Loaded into tmux buffer successfully');
-            } catch (err) {
-              console.error('[DEBUG] Failed to load into tmux buffer:', err.message);
-            }
-          }
-        } catch (err) {
-          console.error('[DEBUG] Error processing OSC 52:', err);
-        }
       }
       
       // Try to parse as JSON for resize commands

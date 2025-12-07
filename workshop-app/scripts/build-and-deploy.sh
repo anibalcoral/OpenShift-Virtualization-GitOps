@@ -29,3 +29,7 @@ echo "----------------------------"
 
 echo
 echo "✓ Build e deploy concluídos!"
+
+echo "Rollout deployment..."
+oc rollout restart deployment/gitops-workshop -n workshop-gitops
+oc rollout status deployment/gitops-workshop -n workshop-gitops
