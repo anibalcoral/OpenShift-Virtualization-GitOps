@@ -444,6 +444,48 @@
       when: commit_base_change.changed
       changed_when: "'Already up to date' not in promote_base_hml.stdout"
 
+    - name: Refresh ArgoCD application to detect Git changes (homologation) after base promotion
+      ansible.builtin.shell:
+        cmd: oc patch application {{ app_name_hml }} -n openshift-gitops --type merge -p '{"metadata":{"annotations":{"refresh":"{{ ansible_date_time.iso8601_basic_short }}"}}}'
+      when: commit_base_change.changed
+      failed_when: false
+
+    - name: Force ArgoCD sync operation for homologation after base promotion
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: argoproj.io/v1alpha1
+          kind: Application
+          metadata:
+            name: "{{ app_name_hml }}"
+            namespace: openshift-gitops
+          operation:
+            sync:
+              revision: "HEAD"
+              prune: true
+              dryRun: false
+        merge_type: merge
+      when: commit_base_change.changed
+      failed_when: false
+
+    - name: Wait for homologation application to sync after base promotion
+      kubernetes.core.k8s_info:
+        api_version: argoproj.io/v1alpha1
+        kind: Application
+        name: "{{ app_name_hml }}"
+        namespace: openshift-gitops
+      register: hml_sync_check
+      when: commit_base_change.changed
+      until: >
+        hml_sync_check.resources | length > 0 and
+        (
+          hml_sync_check.resources[0].status is defined and
+          hml_sync_check.resources[0].status.sync is defined and
+          hml_sync_check.resources[0].status.sync.status == "Synced"
+        )
+      retries: 30
+      delay: 2
+
     - name: Promote base changes to production
       ansible.builtin.shell:
         cmd: |
@@ -454,6 +496,48 @@
       register: promote_base_prd
       when: commit_base_change.changed
       changed_when: "'Already up to date' not in promote_base_prd.stdout"
+
+    - name: Refresh ArgoCD application to detect Git changes (production) after base promotion
+      ansible.builtin.shell:
+        cmd: oc patch application {{ app_name_prd }} -n openshift-gitops --type merge -p '{"metadata":{"annotations":{"refresh":"{{ ansible_date_time.iso8601_basic_short }}"}}}'
+      when: commit_base_change.changed
+      failed_when: false
+
+    - name: Force ArgoCD sync operation for production after base promotion
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: argoproj.io/v1alpha1
+          kind: Application
+          metadata:
+            name: "{{ app_name_prd }}"
+            namespace: openshift-gitops
+          operation:
+            sync:
+              revision: "HEAD"
+              prune: true
+              dryRun: false
+        merge_type: merge
+      when: commit_base_change.changed
+      failed_when: false
+
+    - name: Wait for production application to sync after base promotion
+      kubernetes.core.k8s_info:
+        api_version: argoproj.io/v1alpha1
+        kind: Application
+        name: "{{ app_name_prd }}"
+        namespace: openshift-gitops
+      register: prd_sync_check
+      when: commit_base_change.changed
+      until: >
+        prd_sync_check.resources | length > 0 and
+        (
+          prd_sync_check.resources[0].status is defined and
+          prd_sync_check.resources[0].status.sync is defined and
+          prd_sync_check.resources[0].status.sync.status == "Synced"
+        )
+      retries: 30
+      delay: 2
 
     - name: Display base promotion results
       ansible.builtin.debug:

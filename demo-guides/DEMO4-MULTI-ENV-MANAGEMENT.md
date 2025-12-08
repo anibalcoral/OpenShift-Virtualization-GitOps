@@ -129,7 +129,7 @@ oc get vm -n workshop-gitops-vms-hml | grep hml-vm-web-09
 1. Merge homologation to main (production):
 ```bash
 git checkout vms-prd-$GUID
-git merge vms-prd-$GUID
+git merge vms-hml-$GUID
 ```
 
 2. Push the changes:
@@ -225,14 +225,24 @@ git merge vms-dev-$GUID
 git push origin vms-hml-$GUID
 ```
 
-2. Promote to production:
+2. Force ArgoCD to detect and sync the changes in homologation:
+```bash
+oc patch applications workshop-gitops-vms-hml -n openshift-gitops --type merge -p '{"operation":{"sync":{"syncStrategy":{"hook":{}}}}}' &>/dev/null
+```
+
+3. Promote to production:
 ```bash
 git checkout vms-prd-$GUID
 git merge vms-hml-$GUID
 git push origin vms-prd-$GUID
 ```
 
-3. Wait for all environments to sync and verify the annotation exists in all VMs:
+4. Force ArgoCD to detect and sync the changes in production:
+```bash
+oc patch applications workshop-gitops-vms-prd -n openshift-gitops --type merge -p '{"operation":{"sync":{"syncStrategy":{"hook":{}}}}}' &>/dev/null
+```
+
+5. Wait for all environments to sync and verify the annotation exists in all VMs:
 ```bash
 echo "=== Checking annotations across all environments ==="
 echo "Development:"
