@@ -10,7 +10,7 @@ echo "Building image: ${IMAGE_NAME}:${IMAGE_TAG}"
 
 cd "$(dirname "$0")/.."
 
-podman build -t "${IMAGE_NAME}:${IMAGE_TAG}" .
+podman build -t "${IMAGE_NAME}:${IMAGE_TAG}" -f Dockerfile.unified .
 
 echo ""
 echo "Build complete: ${IMAGE_NAME}:${IMAGE_TAG}"

@@ -2,34 +2,44 @@
 
 set -e
 
-echo "========================================"
-echo "Build e Deploy Completo"
-echo "========================================"
-echo
+IMAGE_NAME="${IMAGE_NAME:-quay.io/chiaretto/gitops-virtualization-workshop}"
+IMAGE_TAG="${IMAGE_TAG:-latest}"
+NAMESPACE="${NAMESPACE:-workshop-gitops}"
+DEPLOYMENT="${DEPLOYMENT:-gitops-workshop}"
 
-if [ -z "$1" ]; then
-    # Default image name if not provided
-    IMAGE_NAME="quay.io/chiaretto/workshop-userroom:latest"
-else
-    IMAGE_NAME=$1
-fi
+echo "=========================================="
+echo "Build and Deploy GitOps Virtualization Workshop"
+echo "=========================================="
+echo "Image: ${IMAGE_NAME}:${IMAGE_TAG}"
+echo "Namespace: ${NAMESPACE}"
+echo "Deployment: ${DEPLOYMENT}"
+echo ""
 
+# Step 1: Build the image
+echo "Step 1: Building image..."
+cd "$(dirname "$0")/.."
+bash scripts/build.sh
 
-echo "Passo 1: Build da imagem"
-echo "------------------------"
-./scripts/build.sh "$IMAGE_NAME"
+# Step 2: Push to registry
+echo ""
+echo "Step 2: Pushing image to registry..."
+podman push "${IMAGE_NAME}:${IMAGE_TAG}"
 
-echo "Passo 2: Push da imagem" 
-echo "-----------------------"
-podman push "$IMAGE_NAME"
+# Step 3: Deploy to OpenShift
+echo ""
+echo "Step 3: Deploying to OpenShift..."
+bash scripts/deploy.sh
 
-echo "Passo 3: Deploy no OpenShift"
-echo "----------------------------"
-./scripts/deploy.sh "$IMAGE_NAME"
+# Step 4: Rollout restart
+echo ""
+echo "Step 4: Rolling out deployment..."
+oc rollout restart deployment/${DEPLOYMENT} -n ${NAMESPACE}
+oc rollout status deployment/${DEPLOYMENT} -n ${NAMESPACE} --timeout=5m
 
-echo
-echo "✓ Build e deploy concluídos!"
-
-echo "Rollout deployment..."
-oc rollout restart deployment/gitops-workshop -n workshop-gitops
-oc rollout status deployment/gitops-workshop -n workshop-gitops
+echo ""
+echo "=========================================="
+echo "✓ Build and deploy completed successfully!"
+echo "=========================================="
+echo ""
+echo "Application URL:"
+oc get route ${DEPLOYMENT} -n ${NAMESPACE} -o jsonpath='https://{.spec.host}' 2>/dev/null && echo "" || echo "Route not found"
