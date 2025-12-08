@@ -323,7 +323,7 @@ oc get vmi dev-vm-web-09 -n workshop-gitops-vms-dev
 
 **Expected Result**: 
 - New VM should exist with correct configuration
-- Development environment should now have 4 VMs
+- Development environment should now have 3 VMs
 - VM should eventually start running
 
 ### Step 11: Final Verification
@@ -343,7 +343,7 @@ oc get vm -n workshop-gitops-vms-dev --no-headers | wc -l
 oc get vm dev-vm-web-09 -n workshop-gitops-vms-dev -o jsonpath='{.metadata.labels}' ; echo
 ```
 
-**Expected Result**: Environment should have expanded from 3 to 4 VMs, all managed by GitOps
+**Expected Result**: Environment should have expanded from 2 to 3 VMs, all managed by GitOps
 
 ## Summary of What Was Demonstrated
 
@@ -352,7 +352,7 @@ oc get vm dev-vm-web-09 -n workshop-gitops-vms-dev -o jsonpath='{.metadata.label
 ✓ **Git Workflow**: Changes committed and pushed through proper Git workflow  
 ✓ **Manual Detection**: ArgoCD detected Git changes after manual sync  
 ✓ **Controlled Deployment**: New VM deployed through manual sync operations  
-✓ **Environment Expansion**: Development environment scaled from 3 to 4 VMs  
+✓ **Environment Expansion**: Development environment scaled from 2 to 3 VMs  
 ✓ **Configuration Consistency**: New VM follows same patterns as existing VMs  
 
 ## Key Learning Points

@@ -345,7 +345,7 @@
 
           # Verify Git repository state
           cd {{ apps_repo_path }}
-          git log --oneline --graph --branches -10
+          git log --oneline 1
 
           # Check base directory
           ls -la base/ | grep vm-web-09 || echo "File removed (expected)"

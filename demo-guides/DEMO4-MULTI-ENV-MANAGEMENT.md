@@ -88,7 +88,7 @@ cd /opt/OpenShift-Virtualization-GitOps-Apps
 
 2. Check current branch and available branches:
 ```bash
-git branch -a
+git branch -a | grep $GUID
 git status
 ```
 
@@ -119,7 +119,7 @@ oc patch applications workshop-gitops-vms-hml -n openshift-gitops --type merge -
 
 4. Verify the VM was created in homologation:
 ```bash
-oc get vm -n workshop-gitops-vms-hml | grep hml-vm-web-09
+watch "oc get vm -n workshop-gitops-vms-hml | grep hml-vm-web-09"
 ```
 
 **Expected Result**: hml-vm-web-09 should be created in the homologation environment
@@ -144,7 +144,7 @@ oc patch applications workshop-gitops-vms-prd -n openshift-gitops --type merge -
 
 4. Verify the VM was created in production:
 ```bash
-oc get vm -n workshop-gitops-vms-prd | grep prd-vm-web-09
+watch "oc get vm -n workshop-gitops-vms-prd | grep prd-vm-web-09"
 ```
 
 **Expected Result**: prd-vm-web-09 should be created in the production environment
@@ -178,112 +178,11 @@ oc kustomize overlays/prd | grep -A 5 -B 5 "vm-web-09"
 
 **Expected Result**: All three environments should have their respective VM instances with proper naming prefixes and namespace configurations
 
-### Step 6: Demonstrate Centralized Base Management
-
-1. Go back to development branch to make a base change:
-```bash
-git checkout vms-dev-$GUID
-```
-
-2. Add a new annotation to the base VM template:
-```bash
-# Edit the base vm-web-09.yaml file to add a new annotation
-sed -i '/workshop.gitops\/config-version/a\    workshop.gitops/demo4-timestamp: "'$(date +%Y%m%d-%H%M%S)'"' base/vm-web-09.yaml
-```
-
-3. Commit the change:
-```bash
-git add base/vm-web-09.yaml
-git commit -m "Add demo4 timestamp annotation to vm-web-09 base template"
-git push origin vms-dev-$GUID
-```
-
-4. Force ArgoCD to detect and sync the changes:
-```bash
-oc patch applications workshop-gitops-vms-dev -n openshift-gitops --type merge -p '{"operation":{"sync":{"syncStrategy":{"hook":{}}}}}'
-```
-
-5. Wait for development environment to sync:
-```bash
-echo "Waiting for development environment to sync..."
-watch -n 5 "oc get applications workshop-gitops-vms-dev -n openshift-gitops -o custom-columns='NAME:.metadata.name,SYNC:.status.sync.status,HEALTH:.status.health.status'"
-```
-
-6. Verify the annotation was added in development:
-```bash
-oc get vm dev-vm-web-09 -n workshop-gitops-vms-dev -o yaml | grep -A 3 -B 3 "demo4-timestamp"
-```
-
-**Expected Result**: The new annotation should appear in the development VM
-
-### Step 7: Promote Base Changes Through All Environments
-
-1. Promote the base change to homologation:
-```bash
-git checkout vms-hml-$GUID
-git merge vms-dev-$GUID
-git push origin vms-hml-$GUID
-```
-
-2. Force ArgoCD to detect and sync the changes in homologation:
-```bash
-oc patch applications workshop-gitops-vms-hml -n openshift-gitops --type merge -p '{"operation":{"sync":{"syncStrategy":{"hook":{}}}}}' &>/dev/null
-```
-
-3. Promote to production:
-```bash
-git checkout vms-prd-$GUID
-git merge vms-hml-$GUID
-git push origin vms-prd-$GUID
-```
-
-4. Force ArgoCD to detect and sync the changes in production:
-```bash
-oc patch applications workshop-gitops-vms-prd -n openshift-gitops --type merge -p '{"operation":{"sync":{"syncStrategy":{"hook":{}}}}}' &>/dev/null
-```
-
-5. Wait for all environments to sync and verify the annotation exists in all VMs:
-```bash
-echo "=== Checking annotations across all environments ==="
-echo "Development:"
-oc get vm dev-vm-web-09 -n workshop-gitops-vms-dev -o yaml | grep "demo4-timestamp" || echo "Not found"
-
-echo "Homologation:"
-oc get vm hml-vm-web-09 -n workshop-gitops-vms-hml -o yaml | grep "demo4-timestamp" || echo "Not found"
-
-echo "Production:"
-oc get vm prd-vm-web-09 -n workshop-gitops-vms-prd -o yaml | grep "demo4-timestamp" || echo "Not found"
-```
-
-**Expected Result**: The same annotation should appear in all three environments, demonstrating how base template changes propagate through the promotion pipeline
-
-### Step 8: Demonstrate Environment-Specific Differences
-
-1. Show how Kustomize handles environment-specific configurations:
-```bash
-echo "=== Resource Names Across Environments ==="
-oc get vm -n workshop-gitops-vms-dev | grep vm-web-09
-oc get vm -n workshop-gitops-vms-hml | grep vm-web-09  
-oc get vm -n workshop-gitops-vms-prd | grep vm-web-09
-
-echo "=== Services Across Environments ==="
-oc get svc -n workshop-gitops-vms-dev | grep vm-web-service
-oc get svc -n workshop-gitops-vms-hml | grep vm-web-service
-oc get svc -n workshop-gitops-vms-prd | grep vm-web-service
-
-echo "=== Routes Across Environments ==="
-oc get route -n workshop-gitops-vms-dev | grep vm-web-route
-oc get route -n workshop-gitops-vms-hml | grep vm-web-route
-oc get route -n workshop-gitops-vms-prd | grep vm-web-route
-```
-
-**Expected Result**: Each environment should have appropriately prefixed resources (dev-, hml-, prd-) in their respective namespaces
-
 ## Demo Summary
 
 This demo demonstrates several key GitOps and Kustomize concepts:
 
-1. **Branch-based Environment Promotion**: Changes flow from `vms-dev` → `vms-hml` → `main` (production)
+1. **Branch-based Environment Promotion**: Changes flow from `vms-dev` → `vms-hml` → `vms-prd` (production)
 2. **Kustomize Overlays**: Environment-specific configurations without code duplication
 3. **Centralized Base Management**: Common changes applied once in base templates manually propagate to all environments
 4. **Consistent Multi-Environment Deployment**: Same base configuration with environment-specific customizations
@@ -311,7 +210,7 @@ done
 
 # Check Git branch status
 cd /opt/OpenShift-Virtualization-GitOps-Apps
-git log --oneline --graph --branches
+git log --oneline -1
 ```
 
 ## Cleanup

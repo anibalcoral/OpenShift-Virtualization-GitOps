@@ -607,4 +607,4 @@
           # Check Git branch history
           cd {{ apps_repo_path }}
           git checkout vms-dev-{{ guid }}
-          git log --oneline --graph --branches
+          git log --oneline 1

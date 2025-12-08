@@ -258,7 +258,7 @@ argocd-app-prd → watches main branch    → deploys to namespace workshop-gito
 1. Developer commits VM changes to `vms-dev` branch
 2. ArgoCD detects change and syncs to dev namespace
 3. After testing, merge `vms-dev` → `vms-hml` (staging)
-4. After validation, merge `vms-hml` → `main` (production)
+4. After validation, merge `vms-hml` → `vms-prd` (production)
 
 **Namespaces:**
 - `workshop-gitops-vms-dev`: Development VMs
