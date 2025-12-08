@@ -11,26 +11,58 @@ const wss = new WebSocket.Server({ server, path: '/terminal' });
 
 const PORT = process.env.PORT || 8080;
 const GUIDES_DIR = process.env.GUIDES_DIR || '/app/guides';
+const DEFAULT_LANG = process.env.DEFAULT_LANG || 'pt';
 
 // Enable detailed debug logging
 console.log('[DEBUG] Server starting with configuration:');
 console.log('[DEBUG] PORT:', PORT);
 console.log('[DEBUG] GUIDES_DIR:', GUIDES_DIR);
 console.log('[DEBUG] USE_TMUX:', process.env.USE_TMUX);
-console.log('[DEBUG] NAMESPACE:', process.env.NAMESPACE);
-console.log('[DEBUG] GUID:', process.env.GUID);
+console.log('[DEBUG] DEFAULT_LANG:', DEFAULT_LANG);
 console.log('[DEBUG] HOME:', process.env.HOME);
 
 app.use(express.static('dist'));
 app.use(express.json());
 
-app.get('/api/guides', (req, res) => {
+// Get available languages
+app.get('/api/languages', (req, res) => {
   try {
     if (!fs.existsSync(GUIDES_DIR)) {
+      return res.json(['pt', 'en']);
+    }
+    
+    const dirs = fs.readdirSync(GUIDES_DIR, { withFileTypes: true })
+      .filter(dirent => dirent.isDirectory())
+      .map(dirent => dirent.name);
+    
+    // If no language dirs, assume files are in root (default to pt)
+    if (dirs.length === 0) {
+      return res.json(['pt']);
+    }
+    
+    res.json(dirs);
+  } catch (error) {
+    console.error('Error reading languages:', error);
+    res.json(['pt', 'en']);
+  }
+});
+
+// Get guides for a specific language
+app.get('/api/guides', (req, res) => {
+  try {
+    const lang = req.query.lang || DEFAULT_LANG;
+    let guidesPath = path.join(GUIDES_DIR, lang);
+    
+    // Fallback to root guides dir if language dir doesn't exist
+    if (!fs.existsSync(guidesPath)) {
+      guidesPath = GUIDES_DIR;
+    }
+    
+    if (!fs.existsSync(guidesPath)) {
       return res.json([]);
     }
     
-    const files = fs.readdirSync(GUIDES_DIR)
+    const files = fs.readdirSync(guidesPath)
       .filter(file => file.endsWith('.md'))
       .sort();
     
@@ -41,15 +73,28 @@ app.get('/api/guides', (req, res) => {
   }
 });
 
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
 app.get('/api/guides/:filename', (req, res) => {
   try {
     const filename = req.params.filename;
+    const lang = req.query.lang || DEFAULT_LANG;
     
     if (!filename.endsWith('.md')) {
       return res.status(400).send('Invalid file type');
     }
     
-    const filepath = path.join(GUIDES_DIR, filename);
+    let guidesPath = path.join(GUIDES_DIR, lang);
+    
+    // Fallback to root guides dir if language dir doesn't exist
+    if (!fs.existsSync(guidesPath)) {
+      guidesPath = GUIDES_DIR;
+    }
+    
+    const filepath = path.join(guidesPath, filename);
     
     if (!filepath.startsWith(GUIDES_DIR)) {
       return res.status(400).send('Invalid file path');
@@ -79,20 +124,15 @@ wss.on('connection', (ws) => {
   const useTmux = process.env.USE_TMUX === 'true';
   const shell = useTmux ? '/usr/local/bin/tmux' : (process.env.SHELL || '/bin/bash');
   const shellArgs = useTmux ? ['new-session', '-A', '-s', 'workshop', '/bin/bash', '-l'] : [];
-  const namespace = process.env.NAMESPACE || '';
-  const guid = process.env.GUID || '';
   
-  console.log('[DEBUG] Configuration:', { useTmux, shell, shellArgs, namespace, guid, timeElapsed: `${Date.now() - startTime}ms` });
+  console.log('[DEBUG] Configuration:', { useTmux, shell, shellArgs, timeElapsed: `${Date.now() - startTime}ms` });
   
-  // Configure environment to use ServiceAccount token from pod
+  // Configure environment
   const env = { ...process.env };
-  
-  // Remove KUBECONFIG to force in-cluster token usage
-  delete env.KUBECONFIG;
   
   // Set HOME
   if (!env.HOME) {
-    env.HOME = '/tmp';
+    env.HOME = '/home/default';
   }
 
   console.log('[DEBUG] Starting PTY with shell:', shell, ', args:', JSON.stringify(shellArgs), ', cwd:', env.HOME);
@@ -119,19 +159,7 @@ wss.on('connection', (ws) => {
       console.log('[DEBUG] Sending bash configuration commands');
       // Configure PS1 to show container name
       ptyProcess.write(`export PS1='\\[\\033[01;32m\\]${containerName}\\[\\033[00m\\]:\\[\\033[01;34m\\]\\w\\[\\033[00m\\]\\$ '\n`);
-      // Export GUID if available
-      if (guid) {
-        ptyProcess.write(`export GUID='${guid}'\n`);
-      }
     }, 100);
-  } else {
-    // For tmux, export GUID if available
-    if (guid) {
-      setTimeout(() => {
-        console.log('[DEBUG] Exporting GUID variable');
-        ptyProcess.write(`export GUID='${guid}'\n`);
-      }, 200);
-    }
   }
 
   ptyProcess.onData((data) => {
@@ -195,4 +223,5 @@ wss.on('connection', (ws) => {
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   console.log(`Guides directory: ${GUIDES_DIR}`);
+  console.log(`Default language: ${DEFAULT_LANG}`);
 });

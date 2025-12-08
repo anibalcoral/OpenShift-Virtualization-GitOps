@@ -1,4 +1,5 @@
 import { cn } from '@/lib/utils'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 interface NavigationProps {
   guides: string[]
@@ -8,16 +9,18 @@ interface NavigationProps {
 }
 
 export function Navigation({ guides, currentGuide, onSelectGuide, className }: NavigationProps) {
+  const { t } = useLanguage()
+  
   return (
     <div className={cn('flex flex-col h-full bg-[var(--sidebar-bg)] border-r border-border/50', className)}>
       <div className="flex-1 overflow-y-auto">
         <nav className="nav-menu">
           <h3 className="text-[var(--sidebar-fg)] font-medium text-sm mb-2 px-1">
-            GitOps Virtualization Workshop
+            {t.workshop}
           </h3>
           {guides.length === 0 ? (
             <div className="px-3 py-8 text-sm text-[var(--sidebar-fg)]/60 text-center">
-              No guides available
+              {t.noGuides}
             </div>
           ) : (
             <ul className="nav-list ml-0">

@@ -1,31 +1,8 @@
-# Dependencies
-node_modules/
-server/node_modules/
-
-# Build output
-dist/
-
-# Git
-.git/
+node_modules
+dist
+.git
 .gitignore
-
-# IDE
-.vscode/
-.idea/
-
-# Documentation
 *.md
-!README.md
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Logs
+.vscode
+.idea
 *.log
-
-# Kubernetes manifests (not needed in container)
-deploy/
-
-# Scripts (not needed in container)
-scripts/

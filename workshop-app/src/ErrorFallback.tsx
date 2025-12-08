@@ -6,9 +6,9 @@ export function ErrorFallback({ error }: ErrorFallbackProps) {
   return (
     <div className="h-screen w-screen flex items-center justify-center bg-background p-8">
       <div className="max-w-md text-center">
-        <h1 className="text-2xl font-bold text-destructive mb-4">Something went wrong</h1>
+        <h1 className="text-2xl font-bold text-destructive mb-4">Algo deu errado</h1>
         <p className="text-muted-foreground mb-4">
-          An unexpected error occurred. Please try refreshing the page.
+          Ocorreu um erro inesperado. Por favor, tente recarregar a pagina.
         </p>
         {error && (
           <pre className="text-left bg-muted p-4 rounded-md text-sm overflow-auto max-h-48">
@@ -19,7 +19,7 @@ export function ErrorFallback({ error }: ErrorFallbackProps) {
           onClick={() => window.location.reload()}
           className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
         >
-          Refresh Page
+          Recarregar Pagina
         </button>
       </div>
     </div>

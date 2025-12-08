@@ -5,8 +5,8 @@ import 'highlight.js/styles/github-dark.css'
 import { Button } from './ui/button'
 import { Check, CopySimple } from '@phosphor-icons/react'
 import { useState, ReactNode } from 'react'
-import { cn } from '@/lib/utils'
 import { copyToClipboard } from '@/lib/clipboard'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 interface MarkdownViewerProps {
   content: string
@@ -30,6 +30,7 @@ function extractTextContent(children: ReactNode): string {
 }
 
 function CodeBlock({ children, className, rawText }: { children: ReactNode; className?: string; rawText: string }) {
+  const { t } = useLanguage()
   const [copied, setCopied] = useState(false)
 
   const handleCopy = async () => {
@@ -45,24 +46,25 @@ function CodeBlock({ children, className, rawText }: { children: ReactNode; clas
       </pre>
       <Button
         size="sm"
-        variant="ghost"
         onClick={handleCopy}
-        className={cn(
-          "copy-button h-7 text-xs",
-          copied 
-            ? "bg-success hover:bg-success text-success-foreground" 
-            : "bg-accent hover:bg-accent/90 text-accent-foreground"
-        )}
+        className="copy-button h-7 text-xs"
+        style={copied ? {
+          backgroundColor: 'var(--success)',
+          color: 'var(--success-foreground)',
+        } : {
+          backgroundColor: 'var(--accent)',
+          color: 'var(--accent-foreground)',
+        }}
       >
         {copied ? (
           <>
             <Check size={14} weight="bold" className="mr-1.5" />
-            Copied
+            {t.copied}
           </>
         ) : (
           <>
             <CopySimple size={14} weight="bold" className="mr-1.5" />
-            Copy
+            {t.copy}
           </>
         )}
       </Button>

@@ -1,0 +1,28 @@
+{
+  "branding": {
+    "name": "GitOps Virtualization",
+    "title": "GitOps Virtualization Workshop",
+    "subtitle": "",
+    "logo": "redhat",
+    "navTitle": "GitOps Virtualization Workshop"
+  },
+  "features": {
+    "i18n": false,
+    "defaultLanguage": "en",
+    "useTmux": true,
+    "showOcpTools": true,
+    "showVirtTools": true
+  },
+  "terminal": {
+    "connectedMessage": {
+      "en": "Connected to OpenShift cluster"
+    },
+    "disconnectedMessage": {
+      "en": "Connection lost to cluster"
+    }
+  },
+  "theme": {
+    "primary": "#ee0000",
+    "accent": "#ee0000"
+  }
+}

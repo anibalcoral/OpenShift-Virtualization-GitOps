@@ -1,9 +1,9 @@
 {
-    "name": "gitops-virtualization-workshop",
+    "name": "tmux-workshop",
     "private": true,
     "version": "1.0.0",
     "type": "module",
-    "description": "Interactive GitOps Virtualization workshop with markdown guides and integrated terminal",
+    "description": "Workshop interativo de tmux com guias markdown e terminal integrado",
     "scripts": {
         "dev": "vite",
         "build": "tsc -b --noCheck && vite build",

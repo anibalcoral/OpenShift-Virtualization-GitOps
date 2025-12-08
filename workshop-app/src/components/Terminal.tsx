@@ -6,6 +6,7 @@ import { Button } from './ui/button'
 import { Badge } from './ui/badge'
 import { Trash, ArrowClockwise, Terminal as TerminalIcon } from '@phosphor-icons/react'
 import { cn } from '@/lib/utils'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 interface TerminalProps {
   className?: string
@@ -14,6 +15,7 @@ interface TerminalProps {
 type ConnectionStatus = 'connected' | 'connecting' | 'disconnected'
 
 export function Terminal({ className }: TerminalProps) {
+  const { t } = useLanguage()
   const terminalRef = useRef<HTMLDivElement>(null)
   const xtermRef = useRef<XTerm | null>(null)
   const fitAddonRef = useRef<FitAddon | null>(null)
@@ -37,7 +39,7 @@ export function Terminal({ className }: TerminalProps) {
     ws.onopen = () => {
       setStatus('connected')
       if (xtermRef.current) {
-        xtermRef.current.write('\r\n\x1b[32m✓ Connected to OpenShift cluster\x1b[0m\r\n')
+        xtermRef.current.write('\r\n\x1b[32m✓ ' + t.connectedMessage + '\x1b[0m\r\n')
         
         // Send terminal size immediately
         if (fitAddonRef.current) {
@@ -66,7 +68,7 @@ export function Terminal({ className }: TerminalProps) {
     ws.onclose = () => {
       setStatus('disconnected')
       if (xtermRef.current) {
-        xtermRef.current.write('\r\n\x1b[31m✗ Connection lost to cluster\x1b[0m\r\n')
+        xtermRef.current.write('\r\n\x1b[31m✗ ' + t.disconnectedMessage + '\x1b[0m\r\n')
       }
       
       reconnectTimeoutRef.current = setTimeout(() => {
@@ -135,6 +137,103 @@ export function Terminal({ className }: TerminalProps) {
       }
     })
 
+    // Helper function to paste from clipboard
+    // Uses navigator.clipboard.readText() which is the modern API
+    const pasteFromClipboard = () => {
+      navigator.clipboard.readText().then((text) => {
+        if (text && wsRef.current?.readyState === WebSocket.OPEN) {
+          wsRef.current.send(text)
+        }
+      }).catch((err) => {
+        console.error('Failed to read clipboard:', err)
+      })
+    }
+
+    // Intercept browser shortcuts at the document level during capture phase
+    // This runs BEFORE the browser can handle the shortcut
+    const handleKeyDownCapture = (event: KeyboardEvent) => {
+      // Only intercept when terminal has focus
+      if (!terminalRef.current?.contains(document.activeElement) && 
+          document.activeElement !== terminalRef.current) {
+        return
+      }
+
+      // Ctrl+T - New tmux window (prevent browser new tab)
+      if (event.ctrlKey && !event.shiftKey && event.key.toLowerCase() === 't') {
+        event.preventDefault()
+        event.stopPropagation()
+        // Send Ctrl+T to terminal
+        if (wsRef.current?.readyState === WebSocket.OPEN) {
+          wsRef.current.send('\x14') // Ctrl+T
+        }
+        return
+      }
+
+      // Ctrl+W - Close tmux pane (prevent browser close tab)
+      if (event.ctrlKey && !event.shiftKey && event.key.toLowerCase() === 'w') {
+        event.preventDefault()
+        event.stopPropagation()
+        // Send Ctrl+W to terminal
+        if (wsRef.current?.readyState === WebSocket.OPEN) {
+          wsRef.current.send('\x17') // Ctrl+W
+        }
+        return
+      }
+
+      // Ctrl+N - (prevent browser new window)
+      if (event.ctrlKey && !event.shiftKey && event.key.toLowerCase() === 'n') {
+        event.preventDefault()
+        event.stopPropagation()
+        if (wsRef.current?.readyState === WebSocket.OPEN) {
+          wsRef.current.send('\x0e') // Ctrl+N
+        }
+        return
+      }
+
+      // Ctrl+Shift+T - (prevent browser reopen tab)
+      if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 't') {
+        event.preventDefault()
+        event.stopPropagation()
+        return
+      }
+
+      // Ctrl+Shift+V - paste from browser clipboard (useful for external content)
+      if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'v') {
+        event.preventDefault()
+        event.stopPropagation()
+        pasteFromClipboard()
+        return
+      }
+    }
+
+    // Add listener with capture: true to intercept before browser
+    document.addEventListener('keydown', handleKeyDownCapture, { capture: true })
+
+    // Handle custom key events for paste
+    term.attachCustomKeyEventHandler((event: KeyboardEvent) => {
+      // Handle Ctrl+Shift+V FIRST - paste from browser clipboard
+      // Must check this before Ctrl+V since shiftKey is also set
+      if (event.ctrlKey && event.shiftKey && (event.key === 'v' || event.key === 'V') && event.type === 'keydown') {
+        event.preventDefault()
+        event.stopPropagation()
+        pasteFromClipboard()
+        return false // Prevent xterm from handling
+      }
+      
+      // Handle Ctrl+V - send to tmux so it can paste from its buffer
+      if (event.ctrlKey && !event.shiftKey && event.key === 'v' && event.type === 'keydown') {
+        event.preventDefault()
+        event.stopPropagation()
+        // Send Ctrl+V to terminal/tmux so it can handle paste-buffer
+        if (wsRef.current?.readyState === WebSocket.OPEN) {
+          wsRef.current.send('\x16') // Ctrl+V character
+        }
+        return false // Prevent default xterm handling
+      }
+      
+      return true // Let xterm handle other keys normally
+    })
+
     // Prevent default paste behavior and handle manually to avoid duplication
     const handlePaste = (event: ClipboardEvent) => {
       event.preventDefault()
@@ -144,15 +243,41 @@ export function Terminal({ className }: TerminalProps) {
       }
     }
 
-    // Prevent Ctrl+W from closing browser tab and let bash handle it
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.ctrlKey && event.key === 'w') {
+    // Intercept middle mouse button click to prevent X11 primary selection paste
+    // This ensures only the system clipboard is used for paste operations
+    const handleMouseDown = (event: MouseEvent) => {
+      // Middle mouse button is button 1
+      if (event.button === 1) {
         event.preventDefault()
+        event.stopPropagation()
+        // Paste from system clipboard instead of X11 primary selection
+        pasteFromClipboard()
+        return false
+      }
+    }
+
+    // Prevent auxclick (middle click) from triggering any default behavior
+    const handleAuxClick = (event: MouseEvent) => {
+      if (event.button === 1) {
+        event.preventDefault()
+        event.stopPropagation()
+        return false
+      }
+    }
+
+    // Also capture mouseup to fully prevent middle-click paste
+    const handleMouseUp = (event: MouseEvent) => {
+      if (event.button === 1) {
+        event.preventDefault()
+        event.stopPropagation()
+        return false
       }
     }
 
     terminalRef.current.addEventListener('paste', handlePaste)
-    terminalRef.current.addEventListener('keydown', handleKeyDown)
+    terminalRef.current.addEventListener('mousedown', handleMouseDown, { capture: true })
+    terminalRef.current.addEventListener('mouseup', handleMouseUp, { capture: true })
+    terminalRef.current.addEventListener('auxclick', handleAuxClick, { capture: true })
 
     // Connect immediately without delay
     connect()
@@ -180,9 +305,12 @@ export function Terminal({ className }: TerminalProps) {
     window.addEventListener('resize', handleResize)
 
     return () => {
+      document.removeEventListener('keydown', handleKeyDownCapture, { capture: true })
       if (terminalRef.current) {
         terminalRef.current.removeEventListener('paste', handlePaste)
-        terminalRef.current.removeEventListener('keydown', handleKeyDown)
+        terminalRef.current.removeEventListener('mousedown', handleMouseDown, { capture: true })
+        terminalRef.current.removeEventListener('mouseup', handleMouseUp, { capture: true })
+        terminalRef.current.removeEventListener('auxclick', handleAuxClick, { capture: true })
       }
       resizeObserver.disconnect()
       window.removeEventListener('resize', handleResize)
@@ -211,21 +339,21 @@ export function Terminal({ className }: TerminalProps) {
         return (
           <Badge variant="outline" className="border-success/30 bg-success/10 text-success text-xs font-medium">
             <div className="w-1.5 h-1.5 rounded-full bg-success mr-1.5" />
-            Connected
+            {t.connected}
           </Badge>
         )
       case 'connecting':
         return (
           <Badge variant="outline" className="border-warning/30 bg-warning/10 text-warning text-xs font-medium">
             <div className="w-1.5 h-1.5 rounded-full bg-warning mr-1.5 animate-pulse" />
-            Connecting...
+            {t.connecting}
           </Badge>
         )
       case 'disconnected':
         return (
           <Badge variant="outline" className="border-destructive/30 bg-destructive/10 text-destructive text-xs font-medium">
             <div className="w-1.5 h-1.5 rounded-full bg-destructive mr-1.5" />
-            Disconnected
+            {t.disconnected}
           </Badge>
         )
     }
@@ -237,7 +365,7 @@ export function Terminal({ className }: TerminalProps) {
         <div className="flex items-center justify-between px-4 py-2 bg-[var(--toolbar-bg)] border-b border-border">
           <div className="flex items-center gap-2">
             <TerminalIcon size={16} weight="bold" className="text-[var(--toolbar-fg)]" />
-            <span className="text-sm font-medium text-foreground">OpenShift Terminal</span>
+            <span className="text-sm font-medium text-foreground">{t.terminal}</span>
           </div>
           <div className="flex items-center gap-3">
             {getStatusBadge()}
@@ -248,7 +376,7 @@ export function Terminal({ className }: TerminalProps) {
                   variant="ghost"
                   onClick={handleReconnect}
                   className="h-7 px-2 text-xs hover:bg-accent/10 hover:text-accent"
-                  title="Reconnect"
+                  title={t.reconnect}
                 >
                   <ArrowClockwise size={14} weight="bold" />
                 </Button>
@@ -258,7 +386,7 @@ export function Terminal({ className }: TerminalProps) {
                 variant="ghost"
                 onClick={handleClear}
                 className="h-7 px-2 text-xs hover:bg-accent/10 hover:text-accent"
-                title="Clear terminal"
+                title={t.clearTerminal}
               >
                 <Trash size={14} weight="bold" />
               </Button>

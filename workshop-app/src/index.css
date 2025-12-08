@@ -23,75 +23,76 @@
 }
 
 :root {
-  /* Red Hat Design System Colors */
-  --rh-red: #ee0000;
-  --rh-red-dark: #c00;
-  --rh-black: #131313;
-  --rh-gray-100: #f0f0f0;
-  --rh-gray-200: #e1e1e1;
-  --rh-gray-300: #ededed;
-  --rh-gray-400: #c1c1c1;
-  --rh-gray-500: #8e8e8e;
-  --rh-gray-600: #5d5d5d;
-  --rh-gray-700: #424242;
-  --rh-gray-800: #333;
-  --rh-gray-900: #191919;
-  --rh-white: #fff;
+  /* Tmux/Gruvbox-inspired Colors */
+  --tmux-green: #41af46;
+  --tmux-yellow: #fabd2f;
+  --tmux-orange: #fe8019;
+  --tmux-black: #131313;
+  --tmux-gray-100: #f0f0f0;
+  --tmux-gray-200: #e1e1e1;
+  --tmux-gray-300: #ededed;
+  --tmux-gray-400: #c1c1c1;
+  --tmux-gray-500: #8e8e8e;
+  --tmux-gray-600: #5d5d5d;
+  --tmux-gray-700: #424242;
+  --tmux-gray-800: #333;
+  --tmux-gray-900: #191919;
+  --tmux-white: #fff;
 
-  --background: var(--rh-white);
-  --foreground: var(--rh-gray-800);
+  --background: var(--tmux-white);
+  --foreground: var(--tmux-gray-800);
   
-  --card: var(--rh-white);
-  --card-foreground: var(--rh-gray-800);
+  --card: var(--tmux-white);
+  --card-foreground: var(--tmux-gray-800);
   
-  --popover: var(--rh-white);
-  --popover-foreground: var(--rh-gray-800);
+  --popover: var(--tmux-white);
+  --popover-foreground: var(--tmux-gray-800);
   
-  --primary: var(--rh-black);
-  --primary-foreground: var(--rh-white);
+  --primary: var(--tmux-black);
+  --primary-foreground: var(--tmux-white);
   
-  --secondary: var(--rh-gray-300);
-  --secondary-foreground: var(--rh-gray-800);
+  --secondary: var(--tmux-gray-300);
+  --secondary-foreground: var(--tmux-gray-800);
   
-  --muted: var(--rh-gray-100);
-  --muted-foreground: var(--rh-gray-600);
+  --muted: var(--tmux-gray-100);
+  --muted-foreground: var(--tmux-gray-600);
   
-  --accent: var(--rh-red);
-  --accent-foreground: var(--rh-white);
+  --accent: var(--tmux-green);
+  --accent-foreground: var(--tmux-white);
   
   --destructive: #d32f2f;
-  --destructive-foreground: var(--rh-white);
+  --destructive-foreground: var(--tmux-white);
   
   --success: #41af46;
-  --success-foreground: var(--rh-white);
+  --success-foreground: var(--tmux-white);
   
   --warning: #e18114;
-  --warning-foreground: var(--rh-white);
+  --warning-foreground: var(--tmux-white);
 
   --info: #217ee7;
-  --info-foreground: var(--rh-white);
+  --info-foreground: var(--tmux-white);
   
-  --border: var(--rh-gray-200);
-  --input: var(--rh-gray-200);
-  --ring: var(--rh-red);
+  --border: var(--tmux-gray-200);
+  --input: var(--tmux-gray-200);
+  --ring: var(--tmux-green);
   
   --radius: 0.25rem;
   
-  --terminal-bg: var(--rh-gray-900);
-  --terminal-fg: var(--rh-gray-100);
-  --terminal-selection: var(--rh-gray-700);
-  --terminal-cursor: var(--rh-gray-100);
+  --terminal-bg: var(--tmux-gray-900);
+  --terminal-fg: var(--tmux-gray-100);
+  --terminal-selection: var(--tmux-gray-700);
+  --terminal-cursor: var(--tmux-gray-100);
   
-  --sidebar-bg: var(--rh-gray-300);
-  --sidebar-fg: var(--rh-gray-800);
-  --sidebar-hover: var(--rh-gray-200);
-  --sidebar-active: var(--rh-red);
+  --sidebar-bg: var(--tmux-gray-300);
+  --sidebar-fg: var(--tmux-gray-800);
+  --sidebar-hover: var(--tmux-gray-200);
+  --sidebar-active: var(--tmux-green);
   
-  --navbar-bg: var(--rh-black);
-  --navbar-fg: var(--rh-white);
+  --navbar-bg: var(--tmux-black);
+  --navbar-fg: var(--tmux-white);
 
-  --toolbar-bg: var(--rh-gray-300);
-  --toolbar-fg: var(--rh-gray-600);
+  --toolbar-bg: var(--tmux-gray-300);
+  --toolbar-fg: var(--tmux-gray-600);
 }
 
 @theme {
@@ -129,7 +130,7 @@
   --radius-full: 9999px;
 }
 
-/* Navigation Menu Styles - Red Hat Design System */
+/* Navigation Menu Styles */
 .nav-menu {
   flex-grow: 1;
   min-height: 0;
@@ -145,268 +146,192 @@
 }
 
 .nav-menu a:hover {
-  color: var(--rh-red);
+  color: var(--tmux-green);
 }
 
 .nav-list {
-  margin: 0 0 0 0.75rem;
-  padding: 0;
   list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
 .nav-item {
-  margin-top: 0.5em;
+  margin-bottom: 0.125rem;
 }
 
 .nav-link {
   display: block;
-  padding: 0.25rem 0;
-  color: var(--rh-gray-800);
-  transition: color 0.15s ease;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius);
+  color: var(--sidebar-fg);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
 }
 
 .nav-link:hover {
-  color: var(--rh-red);
-  text-decoration: none;
+  background: var(--sidebar-hover);
+  color: var(--tmux-green);
 }
 
 .nav-link.is-active {
+  background: var(--tmux-green);
+  color: white;
   font-weight: 500;
-  color: var(--rh-red);
 }
 
-/* Markdown Content Styles - Red Hat Design System */
-.markdown-content h1 {
-  @apply text-2xl font-normal mb-4 mt-6 text-foreground;
+/* Markdown Content Styles */
+.markdown-content {
+  color: var(--foreground);
+}
+
+.markdown-content h1,
+.markdown-content h2,
+.markdown-content h3,
+.markdown-content h4,
+.markdown-content h5,
+.markdown-content h6 {
   font-family: 'Red Hat Display', sans-serif;
-  color: var(--rh-gray-900);
-  hyphens: none;
+  font-weight: 600;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+  color: var(--foreground);
+}
+
+.markdown-content h1 {
+  font-size: 1.875rem;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.5rem;
 }
 
 .markdown-content h2 {
-  @apply text-xl font-normal mb-3 mt-5 text-foreground;
-  font-family: 'Red Hat Display', sans-serif;
-  color: var(--rh-gray-900);
-  border-bottom: 1px solid var(--rh-gray-200);
-  padding-bottom: 0.1rem;
-  margin-left: -1rem;
-  margin-right: -1rem;
-  padding-left: 1rem;
-  padding-right: 1rem;
+  font-size: 1.5rem;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.25rem;
 }
 
 .markdown-content h3 {
-  @apply text-lg font-medium mb-2 mt-4 text-foreground;
-  font-family: 'Red Hat Display', sans-serif;
-  color: var(--rh-gray-900);
+  font-size: 1.25rem;
 }
 
 .markdown-content h4 {
-  @apply text-base font-medium mb-2 mt-3 text-foreground;
-  font-family: 'Red Hat Display', sans-serif;
+  font-size: 1.125rem;
 }
 
 .markdown-content p {
-  @apply mb-4 leading-relaxed text-foreground;
-  margin: 0;
+  margin-bottom: 1rem;
+  line-height: 1.7;
 }
 
-.markdown-content p + p {
-  margin-top: 1rem;
-}
-
-.markdown-content ul, .markdown-content ol {
-  @apply mb-4 ml-6;
-  margin: 1rem 0 0;
-  padding: 0 0 0 2rem;
+.markdown-content ul,
+.markdown-content ol {
+  margin-bottom: 1rem;
+  padding-left: 1.5rem;
 }
 
 .markdown-content li {
-  @apply leading-relaxed;
   margin-bottom: 0.5rem;
 }
 
-.markdown-content code {
-  @apply px-1.5 py-0.5 rounded text-sm;
-  font-family: 'Red Hat Mono', 'JetBrains Mono', monospace;
-  background: var(--rh-gray-300);
-  color: var(--rh-gray-800);
-  font-size: 0.95em;
-}
-
-.markdown-content pre {
-  @apply p-4 rounded-md overflow-x-auto mb-4 relative;
-  background: var(--rh-gray-300);
-  box-shadow: inset 0 0 1.75px var(--rh-gray-200);
-  font-size: 0.88889rem;
-  line-height: 1.5;
-  margin: 1rem 0 0;
-}
-
-.markdown-content pre code {
-  @apply bg-transparent p-0 text-inherit;
-  color: var(--rh-gray-800);
-}
-
-.markdown-content a {
-  color: var(--rh-red);
-  text-decoration: none;
-}
-
-.markdown-content a:hover {
-  text-decoration: underline;
+.markdown-content code:not(pre code) {
+  background: var(--muted);
+  padding: 0.2em 0.4em;
+  border-radius: 3px;
+  font-size: 0.875em;
+  color: var(--tmux-green);
 }
 
 .markdown-content blockquote {
-  @apply pl-4 italic mb-4 py-2;
-  border-left: 5px solid var(--rh-gray-600);
-  background: var(--rh-gray-300);
-  color: var(--rh-gray-600);
-  margin: 1rem 0 0;
-}
-
-.markdown-content img {
-  @apply rounded-md mb-4 max-w-full border border-border;
-  height: auto;
+  border-left: 4px solid var(--tmux-green);
+  padding-left: 1rem;
+  margin: 1rem 0;
+  color: var(--muted-foreground);
+  font-style: italic;
 }
 
 .markdown-content table {
-  @apply w-full mb-4 border-collapse;
-  font-size: 0.83333rem;
-  margin: 2rem 0;
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
 }
 
-.markdown-content th, .markdown-content td {
-  @apply border border-border px-4 py-2;
+.markdown-content th,
+.markdown-content td {
+  border: 1px solid var(--border);
+  padding: 0.5rem 0.75rem;
+  text-align: left;
 }
 
 .markdown-content th {
-  @apply font-medium text-left;
-  border-bottom: 2.5px solid var(--rh-gray-200);
+  background: var(--muted);
+  font-weight: 600;
 }
 
-.markdown-content td {
-  border-top: 1px solid var(--rh-gray-200);
-  border-bottom: 1px solid var(--rh-gray-200);
+.markdown-content a {
+  color: var(--tmux-green);
+  text-decoration: underline;
 }
 
-/* Admonition Blocks - Red Hat Style */
-.markdown-content .admonition,
-.markdown-content blockquote.note,
-.markdown-content blockquote.tip,
-.markdown-content blockquote.warning,
-.markdown-content blockquote.important,
-.markdown-content blockquote.caution {
-  position: relative;
-  margin: 1.4rem 0 0;
-  padding: 1rem 1rem 0.75rem;
-  background: var(--rh-gray-300);
-  border-radius: 0.25rem;
+.markdown-content a:hover {
+  opacity: 0.8;
 }
 
-.markdown-content .admonition-title {
-  position: absolute;
-  top: 0;
-  left: 0;
-  font-size: 0.83333rem;
-  padding: 0 0.5rem;
-  height: 1.25rem;
-  line-height: 1;
-  font-weight: 500;
-  text-transform: uppercase;
-  border-radius: 0.45rem;
-  transform: translate(-0.5rem, -50%);
+.markdown-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius);
 }
 
+.markdown-content hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 2rem 0;
+}
+
+/* Code Block Wrapper */
 .code-block-wrapper {
-  @apply relative;
+  position: relative;
+  margin: 1rem 0;
 }
 
-.code-block-wrapper:hover .copy-button {
-  opacity: 1;
+.code-block-wrapper pre {
+  background: var(--terminal-bg) !important;
+  border-radius: var(--radius);
+  padding: 1rem;
+  padding-top: 2.5rem;
+  overflow-x: auto;
+  font-size: 0.875rem;
+  line-height: 1.5;
 }
 
-.copy-button {
-  @apply absolute top-2 right-2 opacity-0 transition-opacity;
-}
-
-/* Custom scrollbar styling - Red Hat Style */
-.overflow-y-auto,
-[data-radix-scroll-area-viewport],
-.xterm-viewport {
-  scrollbar-width: thin !important;
-  scrollbar-color: var(--rh-gray-400) transparent !important;
-}
-
-.overflow-y-auto::-webkit-scrollbar,
-[data-radix-scroll-area-viewport]::-webkit-scrollbar,
-.xterm-viewport::-webkit-scrollbar {
-  width: 0.25rem !important;
-  display: block !important;
-}
-
-.overflow-y-auto::-webkit-scrollbar-track,
-[data-radix-scroll-area-viewport]::-webkit-scrollbar-track,
-.xterm-viewport::-webkit-scrollbar-track {
+.code-block-wrapper pre code {
   background: transparent !important;
+  color: var(--terminal-fg) !important;
+  padding: 0;
+  font-size: inherit;
 }
 
-.overflow-y-auto::-webkit-scrollbar-thumb,
-[data-radix-scroll-area-viewport]::-webkit-scrollbar-thumb,
-.xterm-viewport::-webkit-scrollbar-thumb {
-  background: var(--rh-gray-400) !important;
-  border-radius: 0.125rem;
+.code-block-wrapper .copy-button {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 10;
 }
 
-.overflow-y-auto::-webkit-scrollbar-thumb:hover,
-[data-radix-scroll-area-viewport]::-webkit-scrollbar-thumb:hover,
-.xterm-viewport::-webkit-scrollbar-thumb:hover {
-  background: var(--rh-gray-500) !important;
+/* Keyboard shortcut styling */
+.markdown-content kbd {
+  background: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 0.1em 0.4em;
+  font-family: 'Red Hat Mono', monospace;
+  font-size: 0.875em;
+  box-shadow: 0 1px 0 var(--tmux-gray-400);
 }
 
-.overflow-y-auto::-webkit-scrollbar-thumb:active,
-[data-radix-scroll-area-viewport]::-webkit-scrollbar-thumb:active,
-.xterm-viewport::-webkit-scrollbar-thumb:active {
-  background: var(--rh-gray-600) !important;
-}
-
-/* Highlight.js overrides for better readability */
-.markdown-content pre code .hljs-string,
-.markdown-content pre code .hljs-attr,
-.markdown-content pre code .hljs-template-variable,
-.markdown-content pre code .hljs-variable {
-  color: #0d7d6c !important;
-}
-
-.markdown-content pre code .hljs-comment,
-.markdown-content pre code .hljs-quote {
-  color: #5d5d5d !important;
-}
-
-.markdown-content pre code .hljs-keyword,
-.markdown-content pre code .hljs-selector-tag,
-.markdown-content pre code .hljs-type {
-  color: #8b3dac !important;
-}
-
-.markdown-content pre code .hljs-literal,
-.markdown-content pre code .hljs-number {
-  color: #b35e14 !important;
-}
-
-.markdown-content pre code .hljs-title,
-.markdown-content pre code .hljs-section,
-.markdown-content pre code .hljs-name,
-.markdown-content pre code .hljs-selector-id,
-.markdown-content pre code .hljs-selector-class {
-  color: #1a5fb4 !important;
-}
-
-.markdown-content pre code .hljs-built_in,
-.markdown-content pre code .hljs-builtin-name {
-  color: #0d7d6c !important;
-}
-
-.markdown-content pre code .hljs-meta {
-  color: #5d5d5d !important;
+/* Strong emphasis for tmux prefix */
+.markdown-content strong {
+  color: var(--tmux-orange);
+  font-weight: 600;
 }
