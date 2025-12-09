@@ -23,21 +23,42 @@ spec:
         - /bin/bash
         - -c
         - |
-          # Setup SSH key
+          # Copy home directory contents from the image to the volume
+          cp -r /home/default/. /home-dir/ || true
+          
+          # Setup SSH key for user 1001
           mkdir -p /ssh-setup
           cp /ssh-readonly/ocpvirt-gitops /ssh-setup/id_rsa
           chmod 600 /ssh-setup/id_rsa
           chown 1001:0 /ssh-setup/id_rsa
           
-          # Configure git to use SSH without host verification
-          mkdir -p /root/.ssh
-          cp /ssh-setup/id_rsa /root/.ssh/id_rsa
-          chmod 600 /root/.ssh/id_rsa
-          ssh-keyscan github.com >> /root/.ssh/known_hosts 2>/dev/null
+          # Add GitHub to known_hosts
+          mkdir -p /ssh-setup
+          ssh-keyscan -H github.com > /ssh-setup/known_hosts 2>/dev/null
+          chmod 644 /ssh-setup/known_hosts
+          chown 1001:0 /ssh-setup/known_hosts
+          
+          # Create SSH config for user 1001
+          cat > /ssh-setup/config <<EOF
+          Host github.com
+            IdentityFile ~/.ssh/id_rsa
+            StrictHostKeyChecking no
+            UserKnownHostsFile ~/.ssh/known_hosts
+          EOF
+          chmod 600 /ssh-setup/config
+          chown 1001:0 /ssh-setup/config
+          
+          # Remove empty ~/.ssh from copied home and create symlink to the writable volume
+          rm -rf /home-dir/.ssh
+          ln -sf /opt/app-root/src/.ssh /home-dir/.ssh
+          chown -h 1001:0 /home-dir/.ssh
           
           # Clone repositories
           mkdir -p /opt
           cd /opt
+          
+          # Configure git for the init process
+          export GIT_SSH_COMMAND="ssh -i /ssh-setup/id_rsa -o StrictHostKeyChecking=no"
           
           if [ ! -d "/opt/OpenShift-Virtualization-GitOps" ]; then
             git clone git@github.com:anibalcoral/OpenShift-Virtualization-GitOps.git
@@ -52,6 +73,9 @@ spec:
           chown -R 1001:0 /opt/OpenShift-Virtualization-GitOps-Apps
           chmod -R g+w /opt/OpenShift-Virtualization-GitOps
           chmod -R g+w /opt/OpenShift-Virtualization-GitOps-Apps
+          
+          # Set proper ownership for home directory
+          chown -R 1001:0 /home-dir
         volumeMounts:
         - name: ssh-key
           mountPath: /ssh-readonly
@@ -60,6 +84,8 @@ spec:
           mountPath: /ssh-setup
         - name: git-repos
           mountPath: /opt
+        - name: home-dir
+          mountPath: /home-dir
         securityContext:
           runAsUser: 0
       containers:
@@ -93,6 +119,8 @@ spec:
           mountPath: /opt/app-root/src/.ssh
         - name: git-repos
           mountPath: /opt
+        - name: home-dir
+          mountPath: /home/default
         resources:
           requests:
             memory: "256Mi"
@@ -126,4 +154,6 @@ spec:
       - name: ssh-writable
         emptyDir: {}
       - name: git-repos
+        emptyDir: {}
+      - name: home-dir
         emptyDir: {}

@@ -2,6 +2,24 @@
 
 # Bash functions for tmux workshop
 
+# Configure SSH for Git operations
+SSH_DIR="${HOME}/.ssh"
+if [ ! -d "$SSH_DIR" ] && [ -d "/opt/app-root/src/.ssh" ]; then
+    # Use the mounted SSH directory if ~/.ssh doesn't exist
+    SSH_DIR="/opt/app-root/src/.ssh"
+fi
+
+if [ -f "$SSH_DIR/id_rsa" ]; then
+    # Start ssh-agent if not already running
+    if [ -z "$SSH_AGENT_PID" ]; then
+        eval "$(ssh-agent -s)" > /dev/null 2>&1
+        ssh-add "$SSH_DIR/id_rsa" > /dev/null 2>&1
+    fi
+    
+    # Configure Git to use SSH properly
+    export GIT_SSH_COMMAND="ssh -i $SSH_DIR/id_rsa -o StrictHostKeyChecking=no -o UserKnownHostsFile=$SSH_DIR/known_hosts"
+fi
+
 # Function to display help
 tmux_help() {
     echo "Atalhos do tmux Workshop / tmux Workshop Shortcuts"
