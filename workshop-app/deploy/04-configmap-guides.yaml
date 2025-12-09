@@ -575,6 +575,10 @@ data:
     2. Verify the file was created:
     ```bash
     ls -la base/vm-web-09.yaml
+    ```
+    
+    3. View the first 20 lines of the new file:
+    ```bash
     cat base/vm-web-09.yaml | head -20
     ```
     
@@ -854,27 +858,33 @@ data:
     oc get applications -n openshift-gitops | grep workshop-gitops-vms
     ```
     
-    2. List VMs in all environments to confirm current state:
+    2. List VMs in development environment:
     ```bash
-    echo "=== Development Environment ==="
     oc get vm -n workshop-gitops-vms-dev | grep -E "(NAME|vm-web)"
+    ```
     
-    echo "=== Homologation Environment ==="
+    3. List VMs in homologation environment:
+    ```bash
     oc get vm -n workshop-gitops-vms-hml | grep -E "(NAME|vm-web)"
+    ```
     
-    echo "=== Production Environment ==="
+    4. List VMs in production environment:
+    ```bash
     oc get vm -n workshop-gitops-vms-prd | grep -E "(NAME|vm-web)"
     ```
     
-    3. Verify that dev-vm-web-09 exists only in development:
+    5. Verify that dev-vm-web-09 exists in development:
     ```bash
-    echo "Checking dev-vm-web-09 in development:"
     oc get vm dev-vm-web-09 -n workshop-gitops-vms-dev --no-headers 2>/dev/null || echo "Not found"
+    ```
     
-    echo "Checking hml-vm-web-09 in homologation:"
+    6. Verify that hml-vm-web-09 does not exist in homologation (expected):
+    ```bash
     oc get vm hml-vm-web-09 -n workshop-gitops-vms-hml --no-headers 2>/dev/null || echo "Not found (expected)"
+    ```
     
-    echo "Checking prd-vm-web-09 in production:"
+    7. Verify that prd-vm-web-09 does not exist in production (expected):
+    ```bash
     oc get vm prd-vm-web-09 -n workshop-gitops-vms-prd --no-headers 2>/dev/null || echo "Not found (expected)"
     ```
     
@@ -887,13 +897,17 @@ data:
     cd /opt/OpenShift-Virtualization-GitOps-Apps
     ```
     
-    2. Check current branch and available branches:
+    2. Check available branches:
     ```bash
     git branch -a | grep $GUID
+    ```
+    
+    3. Check Git status:
+    ```bash
     git status
     ```
     
-    3. Ensure you're on the vms-dev-GUID branch:
+    4. Ensure you're on the vms-dev-GUID branch:
     ```bash
     git checkout vms-dev-$GUID
     ```
@@ -902,23 +916,27 @@ data:
     
     ### Step 3: Promote Development Changes to Homologation
     
-    1. Create a merge to homologation branch:
+    1. Checkout homologation branch:
     ```bash
     git checkout vms-hml-$GUID
+    ```
+    
+    2. Merge development branch into homologation:
+    ```bash
     git merge vms-dev-$GUID
     ```
     
-    2. Push the changes:
+    3. Push the changes:
     ```bash
     git push origin vms-hml-$GUID
     ```
     
-    3. Force ArgoCD to detect and sync the changes:
+    4. Force ArgoCD to detect and sync the changes:
     ```bash
     oc patch applications workshop-gitops-vms-hml -n openshift-gitops --type merge -p '{"operation":{"sync":{"syncStrategy":{"hook":{}}}}}' &>/dev/null
     ```
     
-    4. Verify the VM was created in homologation:
+    5. Verify the VM was created in homologation:
     ```bash
     watch "oc get vm -n workshop-gitops-vms-hml | grep hml-vm-web-09"
     ```
@@ -927,23 +945,27 @@ data:
     
     ### Step 4: Promote Homologation Changes to Production
     
-    1. Merge homologation to main (production):
+    1. Checkout production branch:
     ```bash
     git checkout vms-prd-$GUID
+    ```
+    
+    2. Merge homologation branch into production:
+    ```bash
     git merge vms-hml-$GUID
     ```
     
-    2. Push the changes:
+    3. Push the changes:
     ```bash
     git push origin vms-prd-$GUID
     ```
     
-    3. Force ArgoCD to detect and sync the changes:
+    4. Force ArgoCD to detect and sync the changes:
     ```bash
     oc patch applications workshop-gitops-vms-prd -n openshift-gitops --type merge -p '{"operation":{"sync":{"syncStrategy":{"hook":{}}}}}' &>/dev/null
     ```
     
-    4. Verify the VM was created in production:
+    5. Verify the VM was created in production:
     ```bash
     watch "oc get vm -n workshop-gitops-vms-prd | grep prd-vm-web-09"
     ```
@@ -952,28 +974,33 @@ data:
     
     ### Step 5: Verify Multi-Environment Deployment
     
-    1. List all vm-web-09 instances across environments:
+    1. Check dev-vm-web-09 in development:
     ```bash
-    echo "=== VM Web 09 Across All Environments ==="
-    echo "Development:"
     oc get vm dev-vm-web-09 -n workshop-gitops-vms-dev --no-headers 2>/dev/null || echo "Not found"
+    ```
     
-    echo "Homologation:"
+    2. Check hml-vm-web-09 in homologation:
+    ```bash
     oc get vm hml-vm-web-09 -n workshop-gitops-vms-hml --no-headers 2>/dev/null || echo "Not found"
+    ```
     
-    echo "Production:"
+    3. Check prd-vm-web-09 in production:
+    ```bash
     oc get vm prd-vm-web-09 -n workshop-gitops-vms-prd --no-headers 2>/dev/null || echo "Not found"
     ```
     
-    2. Compare configurations between environments using Kustomize:
+    4. Check development configuration using Kustomize:
     ```bash
-    echo "=== Development Configuration ==="
     oc kustomize overlays/dev | grep -A 5 -B 5 "vm-web-09"
+    ```
     
-    echo "=== Homologation Configuration ==="
+    5. Check homologation configuration using Kustomize:
+    ```bash
     oc kustomize overlays/hml | grep -A 5 -B 5 "vm-web-09"
+    ```
     
-    echo "=== Production Configuration ==="
+    6. Check production configuration using Kustomize:
+    ```bash
     oc kustomize overlays/prd | grep -A 5 -B 5 "vm-web-09"
     ```
     
@@ -999,43 +1026,92 @@ data:
     
     ### Verification Commands
     
+    1. Check all ArgoCD applications:
     ```bash
-    # Check all ArgoCD applications
     oc get applications -n openshift-gitops
+    ```
     
-    # Check VM status across environments
-    for ns in workshop-gitops-vms-dev workshop-gitops-vms-hml workshop-gitops-vms-prd; do
-      echo "=== Namespace: $ns ==="
-      oc get vm -n $ns | grep vm-web-09
-    done
+    2. Check VM status in development:
+    ```bash
+    oc get vm -n workshop-gitops-vms-dev | grep vm-web-09
+    ```
     
-    # Check Git branch status
-    cd /opt/OpenShift-Virtualization-GitOps-Apps
-    git log --oneline -1
+    3. Check VM status in homologation:
+    ```bash
+    oc get vm -n workshop-gitops-vms-hml | grep vm-web-09
+    ```
+    
+    4. Check VM status in production:
+    ```bash
+    oc get vm -n workshop-gitops-vms-prd | grep vm-web-09
+    ```
+    
+    5. Check Git branch status:
+    ```bash
+    cd /opt/OpenShift-Virtualization-GitOps-Apps && git log --oneline -1
     ```
     
     ## Cleanup
     
     To clean up the resources created in this demo:
     
+    1. Navigate to the Apps repository:
     ```bash
-    # Remove vm-web-09 from all branches (optional)
     cd /opt/OpenShift-Virtualization-GitOps-Apps
+    ```
     
-    # Remove from development
+    2. Checkout development branch:
+    ```bash
     git checkout vms-dev-$GUID
+    ```
+    
+    3. Remove the VM file:
+    ```bash
     git rm base/vm-web-09.yaml
+    ```
+    
+    4. Remove VM from kustomization:
+    ```bash
     sed -i '/vm-web-09.yaml/d' base/kustomization.yaml
+    ```
+    
+    5. Commit the changes:
+    ```bash
     git commit -m "Remove vm-web-09 from development"
+    ```
+    
+    6. Push to development branch:
+    ```bash
     git push origin vms-dev-$GUID
+    ```
     
-    # Promote removal through environments
+    7. Checkout homologation branch:
+    ```bash
     git checkout vms-hml-$GUID
-    git merge vms-dev-$GUID -m "Remove vm-web-09 from homologation"
-    git push origin vms-hml-$GUID
+    ```
     
+    8. Merge development into homologation:
+    ```bash
+    git merge vms-dev-$GUID -m "Remove vm-web-09 from homologation"
+    ```
+    
+    9. Push to homologation branch:
+    ```bash
+    git push origin vms-hml-$GUID
+    ```
+    
+    10. Checkout production branch:
+    ```bash
     git checkout vms-prd-$GUID
+    ```
+    
+    11. Merge homologation into production:
+    ```bash
     git merge vms-hml-$GUID -m "Remove vm-web-09 from production"
+    ```
+    
+    12. Push to production branch:
+    ```bash
     git push origin vms-prd-$GUID
     ```
     

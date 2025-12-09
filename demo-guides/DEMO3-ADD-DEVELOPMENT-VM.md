@@ -174,6 +174,10 @@ EOF
 2. Verify the file was created:
 ```bash
 ls -la base/vm-web-09.yaml
+```
+
+3. View the first 20 lines of the new file:
+```bash
 cat base/vm-web-09.yaml | head -20
 ```
 
